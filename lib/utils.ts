@@ -78,6 +78,16 @@ export function formatDateTime(
   return d.toLocaleString(undefined, localeOptions);
 }
 
+// Marketing emails often pad the preheader with invisible Unicode (combining
+// grapheme joiners, soft hyphens, zero-width chars) alongside whitespace, to
+// push real content out of the preview window. \s catches normal whitespace
+// including figure space U+2007; we also strip the common invisible formatters.
+const LEADING_INVISIBLE_RE = /^[\s\u00AD\u034F\u200B-\u200F\u2060-\u2064\uFEFF]+/;
+
+export function stripInvisibleLeading(text: string): string {
+  return text.replace(LEADING_INVISIBLE_RE, '');
+}
+
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength).trim() + "...";
