@@ -2776,8 +2776,16 @@ export function EmailViewer({
       p.MsoNormal, li.MsoNormal, div.MsoNormal { margin: 0 0 6px; }
     ` : '';
 
+    // Defense-in-depth CSP inside srcDoc: even if the sanitizer ever lets a
+    // <script> tag through, the iframe document forbids script execution
+    // (default-src 'none'). img/style/font remain permissive to match what the
+    // sanitizer is allowed to emit and what the host already permits when
+    // external content is loaded.
+    const iframeCsp = "default-src 'none'; img-src data: blob: http: https:; style-src 'unsafe-inline'; font-src data: http: https:; media-src data: blob: http: https:; base-uri 'none'; form-action 'none'; frame-src 'none'";
+
     return `<!DOCTYPE html>
 <html style="color-scheme: ${colorScheme};"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="${iframeCsp}">
 <style>
   body { margin: 0; padding: ${bodyPadding}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.6; color: #1a1a1a; background: #ffffff; word-wrap: break-word; overflow-wrap: break-word; }
   img { max-width: 100% !important; height: auto !important; }
