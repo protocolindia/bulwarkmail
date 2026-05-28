@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.7.2 (2026-05-28)
+
+### Features
+
+- **Mail**: Scheduled send and send delay (#322)
+- **Mail**: Drag emails out to the file explorer as `.eml`
+- **Mail**: Import emails from `.zip` archives
+- **Mail**: "Move to Trash and mark as read" delete action (#323)
+- **Mail**: Include group inboxes in the unified mailbox view (#328)
+- **Mail**: Locale-aware date format in the email list with a preset picker (#331)
+- **Mail**: Allow drag-and-drop into shared mailboxes
+- **Composer**: Ctrl/Cmd+Enter sends the open draft
+- **Settings**: New Downloads tab with template editor for `.eml` and attachment filenames
+- **Settings**: Filename transform settings and an ASCII-only "date (from-to) subject" template
+- **Settings**: Post-export action (keep / archive / trash)
+- **Settings**: Template for multi-email `.zip` filenames
+- **Admin**: Per-domain branding editor with overrides on `/api/config`, manifest, and PWA icon (#332)
+- **Admin**: Policy-controlled push relay URL with optional user lock
+- **i18n**: `NEXT_PUBLIC_DEFAULT_LOCALE` for fallback UI locale (#243)
+
+### Fixes
+
+- **Mail**: Editable HTML signature in new mail; clean state on every compose entry (#329)
+- **Mail**: Report real upload progress with XHR progress events (#333)
+- **Mail**: Restore `blob:` in `object-src` and `frame-src` CSP for PDF/HTML previews
+- **Mail**: Match user-avatar treatment on quick reply
+- **Email viewer**: Stop shattering table cells with `word-break: break-word`
+- **Composer**: Scope Ctrl/Cmd+Enter send to the focused composer
+- **Composer**: Stop closing the form when editing any field
+- **Pro**: Keep the empty viewer pane visible in the split layout
+- **Pro**: Prevent an empty main pane when reordering tabs across panes
+- **Mobile**: Collapse focus mail layout to multi-line
+- **Mobile**: Keep a gutter on bare-HTML and plain-text emails
+- **Calendar**: Align continued multi-week events with the week's left edge
+- **Calendar**: Show the end date in the event popover for multi-day events (#318)
+- **Calendar**: Convert `recurrenceRules` to singular in batch create
+- **Calendar**: Handle malformed event dates (#316)
+- **Files**: Stop URL-encoding drag-out filenames and preserve Unicode letters
+- **Routing**: Prefix remaining `<img>`, favicon, and WebDAV URLs with `basePath` (#319)
+- **Routing**: Prefix hand-written URLs with `basePath` for subpath deployments
+- **Auth**: `OAUTH_ALLOW_PRIVATE_ENDPOINTS` for split-DNS setups
+
+### i18n
+
+- Add missing translation keys across 16 locales
+
 ## 1.7.1 (2026-05-22)
 
 ### Features
