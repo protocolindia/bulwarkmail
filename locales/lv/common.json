@@ -253,6 +253,15 @@
     "reschedule_prompt": "Ievadiet jaunu datumu/laiku, piem. 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "Sūtītājs pieprasa lasīšanas apstiprinājumu:",
+      "send": "Sūtīt apstiprinājumu",
+      "ignore": "Ignorēt",
+      "sent": "Lasīšanas apstiprinājums nosūtīts.",
+      "send_failed": "Neizdevās nosūtīt lasīšanas apstiprinājumu",
+      "mdn_subject": "Izlasīts: {subject}",
+      "mdn_body": "Šis ir lasīšanas apstiprinājums ziņojumam, ko nosūtījāt uz {recipient}.\n\nPiezīme: šis apstiprinājums tikai apliecina, ka ziņojums tika parādīts saņēmēja datorā. Tas negarantē, ka saņēmējs ir izlasījis vai sapratis saturu."
+    },
     "no_email_selected": "Nav atlasīta neviena vēstule",
     "no_email_description": "Atlasiet vēstuli no saraksta, lai to skatītu šeit",
     "no_conversation_selected": "Nav atlasīta saruna",
@@ -538,6 +547,8 @@
     "undo_send": "Atsaukt sūtīšanu"
   },
   "email_composer": {
+    "read_receipt_on": "Pieprasīts lasīšanas apstiprinājums (noklikšķiniet, lai atspējotu)",
+    "read_receipt_off": "Pieprasīt lasīšanas apstiprinājumu",
     "new_message": "Jauns ziņojums",
     "reply": "Atbildēt",
     "reply_all": "Atbildēt visiem",
@@ -554,8 +565,8 @@
     "send": "Sūtīt",
     "cancel": "Atcelt",
     "attach": "Pievienot",
-    "attach_photos": "Fotoattēli un video",
-    "attach_files": "Faili",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "Atmest",
     "discard_draft_title": "Atmest melnrakstu?",
     "discard_draft_confirm": "Ir nesaglabātas izmaiņas. Vai tiešām vēlaties atmest šo melnrakstu?",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "Šim kontam ieplānota sūtīšana netiek atbalstīta.",
     "schedule_send_cleanup_warning": "Ieplānotā sūtīšana tika izveidota, bet melnraksta tīrīšana neizdevās.",
     "send_delay_unsupported": "Šim kontam sūtīšanas aizture netiek atbalstīta.",
-    "send_delay_unsupported_confirm": "Šis konts neatbalsta sūtīšanas aizturi. Sūtīt uzreiz?",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "Šis konts neatbalsta sūtīšanas aizturi. Sūtīt uzreiz?"
   },
   "confirm_dialog": {
     "confirm": "Apstiprināt",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "Pēc noklusējuma pieprasīt lasīšanas apstiprinājumus",
+        "description": "Sastādot jaunu ziņojumu, iepriekš ieslēgt lasīšanas apstiprinājuma pieprasījumu."
+      },
+      "read_receipt_response": {
+        "label": "Atbildēt uz lasīšanas apstiprinājuma pieprasījumiem",
+        "description": "Ko darīt, kad ienākošs ziņojums pieprasa lasīšanas apstiprinājumu.",
+        "ask": "Vaicāt katru reizi",
+        "always": "Vienmēr sūtīt",
+        "never": "Nekad nesūtīt"
+      },
       "title": "Pasta darbība",
       "description": "Pielāgojiet vēstuļu apstrādi",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "Piezīmes",
       "title": "Mapes",
       "description": "Pārvaldiet pasta mapes un piešķiriet tām lomas",
       "folder_list": "Jūsu mapes",
@@ -1625,7 +1646,10 @@
       "actions": "Darbības",
       "add_action": "Pievienot darbību",
       "stop_processing": "Pārtraukt nākamo noteikumu apstrādi",
+      "attachment_type_placeholder": "piem. pdf, doc, jpg",
+      "value_placeholder_multi": "Vērtība (vairākas atdalītas ar komatu)",
       "condition_fields": {
+        "attachment": "Pielikums",
         "from": "No",
         "to": "Kam",
         "cc": "Kopija",
@@ -1635,6 +1659,8 @@
         "body": "Teksts"
       },
       "comparators": {
+        "has_any": "ir klāt",
+        "has_type": "tipa",
         "contains": "satur",
         "not_contains": "nesatur",
         "is": "precīzi sakrīt",
@@ -3048,5 +3074,20 @@
       "manager": "Pārvaldnieks",
       "custom": "Pielāgots"
     }
+  },
+  "quote_header": {
+    "reply_line": "{date} {from} rakstīja:",
+    "forwarded_separator": "---------- Pārsūtītā ziņa ----------",
+    "from_label": "No",
+    "date_label": "Datums",
+    "subject_label": "Tēma"
+  },
+  "pwa_install": {
+    "title": "Instalēt {appName}",
+    "description": "Instalējiet mūsu lietotni ātrai piekļuvei un bezsaistes atbalstam.",
+    "not_now": "Ne tagad",
+    "install": "Instalēt",
+    "dont_remind": "Vairs man neatgādināt",
+    "dismiss_aria": "Aizvērt instalēšanas paziņojumu"
   }
 }

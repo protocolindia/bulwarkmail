@@ -253,6 +253,15 @@
     "reschedule_prompt": "새 날짜/시간을 입력하세요. 예: 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "보낸 사람이 읽음 확인을 요청합니다:",
+      "send": "확인 보내기",
+      "ignore": "무시",
+      "sent": "읽음 확인을 보냈습니다.",
+      "send_failed": "읽음 확인을 보낼 수 없습니다",
+      "mdn_subject": "읽음: {subject}",
+      "mdn_body": "이것은 {recipient}(으)로 보낸 메시지에 대한 읽음 확인입니다.\n\n참고: 이 확인은 메시지가 수신자의 컴퓨터에 표시되었음을 알릴 뿐입니다. 수신자가 내용을 읽거나 이해했다는 보장은 없습니다."
+    },
     "no_email_selected": "메일이 선택되지 않았어요",
     "no_email_description": "목록에서 메일을 선택하면 여기에 내용이 표시돼요",
     "no_conversation_selected": "대화가 선택되지 않았어요",
@@ -538,6 +547,8 @@
     "undo_send": "보내기 실행 취소"
   },
   "email_composer": {
+    "read_receipt_on": "읽음 확인 요청됨 (클릭하여 해제)",
+    "read_receipt_off": "읽음 확인 요청",
     "new_message": "새 메시지",
     "reply": "답장",
     "reply_all": "전체 답장",
@@ -554,8 +565,8 @@
     "send": "보내기",
     "cancel": "취소",
     "attach": "첨부",
-    "attach_photos": "사진 및 동영상",
-    "attach_files": "파일",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "삭제",
     "discard_draft_title": "임시보관 메일을 삭제할까요?",
     "discard_draft_confirm": "저장되지 않은 내용이 있어요. 이 메일을 삭제할까요?",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "이 계정은 예약 보내기를 지원하지 않습니다.",
     "schedule_send_cleanup_warning": "예약 보내기는 생성되었지만 초안 정리에 실패했습니다.",
     "send_delay_unsupported": "이 계정은 보내기 지연을 지원하지 않습니다.",
-    "send_delay_unsupported_confirm": "이 계정은 보내기 지연을 지원하지 않습니다. 바로 보낼까요?",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "이 계정은 보내기 지연을 지원하지 않습니다. 바로 보낼까요?"
   },
   "confirm_dialog": {
     "confirm": "확인",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "기본적으로 읽음 확인 요청",
+        "description": "새 메시지를 작성할 때 읽음 확인 요청을 미리 켭니다."
+      },
+      "read_receipt_response": {
+        "label": "읽음 확인 요청에 응답",
+        "description": "수신 메시지가 읽음 확인을 요청할 때의 동작.",
+        "ask": "매번 묻기",
+        "always": "항상 보내기",
+        "never": "보내지 않음"
+      },
       "title": "메일 동작",
       "description": "이메일 관련 동작 방식을 설정해 주세요",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "메모",
       "title": "폴더",
       "description": "이메일 폴더를 관리하고 기본 역할을 지정해 보세요",
       "folder_list": "내 폴더",
@@ -1625,7 +1646,10 @@
       "actions": "동작",
       "add_action": "동작 추가",
       "stop_processing": "이후 규칙 무시하기",
+      "attachment_type_placeholder": "예: pdf, doc, jpg",
+      "value_placeholder_multi": "값 (쉼표로 여러 개 구분)",
       "condition_fields": {
+        "attachment": "첨부 파일",
         "from": "보낸 사람",
         "to": "받는 사람",
         "cc": "참조",
@@ -1635,6 +1659,8 @@
         "body": "본문"
       },
       "comparators": {
+        "has_any": "있음",
+        "has_type": "유형",
         "contains": "포함함",
         "not_contains": "포함하지 않음",
         "is": "정확히 일치",
@@ -3048,5 +3074,20 @@
       "manager": "관리자",
       "custom": "사용자 지정"
     }
+  },
+  "quote_header": {
+    "reply_line": "{date}에 {from}님이 작성:",
+    "forwarded_separator": "---------- 전달된 메시지 ----------",
+    "from_label": "보낸 사람",
+    "date_label": "날짜",
+    "subject_label": "제목"
+  },
+  "pwa_install": {
+    "title": "{appName} 설치",
+    "description": "빠른 액세스와 오프라인 지원을 위해 앱을 설치하세요.",
+    "not_now": "나중에",
+    "install": "설치",
+    "dont_remind": "다시 알리지 않음",
+    "dismiss_aria": "설치 프롬프트 닫기"
   }
 }

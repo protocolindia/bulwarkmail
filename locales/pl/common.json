@@ -253,6 +253,15 @@
     "reschedule_prompt": "Wprowadź nową datę/godzinę, np. 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "Nadawca prosi o potwierdzenie przeczytania:",
+      "send": "Wyślij potwierdzenie",
+      "ignore": "Ignoruj",
+      "sent": "Wysłano potwierdzenie przeczytania.",
+      "send_failed": "Nie udało się wysłać potwierdzenia przeczytania",
+      "mdn_subject": "Przeczytano: {subject}",
+      "mdn_body": "To jest potwierdzenie przeczytania wiadomości wysłanej do {recipient}.\n\nUwaga: to potwierdzenie oznacza jedynie, że wiadomość została wyświetlona na komputerze odbiorcy. Nie gwarantuje, że odbiorca przeczytał lub zrozumiał treść."
+    },
     "no_email_selected": "Nie wybrano wiadomości",
     "no_email_description": "Wybierz wiadomość z listy, aby ją wyświetlić",
     "no_conversation_selected": "Nie wybrano konwersacji",
@@ -538,6 +547,8 @@
     "undo_send": "Cofnij wysyłkę"
   },
   "email_composer": {
+    "read_receipt_on": "Zażądano potwierdzenia przeczytania (kliknij, aby wyłączyć)",
+    "read_receipt_off": "Zażądaj potwierdzenia przeczytania",
     "new_message": "Nowa wiadomość",
     "reply": "Odpowiedz",
     "reply_all": "Odpowiedz wszystkim",
@@ -554,8 +565,8 @@
     "send": "Wyślij",
     "cancel": "Anuluj",
     "attach": "Załącz",
-    "attach_photos": "Zdjęcia i filmy",
-    "attach_files": "Pliki",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "Odrzuć",
     "discard_draft_title": "Odrzucić szkic?",
     "discard_draft_confirm": "Masz niezapisane zmiany. Czy chcesz odrzucić ten szkic?",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "Zaplanowana wysyłka nie jest obsługiwana dla tego konta.",
     "schedule_send_cleanup_warning": "Zaplanowana wysyłka została utworzona, ale czyszczenie wersji roboczej nie powiodło się.",
     "send_delay_unsupported": "Opóźnienie wysyłki nie jest obsługiwane dla tego konta.",
-    "send_delay_unsupported_confirm": "To konto nie obsługuje opóźnienia wysyłki. Wysłać natychmiast?",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "To konto nie obsługuje opóźnienia wysyłki. Wysłać natychmiast?"
   },
   "confirm_dialog": {
     "confirm": "Potwierdź",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "Domyślnie żądaj potwierdzeń przeczytania",
+        "description": "Włącz wcześniej żądanie potwierdzenia przeczytania podczas tworzenia nowej wiadomości."
+      },
+      "read_receipt_response": {
+        "label": "Odpowiadaj na żądania potwierdzenia przeczytania",
+        "description": "Co zrobić, gdy przychodząca wiadomość prosi o potwierdzenie przeczytania.",
+        "ask": "Pytaj za każdym razem",
+        "always": "Zawsze wysyłaj",
+        "never": "Nigdy nie wysyłaj"
+      },
       "title": "Zachowanie poczty e-mail",
       "description": "Skonfiguruj sposób obsługi wiadomości e-mail",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "Notatki",
       "title": "Foldery",
       "description": "Zarządzaj folderami poczty i przypisuj standardowe role",
       "folder_list": "Twoje foldery",
@@ -1625,7 +1646,10 @@
       "actions": "Akcje",
       "add_action": "Dodaj akcję",
       "stop_processing": "Zatrzymaj przetwarzanie kolejnych reguł",
+      "attachment_type_placeholder": "np. pdf, doc, jpg",
+      "value_placeholder_multi": "Wartość (kilka oddzielonych przecinkami)",
       "condition_fields": {
+        "attachment": "Załącznik",
         "from": "Od",
         "to": "Do",
         "cc": "DW",
@@ -1635,6 +1659,8 @@
         "body": "Treść"
       },
       "comparators": {
+        "has_any": "jest obecny",
+        "has_type": "typu",
         "contains": "zawiera",
         "not_contains": "nie zawiera",
         "is": "jest dokładnie",
@@ -3048,5 +3074,20 @@
       "manager": "Menedżer",
       "custom": "Niestandardowe"
     }
+  },
+  "quote_header": {
+    "reply_line": "{date}, {from} napisał(a):",
+    "forwarded_separator": "---------- Wiadomość przekazana ----------",
+    "from_label": "Od",
+    "date_label": "Data",
+    "subject_label": "Temat"
+  },
+  "pwa_install": {
+    "title": "Zainstaluj {appName}",
+    "description": "Zainstaluj naszą aplikację, aby uzyskać szybki dostęp i obsługę offline.",
+    "not_now": "Nie teraz",
+    "install": "Zainstaluj",
+    "dont_remind": "Nie przypominaj mi więcej",
+    "dismiss_aria": "Zamknij monit instalacji"
   }
 }

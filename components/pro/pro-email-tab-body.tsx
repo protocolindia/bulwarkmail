@@ -10,6 +10,7 @@ import { useSettingsStore } from "@/stores/settings-store";
 import { toast } from "@/stores/toast-store";
 import { useProTabStore, type ProEmailTabData, type ProReplyContext } from "@/stores/pro-tab-store";
 import type { Email } from "@/lib/jmap/types";
+import { buildReplySubject, buildForwardSubject } from "@/lib/subject-prefix";
 
 interface ProEmailTabBodyProps {
   tabId: string;
@@ -104,7 +105,7 @@ export function ProEmailTabBody({ tabId, data }: ProEmailTabBodyProps) {
       replyTo: buildReplyContext(email),
       sourceEmailId: email.id,
       initialDraftText: draftText,
-      title: `Re: ${email.subject || t('email_composer.new_message')}`,
+      title: buildReplySubject(email.subject || t('email_composer.new_message'), t('email_composer.prefix.reply')),
     });
   }, [email, openComposeTab, t]);
 
@@ -116,7 +117,7 @@ export function ProEmailTabBody({ tabId, data }: ProEmailTabBodyProps) {
       mode: 'replyAll',
       replyTo: buildReplyContext(email),
       sourceEmailId: email.id,
-      title: `Re: ${email.subject || t('email_composer.new_message')}`,
+      title: buildReplySubject(email.subject || t('email_composer.new_message'), t('email_composer.prefix.reply')),
     });
   }, [email, openComposeTab, t]);
 
@@ -128,7 +129,7 @@ export function ProEmailTabBody({ tabId, data }: ProEmailTabBodyProps) {
       mode: 'forward',
       replyTo: buildReplyContext(email),
       sourceEmailId: email.id,
-      title: `Fwd: ${email.subject || t('email_composer.new_message')}`,
+      title: buildForwardSubject(email.subject || t('email_composer.new_message'), t('email_composer.prefix.forward')),
     });
   }, [email, openComposeTab, t]);
 

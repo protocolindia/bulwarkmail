@@ -36,7 +36,17 @@ function RuleSummary({ rule }: { rule: FilterRule }) {
   const conditions = rule.conditions.slice(0, 2).map((c) => {
     const field = t(`condition_fields.${c.field}`);
     const comparator = t(`comparators.${c.comparator}`);
-    return `${field} ${comparator} "${c.value}"`;
+    // has_any is a no-value test ("attachment is present"); appending
+    // `""` would look broken in the summary line.
+    if (c.field === "attachment" && c.comparator === "has_any") {
+      return `${field} ${comparator}`;
+    }
+    // Multi-value conditions render as "a" / "b" / "c" with the locale's
+    // OR-glue between items so the line still reads as natural language.
+    const valueStr = Array.isArray(c.value)
+      ? c.value.map((v) => `"${v}"`).join(` ${t("or")} `)
+      : `"${c.value}"`;
+    return `${field} ${comparator} ${valueStr}`;
   });
 
   const joiner = rule.matchType === "all" ? t("and") : t("or");
@@ -97,7 +107,22 @@ function VisualRuleSummary({ rule }: { rule: FilterRule }) {
               <span className="inline-flex items-baseline gap-1 px-1.5 py-px rounded-sm bg-muted/60 text-foreground">
                 <span className="font-medium text-blue-600 dark:text-blue-400">{field}</span>
                 <span className="text-muted-foreground">{comparator}</span>
-                <span className="text-foreground">“{c.value}”</span>
+                {!(c.field === "attachment" && c.comparator === "has_any") && (
+                  <span className="text-foreground">
+                    {Array.isArray(c.value)
+                      ? c.value.map((v, k) => (
+                          <span key={k}>
+                            {k > 0 && (
+                              <span className="text-muted-foreground/70 italic mx-0.5">
+                                {t("or")}
+                              </span>
+                            )}
+                            “{v}”
+                          </span>
+                        ))
+                      : <>“{c.value}”</>}
+                  </span>
+                )}
               </span>
             </span>
           );

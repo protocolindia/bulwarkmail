@@ -55,7 +55,7 @@ import { useProMultiAccountMailboxes } from "@/hooks/use-pro-multi-account-mailb
 import { Input } from "@/components/ui/input";
 import { FilePreviewModal } from "@/components/files/file-preview-modal";
 import { isFilePreviewable } from "@/lib/file-preview";
-import { appendPlainTextSignature } from "@/lib/signature-utils";
+import { appendHtmlSignature, appendPlainTextSignature } from "@/lib/signature-utils";
 import { computeReplyThreadingHeaders } from "@/lib/email-threading";
 import { EML_IMPORT_ACCEPT, expandImportableEmails } from "@/lib/eml-import";
 import { resolveReplyFrom } from "@/lib/reply-identity";
@@ -72,6 +72,7 @@ import { plainTextToComposerBody } from "@/lib/email-composer-utils";
 import { appLifecycleHooks, uiHooks, routerHooks, toastHooks, emailHooks } from "@/lib/plugin-hooks";
 import { emailToReadView } from "@/lib/plugin-projection";
 import { buildQuoteHeader } from "@/lib/quote-header";
+import { buildReplySubject, buildForwardSubject } from "@/lib/subject-prefix";
 import { useLocaleStore } from "@/stores/locale-store";
 import type { QuoteHeader } from "@/lib/plugin-types";
 
@@ -81,6 +82,7 @@ const SCHEDULED_MAILBOX_ID = '__scheduled__';
 export default function Home() {
   const t = useTranslations();
   const tCommon = useTranslations('common');
+  const tQuote = useTranslations('quote_header');
   const { appName } = useConfig();
   const mailLayout = useSettingsStore((state) => state.mailLayout);
   const [showComposer, setShowComposer] = useState(false);
@@ -751,9 +753,9 @@ export default function Home() {
     let title = t('email_composer.new_message');
     if (baseSubject) {
       if (effectiveMode === 'reply' || effectiveMode === 'replyAll') {
-        title = baseSubject.startsWith('Re:') ? baseSubject : `Re: ${baseSubject}`;
+        title = buildReplySubject(baseSubject, t('email_composer.prefix.reply'));
       } else if (effectiveMode === 'forward') {
-        title = baseSubject.startsWith('Fwd:') ? baseSubject : `Fwd: ${baseSubject}`;
+        title = buildForwardSubject(baseSubject, t('email_composer.prefix.forward'));
       } else {
         title = baseSubject;
       }
@@ -1129,6 +1131,7 @@ export default function Home() {
     inReplyTo?: string[];
     references?: string[];
     delayedUntil?: string;
+    requestReadReceipt?: boolean;
   }) => {
     if (!client) return;
 
@@ -1136,7 +1139,7 @@ export default function Home() {
       const effectiveMode = pendingDraft?.mode ?? composerMode;
       const originalEmailId = selectedEmail?.id;
 
-      const result = await sendEmail(client, data.to, data.subject, data.body, data.cc, data.bcc, data.identityId, data.fromEmail, data.draftId, data.fromName, data.htmlBody, data.attachments, data.inReplyTo, data.references, data.delayedUntil, data.envelopeMailFrom);
+      const result = await sendEmail(client, data.to, data.subject, data.body, data.cc, data.bcc, data.identityId, data.fromEmail, data.draftId, data.fromName, data.htmlBody, data.attachments, data.inReplyTo, data.references, data.delayedUntil, data.envelopeMailFrom, { requestReadReceipt: data.requestReadReceipt });
       setShowComposer(false);
       if (result.scheduled) {
         await refreshScheduledMetadata(client);
@@ -1212,13 +1215,20 @@ export default function Home() {
         locale: useLocaleStore.getState().locale,
         timeFormat: useSettingsStore.getState().timeFormat,
         unknownLabel: tCommon('unknown'),
+        labels: {
+          formatReplyLine: (vars) => tQuote('reply_line', vars),
+          forwardedSeparator: tQuote('forwarded_separator'),
+          fromLabel: tQuote('from_label'),
+          dateLabel: tQuote('date_label'),
+          subjectLabel: tQuote('subject_label'),
+        },
       });
       setComposerQuoteHeader(header);
     } catch (err) {
       console.warn('[quote-header] plugin transform failed; using default', err);
       setComposerQuoteHeader(null);
     }
-  }, [tCommon]);
+  }, [tCommon, tQuote]);
 
   // Force a clean composer remount on every fresh entry point so prior
   // compose state can't bleed into the new session (#329 C). The composer is
@@ -2090,9 +2100,21 @@ export default function Home() {
 
     // Append signature from the sending identity (fall back to primary
     // when the reply-from lives on the same identity but a different alias).
-    const finalBody = appendPlainTextSignature(body, sendingIdentity, {
-      separator: useSettingsStore.getState().signatureSeparatorEnabled,
-    });
+    const separator = useSettingsStore.getState().signatureSeparatorEnabled;
+    const finalBody = appendPlainTextSignature(body, sendingIdentity, { separator });
+
+    // When the identity has an HTML signature, send a matching HTML body so the
+    // signature keeps its formatting; appendPlainTextSignature would otherwise
+    // flatten it to plain text. Text-only identities keep the plain-text-only
+    // behavior (htmlBody stays undefined).
+    const escapedBody = body
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+    const finalHtmlBody = sendingIdentity?.htmlSignature?.trim()
+      ? appendHtmlSignature(`<div>${escapedBody}</div>`, sendingIdentity, { separator })
+      : undefined;
 
     const originalEmailId = selectedEmail.id;
     const sendDelaySeconds = useSettingsStore.getState().sendDelaySeconds;
@@ -2116,7 +2138,7 @@ export default function Home() {
     const result = await sendEmail(
       client,
       [sender.email],
-      `Re: ${selectedEmail.subject || "(no subject)"}`,
+      buildReplySubject(selectedEmail.subject || "(no subject)", t('email_composer.prefix.reply')),
       finalBody,
       undefined,
       undefined,
@@ -2124,7 +2146,7 @@ export default function Home() {
       headerFromEmail,
       undefined,
       headerFromName,
-      undefined,
+      finalHtmlBody,
       undefined,
       threading?.inReplyTo,
       threading?.references,

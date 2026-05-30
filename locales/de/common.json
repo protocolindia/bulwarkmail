@@ -253,6 +253,15 @@
     "reschedule_prompt": "Neues Datum/Uhrzeit eingeben, z. B. 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "Der Absender bittet um eine Lesebestätigung:",
+      "send": "Bestätigung senden",
+      "ignore": "Ignorieren",
+      "sent": "Lesebestätigung gesendet.",
+      "send_failed": "Lesebestätigung konnte nicht gesendet werden",
+      "mdn_subject": "Gelesen: {subject}",
+      "mdn_body": "Dies ist eine Lesebestätigung für die Nachricht, die Sie an {recipient} gesendet haben.\n\nHinweis: Diese Bestätigung bestätigt lediglich, dass die Nachricht auf dem Computer des Empfängers angezeigt wurde. Es gibt keine Garantie, dass der Empfänger den Inhalt gelesen oder verstanden hat."
+    },
     "no_email_selected": "Keine E-Mail ausgewählt",
     "no_email_description": "Wählen Sie eine E-Mail aus der Liste aus, um sie hier anzuzeigen",
     "no_conversation_selected": "Keine Unterhaltung ausgewählt",
@@ -538,6 +547,8 @@
     "undo_send": "Senden rückgängig"
   },
   "email_composer": {
+    "read_receipt_on": "Lesebestätigung angefordert (klicken zum Deaktivieren)",
+    "read_receipt_off": "Lesebestätigung anfordern",
     "new_message": "Neue Nachricht",
     "reply": "Antworten",
     "reply_all": "Allen antworten",
@@ -554,8 +565,8 @@
     "send": "Senden",
     "cancel": "Abbrechen",
     "attach": "Anhängen",
-    "attach_photos": "Fotos & Videos",
-    "attach_files": "Dateien",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "Verwerfen",
     "discard_draft_title": "Entwurf verwerfen?",
     "discard_draft_confirm": "Sie haben ungespeicherte Änderungen. Möchten Sie diesen Entwurf verwerfen?",
@@ -571,8 +582,8 @@
     "subject_label": "Betreff:",
     "file_size_kb": "KB",
     "prefix": {
-      "forward": "Fwd:",
-      "reply": "Re:"
+      "forward": "WG:",
+      "reply": "AW:"
     },
     "no_subject": "(Kein Betreff)",
     "unknown_sender": "Unbekannt",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "Geplantes Senden wird für dieses Konto nicht unterstützt.",
     "schedule_send_cleanup_warning": "Geplantes Senden wurde erstellt, aber das Bereinigen des Entwurfs ist fehlgeschlagen.",
     "send_delay_unsupported": "Sendeverzögerung wird für dieses Konto nicht unterstützt.",
-    "send_delay_unsupported_confirm": "Dieses Konto unterstützt keine Sendeverzögerung. Stattdessen sofort senden?",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "Dieses Konto unterstützt keine Sendeverzögerung. Stattdessen sofort senden?"
   },
   "confirm_dialog": {
     "confirm": "Bestätigen",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "Lesebestätigung standardmäßig anfordern",
+        "description": "Beim Verfassen einer neuen Nachricht die Anforderung einer Lesebestätigung vorab aktivieren."
+      },
+      "read_receipt_response": {
+        "label": "Auf Lesebestätigungs-Anfragen reagieren",
+        "description": "Verhalten, wenn eine eingehende Nachricht um eine Lesebestätigung bittet.",
+        "ask": "Jedes Mal fragen",
+        "always": "Immer senden",
+        "never": "Nie senden"
+      },
       "title": "E-Mail-Verhalten",
       "description": "Konfigurieren Sie, wie E-Mails verarbeitet werden",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "Notizen",
       "title": "Ordner",
       "description": "Verwalten Sie Ihre E-Mail-Ordner und weisen Sie Standardrollen zu",
       "folder_list": "Ihre Ordner",
@@ -1625,7 +1646,10 @@
       "actions": "Aktionen",
       "add_action": "Aktion hinzufügen",
       "stop_processing": "Verarbeitung nachfolgender Regeln stoppen",
+      "attachment_type_placeholder": "z.B. pdf, doc, jpg",
+      "value_placeholder_multi": "Wert (mehrere mit Komma trennen)",
       "condition_fields": {
+        "attachment": "Anhang",
         "from": "Von",
         "to": "An",
         "cc": "Cc",
@@ -1635,6 +1659,8 @@
         "body": "Nachrichtentext"
       },
       "comparators": {
+        "has_any": "vorhanden",
+        "has_type": "vom Typ",
         "contains": "enthält",
         "not_contains": "enthält nicht",
         "is": "ist genau",
@@ -3048,5 +3074,20 @@
       "manager": "Verwalten",
       "custom": "Benutzerdefiniert"
     }
+  },
+  "quote_header": {
+    "reply_line": "Am {date} schrieb {from}:",
+    "forwarded_separator": "---------- Weitergeleitete Nachricht ----------",
+    "from_label": "Von",
+    "date_label": "Datum",
+    "subject_label": "Betreff"
+  },
+  "pwa_install": {
+    "title": "{appName} installieren",
+    "description": "Installiere unsere App für schnellen Zugriff und Offline-Unterstützung.",
+    "not_now": "Nicht jetzt",
+    "install": "Installieren",
+    "dont_remind": "Nicht mehr erinnern",
+    "dismiss_aria": "Installationshinweis schließen"
   }
 }

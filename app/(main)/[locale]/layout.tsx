@@ -9,6 +9,7 @@ import { ProtocolLaunchHandlerProvider } from "@/components/protocol/protocol-la
 import { ProInterfaceRedirect } from "@/components/pro/pro-interface-redirect";
 import { PluginDialogHost } from "@/components/plugins/plugin-dialog-host";
 import { PluginConsentDialog } from "@/components/plugins/plugin-consent-dialog";
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { locales } from "@/i18n/routing";
 
 export default async function LocaleLayout({
@@ -41,6 +42,7 @@ export default async function LocaleLayout({
                   {children}
                   <PluginDialogHost />
                   <PluginConsentDialog />
+                  <PWAInstallPrompt />
                 </ProtocolLaunchHandlerProvider>
               </TourProvider>
             </EmbeddedBridgeProvider>

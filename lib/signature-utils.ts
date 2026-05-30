@@ -124,6 +124,35 @@ export function appendPlainTextSignature(
   return `${body}${sep}${plainTextSignature}`;
 }
 
+/**
+ * Append a signature to an HTML body, preserving rich formatting. Used by the
+ * quick-reply path so an HTML signature keeps its markup instead of being
+ * flattened to plain text. Mirrors the composer's send-time signature block
+ * (`buildSignatureHtml` in email-composer.tsx).
+ */
+export function appendHtmlSignature(
+  htmlBody: string,
+  signature?: SignatureSource | null,
+  options: { separator?: boolean } = {},
+): string {
+  const sep = options.separator === false ? '<br><br>' : '<br><br>-- <br>';
+
+  if (signature?.htmlSignature?.trim()) {
+    return `${htmlBody}${sep}${sanitizeSignatureHtml(signature.htmlSignature)}`;
+  }
+
+  if (signature?.textSignature?.trim()) {
+    const escaped = signature.textSignature
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+    return `${htmlBody}${sep}${escaped}`;
+  }
+
+  return htmlBody;
+}
+
 export function hasMeaningfulHtmlBody(html: string): boolean {
   if (!html.trim()) return false;
 

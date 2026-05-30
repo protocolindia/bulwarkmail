@@ -53,6 +53,13 @@ export interface ServerPlugin {
   forceEnabled?: boolean;
   configSchema?: Record<string, PluginConfigField>;
   settingsSchema?: Record<string, PluginSettingsField>;
+  /**
+   * Optional per-locale translation tables (locale -> key -> string) declared
+   * in the plugin manifest. Surfaced to the sandbox so plugin code can call
+   * `api.i18n.t(key)`; without it a plugin's strings stay in its hardcoded
+   * default language.
+   */
+  locales?: Record<string, Record<string, string>>;
   installedAt: string;
   updatedAt: string;
   /**

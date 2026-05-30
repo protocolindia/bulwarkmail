@@ -253,6 +253,15 @@
     "reschedule_prompt": "Zadejte nové datum/čas, např. 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "Odesílatel žádá o potvrzení o přečtení:",
+      "send": "Odeslat potvrzení",
+      "ignore": "Ignorovat",
+      "sent": "Potvrzení o přečtení odesláno.",
+      "send_failed": "Potvrzení o přečtení se nepodařilo odeslat",
+      "mdn_subject": "Přečteno: {subject}",
+      "mdn_body": "Toto je potvrzení o přečtení zprávy, kterou jste odeslali na adresu {recipient}.\n\nPoznámka: Toto potvrzení pouze potvrzuje, že zpráva byla zobrazena na počítači příjemce. Nezaručuje, že příjemce obsah přečetl nebo mu porozuměl."
+    },
     "no_email_selected": "Není vybrána žádná zpráva",
     "no_email_description": "Vyberte zprávu ze seznamu pro její zobrazení",
     "no_conversation_selected": "Není vybrána žádná konverzace",
@@ -538,6 +547,8 @@
     "undo_send": "Vrátit odeslání"
   },
   "email_composer": {
+    "read_receipt_on": "Vyžádáno potvrzení o přečtení (kliknutím vypnete)",
+    "read_receipt_off": "Vyžádat potvrzení o přečtení",
     "new_message": "Nová zpráva",
     "reply": "Odpovědět",
     "reply_all": "Odpovědět všem",
@@ -554,8 +565,8 @@
     "send": "Odeslat",
     "cancel": "Zrušit",
     "attach": "Připojit",
-    "attach_photos": "Fotky a videa",
-    "attach_files": "Soubory",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "Zahodit",
     "discard_draft_title": "Zahodit koncept?",
     "discard_draft_confirm": "Máte neuložené změny. Chcete tento koncept zahodit?",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "Naplánované odeslání není pro tento účet podporováno.",
     "schedule_send_cleanup_warning": "Naplánované odeslání bylo vytvořeno, ale vyčištění konceptu selhalo.",
     "send_delay_unsupported": "Prodleva odeslání není pro tento účet podporována.",
-    "send_delay_unsupported_confirm": "Tento účet nepodporuje prodlevu odeslání. Odeslat ihned?",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "Tento účet nepodporuje prodlevu odeslání. Odeslat ihned?"
   },
   "confirm_dialog": {
     "confirm": "Potvrdit",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "Standardně vyžadovat potvrzení o přečtení",
+        "description": "Při psaní nové zprávy předem zapnout žádost o potvrzení o přečtení."
+      },
+      "read_receipt_response": {
+        "label": "Reagovat na žádosti o potvrzení o přečtení",
+        "description": "Co dělat, když příchozí zpráva žádá o potvrzení o přečtení.",
+        "ask": "Vždy se zeptat",
+        "always": "Vždy odeslat",
+        "never": "Nikdy neodesílat"
+      },
       "title": "Chování e-mailu",
       "description": "Nakonfigurujte způsob zpracování e-mailů",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "Poznámky",
       "title": "Složky",
       "description": "Správa složek pošty a přiřazení standardních rolí",
       "folder_list": "Vaše složky",
@@ -1625,7 +1646,10 @@
       "actions": "Akce",
       "add_action": "Přidat akci",
       "stop_processing": "Zastavit zpracování dalších pravidel",
+      "attachment_type_placeholder": "např. pdf, doc, jpg",
+      "value_placeholder_multi": "Hodnota (více oddělených čárkami)",
       "condition_fields": {
+        "attachment": "Příloha",
         "from": "Od",
         "to": "Komu",
         "cc": "Kopie",
@@ -1635,6 +1659,8 @@
         "body": "Tělo zprávy"
       },
       "comparators": {
+        "has_any": "je přítomna",
+        "has_type": "typu",
         "contains": "obsahuje",
         "not_contains": "neobsahuje",
         "is": "je přesně",
@@ -3048,5 +3074,20 @@
       "manager": "Správce",
       "custom": "Vlastní"
     }
+  },
+  "quote_header": {
+    "reply_line": "Dne {date} napsal(a) {from}:",
+    "forwarded_separator": "---------- Přeposlaná zpráva ----------",
+    "from_label": "Od",
+    "date_label": "Datum",
+    "subject_label": "Předmět"
+  },
+  "pwa_install": {
+    "title": "Nainstalovat {appName}",
+    "description": "Nainstalujte si naši aplikaci pro rychlý přístup a offline podporu.",
+    "not_now": "Teď ne",
+    "install": "Nainstalovat",
+    "dont_remind": "Už mi to nepřipomínat",
+    "dismiss_aria": "Zavřít výzvu k instalaci"
   }
 }

@@ -253,6 +253,15 @@
     "reschedule_prompt": "Introduce una nueva fecha/hora, p. ej. 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "El remitente solicita una confirmación de lectura:",
+      "send": "Enviar confirmación",
+      "ignore": "Ignorar",
+      "sent": "Confirmación de lectura enviada.",
+      "send_failed": "No se pudo enviar la confirmación de lectura",
+      "mdn_subject": "Leído: {subject}",
+      "mdn_body": "Este es un acuse de recibo del mensaje que enviaste a {recipient}.\n\nNota: Este acuse solo confirma que el mensaje se mostró en el ordenador del destinatario. No garantiza que el destinatario haya leído o entendido el contenido."
+    },
     "no_email_selected": "Ningún correo seleccionado",
     "no_email_description": "Seleccione un correo de la lista para verlo aquí",
     "no_conversation_selected": "Ninguna conversación seleccionada",
@@ -538,6 +547,8 @@
     "undo_send": "Deshacer envío"
   },
   "email_composer": {
+    "read_receipt_on": "Confirmación de lectura solicitada (haz clic para desactivar)",
+    "read_receipt_off": "Solicitar confirmación de lectura",
     "new_message": "Nuevo Mensaje",
     "reply": "Responder",
     "reply_all": "Responder a Todos",
@@ -554,8 +565,8 @@
     "send": "Enviar",
     "cancel": "Cancelar",
     "attach": "Adjuntar",
-    "attach_photos": "Fotos y videos",
-    "attach_files": "Archivos",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "Descartar",
     "discard_draft_title": "¿Descartar borrador?",
     "discard_draft_confirm": "Tiene cambios sin guardar. ¿Desea descartar este borrador?",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "El envío programado no es compatible con esta cuenta.",
     "schedule_send_cleanup_warning": "Se creó el envío programado, pero falló la limpieza del borrador.",
     "send_delay_unsupported": "La demora de envío no es compatible con esta cuenta.",
-    "send_delay_unsupported_confirm": "Esta cuenta no admite demora de envío. ¿Enviar inmediatamente?",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "Esta cuenta no admite demora de envío. ¿Enviar inmediatamente?"
   },
   "confirm_dialog": {
     "confirm": "Confirmar",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "Solicitar confirmaciones de lectura de forma predeterminada",
+        "description": "Activar previamente la solicitud de confirmación de lectura al redactar un mensaje nuevo."
+      },
+      "read_receipt_response": {
+        "label": "Responder a las solicitudes de confirmación de lectura",
+        "description": "Qué hacer cuando un mensaje entrante solicita una confirmación de lectura.",
+        "ask": "Preguntar cada vez",
+        "always": "Enviar siempre",
+        "never": "No enviar nunca"
+      },
       "title": "Comportamiento del Correo",
       "description": "Configure cómo se manejan los correos",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "Notas",
       "title": "Carpetas",
       "description": "Administre sus carpetas de correo y asigne roles estándar",
       "folder_list": "Sus carpetas",
@@ -1625,7 +1646,10 @@
       "actions": "Acciones",
       "add_action": "Agregar acción",
       "stop_processing": "Detener el procesamiento de reglas posteriores",
+      "attachment_type_placeholder": "p. ej. pdf, doc, jpg",
+      "value_placeholder_multi": "Valor (varios separados por comas)",
       "condition_fields": {
+        "attachment": "Adjunto",
         "from": "De",
         "to": "Para",
         "cc": "Cc",
@@ -1635,6 +1659,8 @@
         "body": "Cuerpo"
       },
       "comparators": {
+        "has_any": "está presente",
+        "has_type": "del tipo",
         "contains": "contiene",
         "not_contains": "no contiene",
         "is": "es exactamente",
@@ -3048,5 +3074,20 @@
       "manager": "Administrador",
       "custom": "Personalizado"
     }
+  },
+  "quote_header": {
+    "reply_line": "El {date}, {from} escribió:",
+    "forwarded_separator": "---------- Mensaje reenviado ----------",
+    "from_label": "De",
+    "date_label": "Fecha",
+    "subject_label": "Asunto"
+  },
+  "pwa_install": {
+    "title": "Instalar {appName}",
+    "description": "Instala nuestra app para un acceso rápido y soporte sin conexión.",
+    "not_now": "Ahora no",
+    "install": "Instalar",
+    "dont_remind": "No volver a recordármelo",
+    "dismiss_aria": "Cerrar aviso de instalación"
   }
 }

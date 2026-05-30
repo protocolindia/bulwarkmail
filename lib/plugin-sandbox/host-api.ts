@@ -140,7 +140,7 @@ async function doHttpPost(plugin: InstalledPlugin, path: string, body: unknown):
     headers['Authorization'] = client.getAuthHeader();
     headers['X-JMAP-Username'] = client.getUsername();
   }
-  const res = await fetch(url.pathname + url.search, {
+  const res = await apiFetch(url.pathname + url.search, {
     method: 'POST',
     headers,
     body: JSON.stringify(body),

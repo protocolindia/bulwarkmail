@@ -192,6 +192,9 @@ export async function POST(request: NextRequest) {
       ...(manifest.settingsSchema && typeof manifest.settingsSchema === 'object'
         ? { settingsSchema: manifest.settingsSchema as ServerPlugin['settingsSchema'] }
         : {}),
+      ...(manifest.locales && typeof manifest.locales === 'object'
+        ? { locales: manifest.locales as ServerPlugin['locales'] }
+        : {}),
       ...(declaredFrameOrigins.length > 0
         ? { frameOrigins: declaredFrameOrigins }
         : {}),

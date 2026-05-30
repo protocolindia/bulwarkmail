@@ -253,6 +253,15 @@
     "reschedule_prompt": "Enter a new date/time, e.g. 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "The sender requested a read receipt:",
+      "send": "Send receipt",
+      "ignore": "Ignore",
+      "sent": "Read receipt sent.",
+      "send_failed": "Read receipt could not be sent",
+      "mdn_subject": "Read: {subject}",
+      "mdn_body": "This is a return receipt for the message you sent to {recipient}.\n\nNote: This receipt only acknowledges that the message was displayed on the recipient''s computer. There is no guarantee that the recipient has read or understood the message contents."
+    },
     "no_email_selected": "No email selected",
     "no_email_description": "Select an email from the list to view it here",
     "no_conversation_selected": "No conversation selected",
@@ -538,6 +547,8 @@
     "undo_send": "Undo send"
   },
   "email_composer": {
+    "read_receipt_on": "Read receipt requested (click to disable)",
+    "read_receipt_off": "Request a read receipt",
     "new_message": "New Message",
     "reply": "Reply",
     "reply_all": "Reply All",
@@ -1000,6 +1011,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "Request read receipts by default",
+        "description": "Pre-enable the read-receipt request when composing a new message."
+      },
+      "read_receipt_response": {
+        "label": "Respond to read-receipt requests",
+        "description": "What to do when an incoming message asks for a read receipt.",
+        "ask": "Ask each time",
+        "always": "Always send",
+        "never": "Never send"
+      },
       "title": "Email Behavior",
       "description": "Configure how emails are handled",
       "mark_read": {
@@ -1424,6 +1446,7 @@
       }
     },
     "folders": {
+      "role_memos": "Notes",
       "title": "Folders",
       "description": "Manage your email folders and assign standard roles",
       "folder_list": "Your Folders",
@@ -1626,7 +1649,10 @@
       "actions": "Actions",
       "add_action": "Add Action",
       "stop_processing": "Stop processing subsequent rules",
+      "attachment_type_placeholder": "e.g. pdf, doc, jpg",
+      "value_placeholder_multi": "Value (multiple separated by commas)",
       "condition_fields": {
+        "attachment": "Attachment",
         "from": "From",
         "to": "To",
         "cc": "Cc",
@@ -1636,6 +1662,8 @@
         "body": "Body"
       },
       "comparators": {
+        "has_any": "is present",
+        "has_type": "of type",
         "contains": "contains",
         "not_contains": "does not contain",
         "is": "is exactly",
@@ -3046,5 +3074,20 @@
   },
   "unified_mailbox": {
     "search_unavailable": "Search is not available in the unified view"
+  },
+  "quote_header": {
+    "reply_line": "On {date}, {from} wrote:",
+    "forwarded_separator": "---------- Forwarded message ----------",
+    "from_label": "From",
+    "date_label": "Date",
+    "subject_label": "Subject"
+  },
+  "pwa_install": {
+    "title": "Install {appName}",
+    "description": "Install our app for quick access and offline support.",
+    "not_now": "Not now",
+    "install": "Install",
+    "dont_remind": "Don't remind me again",
+    "dismiss_aria": "Dismiss install prompt"
   }
 }

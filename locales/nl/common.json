@@ -253,6 +253,15 @@
     "reschedule_prompt": "Voer een nieuwe datum/tijd in, bijv. 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "De afzender vraagt om een leesbevestiging:",
+      "send": "Bevestiging verzenden",
+      "ignore": "Negeren",
+      "sent": "Leesbevestiging verzonden.",
+      "send_failed": "Leesbevestiging kon niet worden verzonden",
+      "mdn_subject": "Gelezen: {subject}",
+      "mdn_body": "Dit is een leesbevestiging voor het bericht dat u hebt verzonden naar {recipient}.\n\nLet op: deze bevestiging geeft alleen aan dat het bericht is weergegeven op de computer van de ontvanger. Er is geen garantie dat de ontvanger de inhoud heeft gelezen of begrepen."
+    },
     "no_email_selected": "Geen e-mail geselecteerd",
     "no_email_description": "Selecteer een e-mail uit de lijst om deze hier te bekijken",
     "no_conversation_selected": "Geen gesprek geselecteerd",
@@ -538,6 +547,8 @@
     "undo_send": "Verzenden ongedaan maken"
   },
   "email_composer": {
+    "read_receipt_on": "Leesbevestiging aangevraagd (klik om uit te schakelen)",
+    "read_receipt_off": "Leesbevestiging aanvragen",
     "new_message": "Nieuw bericht",
     "reply": "Beantwoorden",
     "reply_all": "Allen beantwoorden",
@@ -554,8 +565,8 @@
     "send": "Verzenden",
     "cancel": "Annuleren",
     "attach": "Bijlage toevoegen",
-    "attach_photos": "Foto's en video's",
-    "attach_files": "Bestanden",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "Verwijderen",
     "discard_draft_title": "Concept verwijderen?",
     "discard_draft_confirm": "Je hebt niet-opgeslagen wijzigingen. Wil je dit concept verwijderen?",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "Gepland verzenden wordt niet ondersteund voor dit account.",
     "schedule_send_cleanup_warning": "Gepland verzenden is aangemaakt, maar het opschonen van de conceptversie is mislukt.",
     "send_delay_unsupported": "Verzendvertraging wordt niet ondersteund voor dit account.",
-    "send_delay_unsupported_confirm": "Dit account ondersteunt geen verzendvertraging. Meteen verzenden?",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "Dit account ondersteunt geen verzendvertraging. Meteen verzenden?"
   },
   "confirm_dialog": {
     "confirm": "Bevestigen",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "Standaard om leesbevestiging vragen",
+        "description": "De aanvraag voor een leesbevestiging vooraf inschakelen bij het opstellen van een nieuw bericht."
+      },
+      "read_receipt_response": {
+        "label": "Reageren op verzoeken om leesbevestiging",
+        "description": "Wat te doen wanneer een inkomend bericht om een leesbevestiging vraagt.",
+        "ask": "Elke keer vragen",
+        "always": "Altijd verzenden",
+        "never": "Nooit verzenden"
+      },
       "title": "E-mailgedrag",
       "description": "Configureer hoe e-mails worden verwerkt",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "Notities",
       "title": "Mappen",
       "description": "Beheer uw e-mailmappen en wijs standaardrollen toe",
       "folder_list": "Uw mappen",
@@ -1625,7 +1646,10 @@
       "actions": "Acties",
       "add_action": "Actie toevoegen",
       "stop_processing": "Verwerking van volgende regels stoppen",
+      "attachment_type_placeholder": "bijv. pdf, doc, jpg",
+      "value_placeholder_multi": "Waarde (meerdere met komma's gescheiden)",
       "condition_fields": {
+        "attachment": "Bijlage",
         "from": "Van",
         "to": "Aan",
         "cc": "Cc",
@@ -1635,6 +1659,8 @@
         "body": "Inhoud"
       },
       "comparators": {
+        "has_any": "aanwezig",
+        "has_type": "van type",
         "contains": "bevat",
         "not_contains": "bevat niet",
         "is": "is precies",
@@ -3048,5 +3074,20 @@
       "manager": "Beheerder",
       "custom": "Aangepast"
     }
+  },
+  "quote_header": {
+    "reply_line": "Op {date} schreef {from}:",
+    "forwarded_separator": "---------- Doorgestuurd bericht ----------",
+    "from_label": "Van",
+    "date_label": "Datum",
+    "subject_label": "Onderwerp"
+  },
+  "pwa_install": {
+    "title": "{appName} installeren",
+    "description": "Installeer onze app voor snelle toegang en offline-ondersteuning.",
+    "not_now": "Niet nu",
+    "install": "Installeren",
+    "dont_remind": "Niet meer herinneren",
+    "dismiss_aria": "Installatiemelding sluiten"
   }
 }

@@ -253,6 +253,15 @@
     "reschedule_prompt": "新しい日時を入力してください。例: 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "送信者が開封確認を求めています：",
+      "send": "確認を送信",
+      "ignore": "無視",
+      "sent": "開封確認を送信しました。",
+      "send_failed": "開封確認を送信できませんでした",
+      "mdn_subject": "開封済み: {subject}",
+      "mdn_body": "これは、あなたが {recipient} に送信したメッセージの開封確認です。\n\n注意: この確認は、メッセージが受信者のコンピューターに表示されたことを示すだけです。受信者が内容を読んだ、または理解したことを保証するものではありません。"
+    },
     "no_email_selected": "メールが選択されていません",
     "no_email_description": "リストからメールを選択して表示してください",
     "no_conversation_selected": "会話が選択されていません",
@@ -538,6 +547,8 @@
     "undo_send": "送信を取り消す"
   },
   "email_composer": {
+    "read_receipt_on": "開封確認を要求中（クリックで無効化）",
+    "read_receipt_off": "開封確認を要求する",
     "new_message": "新規メッセージ",
     "reply": "返信",
     "reply_all": "全員に返信",
@@ -554,8 +565,8 @@
     "send": "送信",
     "cancel": "キャンセル",
     "attach": "添付",
-    "attach_photos": "写真と動画",
-    "attach_files": "ファイル",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "破棄",
     "discard_draft_title": "下書きを破棄しますか？",
     "discard_draft_confirm": "未保存の変更があります。この下書きを破棄しますか？",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "このアカウントでは予約送信はサポートされていません。",
     "schedule_send_cleanup_warning": "予約送信は作成されましたが、下書きのクリーンアップに失敗しました。",
     "send_delay_unsupported": "このアカウントでは送信遅延はサポートされていません。",
-    "send_delay_unsupported_confirm": "このアカウントは送信遅延に対応していません。すぐに送信しますか？",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "このアカウントは送信遅延に対応していません。すぐに送信しますか？"
   },
   "confirm_dialog": {
     "confirm": "確認",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "既定で開封確認を要求する",
+        "description": "新しいメッセージの作成時に、開封確認の要求をあらかじめ有効にします。"
+      },
+      "read_receipt_response": {
+        "label": "開封確認の要求に応答する",
+        "description": "受信メッセージが開封確認を求めたときの動作。",
+        "ask": "毎回確認する",
+        "always": "常に送信",
+        "never": "送信しない"
+      },
       "title": "メール動作",
       "description": "メールの処理方法を設定",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "メモ",
       "title": "フォルダー",
       "description": "メールフォルダーを管理し、標準の役割を割り当てます",
       "folder_list": "フォルダー一覧",
@@ -1625,7 +1646,10 @@
       "actions": "アクション",
       "add_action": "アクションを追加",
       "stop_processing": "以降のルールの処理を停止",
+      "attachment_type_placeholder": "例: pdf, doc, jpg",
+      "value_placeholder_multi": "値（カンマで複数指定可）",
       "condition_fields": {
+        "attachment": "添付ファイル",
         "from": "差出人",
         "to": "宛先",
         "cc": "Cc",
@@ -1635,6 +1659,8 @@
         "body": "本文"
       },
       "comparators": {
+        "has_any": "あり",
+        "has_type": "タイプ",
         "contains": "を含む",
         "not_contains": "を含まない",
         "is": "と完全一致",
@@ -3048,5 +3074,20 @@
       "manager": "管理者",
       "custom": "カスタム"
     }
+  },
+  "quote_header": {
+    "reply_line": "{date}に{from}が書きました:",
+    "forwarded_separator": "---------- 転送メッセージ ----------",
+    "from_label": "差出人",
+    "date_label": "日付",
+    "subject_label": "件名"
+  },
+  "pwa_install": {
+    "title": "{appName} をインストール",
+    "description": "素早いアクセスとオフライン対応のため、アプリをインストールしましょう。",
+    "not_now": "後で",
+    "install": "インストール",
+    "dont_remind": "今後表示しない",
+    "dismiss_aria": "インストールプロンプトを閉じる"
   }
 }

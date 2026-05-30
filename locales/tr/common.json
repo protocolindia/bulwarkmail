@@ -253,6 +253,15 @@
     "reschedule_prompt": "Yeni tarih/saat girin, ör. 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "Gönderen bir okundu bilgisi istiyor:",
+      "send": "Bilgi gönder",
+      "ignore": "Yoksay",
+      "sent": "Okundu bilgisi gönderildi.",
+      "send_failed": "Okundu bilgisi gönderilemedi",
+      "mdn_subject": "Okundu: {subject}",
+      "mdn_body": "Bu, {recipient} adresine gönderdiğiniz iletinin okundu bilgisidir.\n\nNot: Bu bilgi yalnızca iletinin alıcının bilgisayarında görüntülendiğini belirtir. Alıcının içeriği okuduğunu veya anladığını garanti etmez."
+    },
     "no_email_selected": "E-posta seçilmedi",
     "no_email_description": "Burada görüntülemek için listeden bir e-posta seçin",
     "no_conversation_selected": "Konuşma seçilmedi",
@@ -538,6 +547,8 @@
     "undo_send": "Göndermeyi geri al"
   },
   "email_composer": {
+    "read_receipt_on": "Okundu bilgisi istendi (devre dışı bırakmak için tıklayın)",
+    "read_receipt_off": "Okundu bilgisi iste",
     "new_message": "Yeni İleti",
     "reply": "Yanıtla",
     "reply_all": "Tümünü Yanıtla",
@@ -554,8 +565,8 @@
     "send": "Gönder",
     "cancel": "İptal",
     "attach": "Ekle",
-    "attach_photos": "Fotoğraflar ve videolar",
-    "attach_files": "Dosyalar",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "Vazgeç",
     "discard_draft_title": "Taslaktan vazgeçilsin mi?",
     "discard_draft_confirm": "Kaydedilmemiş değişiklikleriniz var. Bu taslaktan vazgeçmek istiyor musunuz?",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "Bu hesap için zamanlanmış gönderim desteklenmiyor.",
     "schedule_send_cleanup_warning": "Zamanlanmış gönderim oluşturuldu, ancak taslak temizliği başarısız oldu.",
     "send_delay_unsupported": "Bu hesap için gönderim gecikmesi desteklenmiyor.",
-    "send_delay_unsupported_confirm": "Bu hesap gönderim gecikmesini desteklemiyor. Hemen gönderilsin mi?",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "Bu hesap gönderim gecikmesini desteklemiyor. Hemen gönderilsin mi?"
   },
   "confirm_dialog": {
     "confirm": "Onayla",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "Varsayılan olarak okundu bilgisi iste",
+        "description": "Yeni bir ileti yazarken okundu bilgisi isteğini önceden etkinleştir."
+      },
+      "read_receipt_response": {
+        "label": "Okundu bilgisi isteklerine yanıt ver",
+        "description": "Gelen bir ileti okundu bilgisi istediğinde ne yapılacağı.",
+        "ask": "Her seferinde sor",
+        "always": "Her zaman gönder",
+        "never": "Asla gönderme"
+      },
       "title": "E-posta Davranışı",
       "description": "E-postaların nasıl işleneceğini yapılandırın",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "Notlar",
       "title": "Klasörler",
       "description": "E-posta klasörlerinizi yönetin ve standart roller atayın",
       "folder_list": "Klasörleriniz",
@@ -1625,7 +1646,10 @@
       "actions": "İşlemler",
       "add_action": "İşlem Ekle",
       "stop_processing": "Sonraki kuralları işlemeyi durdur",
+      "attachment_type_placeholder": "örn. pdf, doc, jpg",
+      "value_placeholder_multi": "Değer (birden fazla virgülle ayrılır)",
       "condition_fields": {
+        "attachment": "Ek",
         "from": "Kimden",
         "to": "Kime",
         "cc": "Bilgi",
@@ -1635,6 +1659,8 @@
         "body": "Gövde"
       },
       "comparators": {
+        "has_any": "mevcut",
+        "has_type": "türünde",
         "contains": "içerir",
         "not_contains": "içermez",
         "is": "tam olarak",
@@ -3048,5 +3074,20 @@
   },
   "unified_mailbox": {
     "search_unavailable": "Birleşik görünümde arama kullanılamaz"
+  },
+  "quote_header": {
+    "reply_line": "{date} tarihinde {from} şunu yazdı:",
+    "forwarded_separator": "---------- İletilen mesaj ----------",
+    "from_label": "Kimden",
+    "date_label": "Tarih",
+    "subject_label": "Konu"
+  },
+  "pwa_install": {
+    "title": "{appName} uygulamasını yükle",
+    "description": "Hızlı erişim ve çevrimdışı destek için uygulamamızı yükleyin.",
+    "not_now": "Şimdi değil",
+    "install": "Yükle",
+    "dont_remind": "Bir daha hatırlatma",
+    "dismiss_aria": "Yükleme istemini kapat"
   }
 }

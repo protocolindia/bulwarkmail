@@ -253,6 +253,15 @@
     "reschedule_prompt": "输入新的日期/时间，例如 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "发件人请求已读回执：",
+      "send": "发送回执",
+      "ignore": "忽略",
+      "sent": "已读回执已发送。",
+      "send_failed": "无法发送已读回执",
+      "mdn_subject": "已读：{subject}",
+      "mdn_body": "这是您发送给 {recipient} 的邮件的已读回执。\n\n注意：此回执仅表示邮件已在收件人的计算机上显示，并不保证收件人已阅读或理解邮件内容。"
+    },
     "no_email_selected": "未选择邮件",
     "no_email_description": "从列表中选择一封邮件以在此查看",
     "no_conversation_selected": "未选择会话",
@@ -538,6 +547,8 @@
     "undo_send": "撤销发送"
   },
   "email_composer": {
+    "read_receipt_on": "已请求已读回执（点击以关闭）",
+    "read_receipt_off": "请求已读回执",
     "new_message": "新邮件",
     "reply": "回复",
     "reply_all": "全部回复",
@@ -554,8 +565,8 @@
     "send": "发送",
     "cancel": "取消",
     "attach": "附件",
-    "attach_photos": "照片和视频",
-    "attach_files": "文件",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "丢弃",
     "discard_draft_title": "丢弃草稿？",
     "discard_draft_confirm": "您有未保存的更改。确定要丢弃这封草稿吗？",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "此账户不支持计划发送。",
     "schedule_send_cleanup_warning": "已创建计划发送，但清理草稿失败。",
     "send_delay_unsupported": "此账户不支持发送延迟。",
-    "send_delay_unsupported_confirm": "此账户不支持发送延迟。是否立即发送？",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "此账户不支持发送延迟。是否立即发送？"
   },
   "confirm_dialog": {
     "confirm": "确认",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "默认请求已读回执",
+        "description": "撰写新邮件时预先启用已读回执请求。"
+      },
+      "read_receipt_response": {
+        "label": "响应已读回执请求",
+        "description": "当收到的邮件请求已读回执时的处理方式。",
+        "ask": "每次询问",
+        "always": "始终发送",
+        "never": "从不发送"
+      },
       "title": "邮件行为",
       "description": "配置邮件的处理方式",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "备忘录",
       "title": "文件夹",
       "description": "管理邮件文件夹并分配邮箱角色",
       "folder_list": "您的文件夹",
@@ -1625,7 +1646,10 @@
       "actions": "操作",
       "add_action": "添加操作",
       "stop_processing": "停止处理后续规则",
+      "attachment_type_placeholder": "例如：pdf、doc、jpg",
+      "value_placeholder_multi": "值（多个用逗号分隔）",
       "condition_fields": {
+        "attachment": "附件",
         "from": "发件人",
         "to": "收件人",
         "cc": "抄送",
@@ -1635,6 +1659,8 @@
         "body": "正文"
       },
       "comparators": {
+        "has_any": "存在",
+        "has_type": "类型为",
         "contains": "包含",
         "not_contains": "不包含",
         "is": "等于",
@@ -3048,5 +3074,20 @@
       "manager": "管理员",
       "custom": "自定义"
     }
+  },
+  "quote_header": {
+    "reply_line": "在 {date}，{from} 写道：",
+    "forwarded_separator": "---------- 转发邮件 ----------",
+    "from_label": "发件人",
+    "date_label": "日期",
+    "subject_label": "主题"
+  },
+  "pwa_install": {
+    "title": "安装 {appName}",
+    "description": "安装我们的应用，以获得快速访问和离线支持。",
+    "not_now": "暂不",
+    "install": "安装",
+    "dont_remind": "不再提醒",
+    "dismiss_aria": "关闭安装提示"
   }
 }

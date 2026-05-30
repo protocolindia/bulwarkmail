@@ -41,11 +41,16 @@ export function setSandboxStoreAccessor(a: StoreAccessor): void { storeAccessor 
 
 let currentLocale = 'en';
 export function setSandboxLocale(locale: string): void {
+  // Ignore empty/falsy values so a not-yet-seeded locale store can't clobber a
+  // good locale back to '' - the initial 'en' default stands until the real
+  // locale arrives via the store subscription.
+  if (!locale) return;
   currentLocale = locale;
-  // Push to all active background instances.
-  // Slot iframes inherit locale at spawn time; they're short-lived.
-  // (We don't import the registry here to avoid a circular import; the
-  //  PluginIframeSlot subscribes to locale changes on its own.)
+  // Background instances read `currentLocale` at load time; the slot-iframe
+  // component reads this global at spawn time (plugin-iframe-slot.tsx). Keep
+  // both in step from one place. Already-running instances are not re-pushed,
+  // so a locale switch only affects plugins/slots loaded afterwards.
+  (globalThis as unknown as { __APP_LOCALE__?: string }).__APP_LOCALE__ = locale;
 }
 
 // ─── Bundle fetch ─────────────────────────────────────────────

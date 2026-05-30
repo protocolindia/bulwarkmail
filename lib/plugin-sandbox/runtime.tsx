@@ -73,18 +73,26 @@ function uid(): string {
 
 // ─── Sandboxed API facade (calls flow to host via postMessage) ─
 
-function callApi(method: string, args: unknown[]): Promise<unknown> {
+const DEFAULT_API_TIMEOUT_MS = 30_000;
+
+function callApi(method: string, args: unknown[], timeoutMs: number = DEFAULT_API_TIMEOUT_MS): Promise<unknown> {
   const id = uid();
   return new Promise((resolve, reject) => {
     pendingApi.set(id, { resolve, reject });
     sendToHost({ type: 'api-request', id, method, args });
-    // Reject after 30s to prevent unbounded promise leaks if the host hangs.
-    setTimeout(() => {
-      const entry = pendingApi.get(id);
-      if (!entry) return;
-      pendingApi.delete(id);
-      entry.reject(new Error(`API call ${method} timed out after 30s`));
-    }, 30_000);
+    // Bounded so a hung host can't leak the promise forever. Interactive UI
+    // dialogs (ui.confirm/ui.alert) pass timeoutMs <= 0 to opt out: they wait
+    // for human input, the host always resolves them on confirm/cancel/close,
+    // and any still-pending call dies with the iframe on teardown - so there's
+    // nothing to leak, and a thinking user must not trip a 30s timeout.
+    if (timeoutMs > 0 && Number.isFinite(timeoutMs)) {
+      setTimeout(() => {
+        const entry = pendingApi.get(id);
+        if (!entry) return;
+        pendingApi.delete(id);
+        entry.reject(new Error(`API call ${method} timed out after ${Math.round(timeoutMs / 1000)}s`));
+      }, timeoutMs);
+    }
   });
 }
 
@@ -151,12 +159,13 @@ function buildPluginApi(manifest: PluginManifest) {
       warning: (m: string) => { void callApi('toast.warning', [m]); },
     },
     ui: {
-      /** Opens a host-rendered confirm dialog. Resolves to true on confirm, false otherwise. */
+      /** Opens a host-rendered confirm dialog. Resolves to true on confirm, false otherwise.
+       *  No timeout - it waits for the user's choice. */
       confirm: (opts: { title?: string; message?: string; confirmLabel?: string; cancelLabel?: string; danger?: boolean }) =>
-        callApi('ui.confirm', [opts]) as Promise<boolean>,
-      /** Opens a host-rendered alert (one button). Resolves once dismissed. */
+        callApi('ui.confirm', [opts], 0) as Promise<boolean>,
+      /** Opens a host-rendered alert (one button). Resolves once dismissed. No timeout. */
       alert: (opts: { title?: string; message?: string; confirmLabel?: string }) =>
-        callApi('ui.alert', [opts]) as Promise<void>,
+        callApi('ui.alert', [opts], 0) as Promise<void>,
       /** Opens an http/https URL in a new tab via host `window.open`. */
       openExternalUrl: (url: string, target?: string) =>
         callApi('ui.openExternalUrl', [url, target]) as Promise<void>,
@@ -172,6 +181,26 @@ function buildPluginApi(manifest: PluginManifest) {
       info:  (...a: unknown[]) => console.info(`[plugin:${manifest.id}]`, ...a),
       warn:  (...a: unknown[]) => console.warn(`[plugin:${manifest.id}]`, ...a),
       error: (...a: unknown[]) => console.error(`[plugin:${manifest.id}]`, ...a),
+    },
+    // Localization for plugins. The host pushes the active locale (init +
+    // 'locale-change'); `t` resolves a key against the plugin's declared
+    // `locales` map (manifest.locales), falling back to English then the key
+    // itself, with optional {placeholder} interpolation.
+    i18n: {
+      get locale(): string {
+        return (globalThis as unknown as { __PLUGIN_LOCALE__?: string }).__PLUGIN_LOCALE__ || 'en';
+      },
+      t(key: string, vars?: Record<string, string | number>): string {
+        const loc = (globalThis as unknown as { __PLUGIN_LOCALE__?: string }).__PLUGIN_LOCALE__ || 'en';
+        const tables = manifest.locales || {};
+        let out = tables[loc]?.[key] ?? tables['en']?.[key] ?? key;
+        if (vars) {
+          for (const [k, v] of Object.entries(vars)) {
+            out = out.split('{' + k + '}').join(String(v));
+          }
+        }
+        return out;
+      },
     },
   };
 }
@@ -344,6 +373,9 @@ async function handleInit(payload: InitPayload): Promise<void> {
   if (bootDone) return;
   bootDone = true;
   mode = payload.mode;
+  // Make the active locale available to plugin code (api.i18n) right away -
+  // not only after the first 'locale-change' push.
+  (globalThis as unknown as { __PLUGIN_LOCALE__?: string }).__PLUGIN_LOCALE__ = payload.locale;
   try {
     if (payload.mode === 'background') {
       await bootBackground(payload);

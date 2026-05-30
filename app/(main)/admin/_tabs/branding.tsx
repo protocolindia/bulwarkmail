@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Save, Loader2, RotateCcw, ImageIcon, Upload, Trash2, Globe, Plus, X } from 'lucide-react';
-import { apiFetch } from '@/lib/browser-navigation';
+import { apiFetch, withBasePath } from '@/lib/browser-navigation';
 import {
   BRANDING_OVERRIDE_KEYS,
   parseDomainBranding,
@@ -33,6 +33,8 @@ const TEXT_FIELDS = [
 
 const PWA_IMAGE_FIELDS = [
   { key: 'pwaIconUrl', label: 'PWA Icon', accept: '.svg,.png,.jpg,.webp' },
+  { key: 'pwaScreenshotMobileUrl', label: 'PWA Screenshot (Mobile)', accept: '.png,.jpg,.webp' },
+  { key: 'pwaScreenshotDesktopUrl', label: 'PWA Screenshot (Desktop)', accept: '.png,.jpg,.webp' },
 ] as const;
 
 const PWA_TEXT_FIELDS = [
@@ -528,7 +530,7 @@ export function BrandingTab() {
                   <ImageIcon className="w-3.5 h-3.5 text-muted-foreground" />
                   <div className="h-8 w-auto bg-muted rounded flex items-center justify-center px-2">
                     <img
-                      src={currentValue(field.key)}
+                      src={withBasePath(currentValue(field.key))}
                       alt={field.label}
                       className="max-h-6 max-w-[200px] object-contain"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -606,7 +608,7 @@ export function BrandingTab() {
                   <ImageIcon className="w-3.5 h-3.5 text-muted-foreground" />
                   <div className="h-8 w-auto bg-muted rounded flex items-center justify-center px-2">
                     <img
-                      src={currentValue(field.key)}
+                      src={withBasePath(currentValue(field.key))}
                       alt={field.label}
                       className="max-h-6 max-w-[200px] object-contain"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}

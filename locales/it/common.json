@@ -253,6 +253,15 @@
     "reschedule_prompt": "Inserisci una nuova data/ora, ad es. 2026-05-04T15:30"
   },
   "email_viewer": {
+    "read_receipt": {
+      "prompt": "Il mittente richiede una conferma di lettura:",
+      "send": "Invia conferma",
+      "ignore": "Ignora",
+      "sent": "Conferma di lettura inviata.",
+      "send_failed": "Impossibile inviare la conferma di lettura",
+      "mdn_subject": "Letto: {subject}",
+      "mdn_body": "Questa è una conferma di lettura del messaggio che hai inviato a {recipient}.\n\nNota: questa conferma attesta solo che il messaggio è stato visualizzato sul computer del destinatario. Non garantisce che il destinatario abbia letto o compreso il contenuto."
+    },
     "no_email_selected": "Nessun messaggio selezionato",
     "no_email_description": "Seleziona un messaggio dall'elenco per visualizzarlo qui",
     "no_conversation_selected": "Nessuna conversazione selezionata",
@@ -538,6 +547,8 @@
     "undo_send": "Annulla invio"
   },
   "email_composer": {
+    "read_receipt_on": "Conferma di lettura richiesta (clicca per disattivare)",
+    "read_receipt_off": "Richiedi una conferma di lettura",
     "new_message": "Nuovo messaggio",
     "reply": "Rispondi",
     "reply_all": "Rispondi a tutti",
@@ -554,8 +565,8 @@
     "send": "Invia",
     "cancel": "Annulla",
     "attach": "Allega",
-    "attach_photos": "Foto e video",
-    "attach_files": "File",
+    "attach_photos": "Photos & Videos",
+    "attach_files": "Files",
     "discard": "Scarta",
     "discard_draft_title": "Eliminare la bozza?",
     "discard_draft_confirm": "Ci sono modifiche non salvate. Vuoi scartare questa bozza?",
@@ -638,9 +649,7 @@
     "schedule_send_unsupported": "L’invio programmato non è supportato per questo account.",
     "schedule_send_cleanup_warning": "L’invio programmato è stato creato, ma la pulizia della bozza non è riuscita.",
     "send_delay_unsupported": "Il ritardo di invio non è supportato per questo account.",
-    "send_delay_unsupported_confirm": "Questo account non supporta il ritardo di invio. Inviare subito?",
-    "attach_photos": "Photos & Videos",
-    "attach_files": "Files"
+    "send_delay_unsupported_confirm": "Questo account non supporta il ritardo di invio. Inviare subito?"
   },
   "confirm_dialog": {
     "confirm": "Conferma",
@@ -999,6 +1008,17 @@
       }
     },
     "email_behavior": {
+      "request_read_receipt": {
+        "label": "Richiedi conferme di lettura per impostazione predefinita",
+        "description": "Attiva in anticipo la richiesta di conferma di lettura durante la composizione di un nuovo messaggio."
+      },
+      "read_receipt_response": {
+        "label": "Rispondi alle richieste di conferma di lettura",
+        "description": "Cosa fare quando un messaggio in arrivo richiede una conferma di lettura.",
+        "ask": "Chiedi ogni volta",
+        "always": "Invia sempre",
+        "never": "Non inviare mai"
+      },
       "title": "Comportamento email",
       "description": "Configura come vengono gestiti i messaggi",
       "mark_read": {
@@ -1423,6 +1443,7 @@
       }
     },
     "folders": {
+      "role_memos": "Note",
       "title": "Cartelle",
       "description": "Gestisci le cartelle e-mail e assegna ruoli standard",
       "folder_list": "Le tue cartelle",
@@ -1625,7 +1646,10 @@
       "actions": "Azioni",
       "add_action": "Aggiungi azione",
       "stop_processing": "Interrompere l'elaborazione delle regole successive",
+      "attachment_type_placeholder": "es. pdf, doc, jpg",
+      "value_placeholder_multi": "Valore (più valori separati da virgole)",
       "condition_fields": {
+        "attachment": "Allegato",
         "from": "Da",
         "to": "A",
         "cc": "Cc",
@@ -1635,6 +1659,8 @@
         "body": "Corpo"
       },
       "comparators": {
+        "has_any": "è presente",
+        "has_type": "di tipo",
         "contains": "contiene",
         "not_contains": "non contiene",
         "is": "è esattamente",
@@ -3048,5 +3074,20 @@
       "manager": "Gestore",
       "custom": "Personalizzato"
     }
+  },
+  "quote_header": {
+    "reply_line": "Il {date}, {from} ha scritto:",
+    "forwarded_separator": "---------- Messaggio inoltrato ----------",
+    "from_label": "Da",
+    "date_label": "Data",
+    "subject_label": "Oggetto"
+  },
+  "pwa_install": {
+    "title": "Installa {appName}",
+    "description": "Installa la nostra app per un accesso rapido e il supporto offline.",
+    "not_now": "Non ora",
+    "install": "Installa",
+    "dont_remind": "Non ricordarmelo più",
+    "dismiss_aria": "Chiudi avviso di installazione"
   }
 }

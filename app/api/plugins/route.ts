@@ -57,6 +57,9 @@ export async function GET() {
       // Per-user settings schema, captured from the manifest at upload/load
       // time so the client can render the settings UI without re-parsing.
       settingsSchema: p.settingsSchema,
+      // Plugin-declared i18n tables, so the sandbox can localize plugin
+      // strings via api.i18n.t().
+      locales: p.locales,
     }));
 
     // Only serve enabled themes

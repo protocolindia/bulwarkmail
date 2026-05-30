@@ -10,6 +10,7 @@
 import type { InstalledPlugin, SlotName } from '../plugin-types';
 import { dispatchApiCall } from './host-api';
 import { SANDBOX_PATH } from './protocol';
+import { withBasePath } from '../browser-navigation';
 import type {
   SandboxToHost, HostToSandbox, InitMsg, InitPayload,
 } from './protocol';
@@ -143,7 +144,10 @@ export class SandboxInstance {
       this.iframe.style.width = '100%';
       this.iframe.style.height = '0px';
     }
-    this.iframe.src = SANDBOX_PATH;
+    // Prefix with the mount path so the sandbox route resolves under a
+    // subpath deployment (NEXT_PUBLIC_BASE_PATH=/webmail). A bare
+    // "/plugin-sandbox" would hit the origin root and 404, breaking plugins.
+    this.iframe.src = withBasePath(SANDBOX_PATH);
 
     this.listener = (ev) => this.onMessage(ev);
     window.addEventListener('message', this.listener);
