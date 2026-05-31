@@ -2642,6 +2642,7 @@
       "name_placeholder": "日历名称",
       "color": "颜色",
       "change_color": "更改颜色",
+      "random_color": "随机新颜色",
       "add_calendar": "添加日历",
       "edit": "编辑",
       "delete": "删除",

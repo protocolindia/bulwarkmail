@@ -60,6 +60,7 @@ import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { CreateCalendarModal } from "@/components/calendar/create-calendar-modal";
 import { getUserParticipantId } from "@/lib/calendar-participants";
 import { generateBirthdayEvents, createBirthdayCalendar, BIRTHDAY_CALENDAR_ID } from "@/lib/birthday-calendar";
+import { sharedCalendarColorKey, pickUnusedCalendarColor } from "@/lib/shared-calendar-colors";
 import { debug } from "@/lib/debug";
 import { consumePendingWebcal, hasPendingWebcal, subscribeToPendingWebcal } from "@/lib/protocol-handlers/session";
 import type { ParsedWebcal } from "@/lib/protocol-handlers/webcal";
@@ -97,6 +98,9 @@ export default function CalendarPage() {
     refreshAllSubscriptions, icalSubscriptions,
   } = useCalendarStore();
   const { firstDayOfWeek, timeFormat, showWeekNumbers, enableCalendarTasks, showTasksOnCalendar, calendarHoverPreview, showBirthdayCalendar, birthdayCalendarColor, updateSetting } = useSettingsStore();
+  const sharedCalendarColors = useSettingsStore((s) => s.sharedCalendarColors);
+  const setSharedCalendarColor = useSettingsStore((s) => s.setSharedCalendarColor);
+  const removeSharedCalendarColor = useSettingsStore((s) => s.removeSharedCalendarColor);
   const taskStore = useTaskStore();
   const fetchTasksFn = useTaskStore(state => state.fetchTasks);
   const { identities } = useIdentityStore();
@@ -1030,10 +1034,47 @@ export default function CalendarPage() {
     try { return t('birthday_calendar'); } catch { return 'Birthdays'; }
   })();
 
+  // Apply each shared calendar's local color override (per-viewer recolor,
+  // #345). The override replaces the calendar's color and wins over per-event
+  // colors via the `colorIsLocalOverride` flag (see getEventColor). Personal
+  // calendars are passed through untouched.
+  const displayCalendars = useMemo(() => {
+    return calendars.map((cal) => {
+      if (!cal.isShared) return cal;
+      const override = sharedCalendarColors[sharedCalendarColorKey(cal)];
+      if (!override) return cal;
+      return { ...cal, color: override, colorIsLocalOverride: true };
+    });
+  }, [calendars, sharedCalendarColors]);
+
+  // Auto-assign a random, not-yet-used palette color to any freshly shared
+  // calendar so multiple shared calendars don't collide on one color. Runs
+  // once per calendar (guarded by the presence of an existing key), and the
+  // user can still overwrite it from the sidebar.
+  useEffect(() => {
+    const shared = calendars.filter((c) => c.isShared);
+    const missing = shared.filter((c) => !sharedCalendarColors[sharedCalendarColorKey(c)]);
+    if (missing.length === 0) return;
+    // Seed "used" with personal calendar colors plus already-assigned shared
+    // overrides so the picks stay distinct from what's already on screen.
+    const used = new Set<string>();
+    for (const c of calendars) {
+      if (!c.isShared && c.color) used.add(c.color.toLowerCase());
+    }
+    for (const color of Object.values(sharedCalendarColors)) {
+      if (color) used.add(color.toLowerCase());
+    }
+    for (const cal of missing) {
+      const color = pickUnusedCalendarColor(used);
+      used.add(color.toLowerCase());
+      setSharedCalendarColor(sharedCalendarColorKey(cal), color);
+    }
+  }, [calendars, sharedCalendarColors, setSharedCalendarColor]);
+
   const allCalendars = useMemo(() => {
-    if (!showBirthdayCalendar) return calendars;
-    return [...calendars, createBirthdayCalendar(birthdayCalendarName, birthdayCalendarColor)];
-  }, [calendars, showBirthdayCalendar, birthdayCalendarName, birthdayCalendarColor]);
+    if (!showBirthdayCalendar) return displayCalendars;
+    return [...displayCalendars, createBirthdayCalendar(birthdayCalendarName, birthdayCalendarColor)];
+  }, [displayCalendars, showBirthdayCalendar, birthdayCalendarName, birthdayCalendarColor]);
 
   const visibleEvents = useMemo(() => {
     const filtered = events.filter((e) => {
@@ -1219,7 +1260,7 @@ export default function CalendarPage() {
               />
               <TaskListView
                 tasks={taskStore.tasks}
-                calendars={calendars}
+                calendars={displayCalendars}
                 selectedCalendarIds={selectedCalendarIds}
                 filter={taskStore.filter}
                 showCompleted={taskStore.showCompleted}
@@ -1317,8 +1358,21 @@ export default function CalendarPage() {
                   updateSetting('birthdayCalendarColor', color);
                   return;
                 }
+                // Shared calendars: recolor locally only (the viewer usually
+                // can't write the owner's calendar, and it'd recolor it for
+                // everyone). Personal calendars write through to the server.
+                const cal = allCalendars.find((c) => c.id === calendarId);
+                if (cal?.isShared) {
+                  setSharedCalendarColor(sharedCalendarColorKey(cal), color);
+                  return;
+                }
                 updateCalendar(client, calendarId, { color });
               } : undefined}
+              onResetColor={(cal) => {
+                // Drop the local override; the auto-assign effect picks a
+                // fresh unused color (so it never reverts to a collision).
+                removeSharedCalendarColor(sharedCalendarColorKey(cal));
+              }}
               onShareCalendar={client ? (cal) => setSharingCalendarId(cal.id) : undefined}
               onCreateEvent={(cal: Calendar) => {
                 setDefaultCalendarIdForCreate(cal.id);
@@ -1389,7 +1443,7 @@ export default function CalendarPage() {
           onSubscribe={() => setShowSubscriptionModal(true)}
           isMobile={isMobile}
           onNavigateBack={isMobile && mobileReturnToMonth && normalizedViewMode === "day" ? navigateBackToMonth : undefined}
-          calendars={calendars}
+          calendars={displayCalendars}
           selectedCalendarIds={selectedCalendarIds}
           onToggleVisibility={toggleCalendarVisibility}
           enableCalendarTasks={enableCalendarTasks}
@@ -1419,7 +1473,7 @@ export default function CalendarPage() {
               <EventModal
                 key={editEvent?.id ?? 'new'}
                 event={editEvent}
-                calendars={calendars}
+                calendars={displayCalendars}
                 defaultDate={defaultModalDate}
                 defaultEndDate={defaultModalEndDate}
                 defaultAllDay={defaultModalAllDay}
@@ -1442,7 +1496,7 @@ export default function CalendarPage() {
               <TaskModal
                 key={editTask?.id ?? 'new-task'}
                 task={editTask}
-                calendars={calendars}
+                calendars={displayCalendars}
                 onSave={handleSaveTask}
                 onDelete={handleDeleteTask}
                 onClose={() => { setShowTaskModal(false); setEditTask(null); }}
@@ -1529,7 +1583,7 @@ export default function CalendarPage() {
       {detailEvent && detailAnchorRect && (
         <EventDetailPopover
           event={detailEvent}
-          calendar={calendars.find(c => detailEvent.calendarIds[c.id])}
+          calendar={displayCalendars.find(c => detailEvent.calendarIds[c.id])}
           anchorRect={detailAnchorRect}
           onEdit={handleEditFromDetail}
           onDelete={handleDeleteFromDetail}
@@ -1549,7 +1603,7 @@ export default function CalendarPage() {
         <EventModal
           key={editEvent?.id ?? 'new'}
           event={editEvent}
-          calendars={calendars}
+          calendars={displayCalendars}
           defaultDate={defaultModalDate}
           defaultEndDate={defaultModalEndDate}
           defaultAllDay={defaultModalAllDay}
@@ -1566,7 +1620,7 @@ export default function CalendarPage() {
 
       {showImportModal && client && (
         <ICalImportModal
-          calendars={calendars}
+          calendars={displayCalendars}
           client={client}
           initialUrl={pendingSubscription?.url}
           onClose={() => {

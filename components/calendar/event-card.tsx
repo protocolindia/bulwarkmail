@@ -34,6 +34,11 @@ function sanitizeColor(color: string | null | undefined, fallback = "#3b82f6"): 
 }
 
 function getEventColor(event: CalendarEvent, calendar?: Calendar): string {
+  // A local color override on a shared calendar wins over per-event colors,
+  // so the whole shared calendar paints uniformly in the viewer's chosen hue.
+  if (calendar?.colorIsLocalOverride && calendar.color) {
+    return sanitizeColor(calendar.color);
+  }
   return sanitizeColor(event.color, sanitizeColor(calendar?.color));
 }
 

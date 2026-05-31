@@ -2656,6 +2656,7 @@
       "name_placeholder": "Takvim adı",
       "color": "Renk",
       "change_color": "Rengi değiştir",
+      "random_color": "Yeni rastgele renk",
       "add_calendar": "Takvim ekle",
       "edit": "Düzenle",
       "delete": "Sil",

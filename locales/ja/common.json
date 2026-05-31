@@ -2642,6 +2642,7 @@
       "name_placeholder": "カレンダー名",
       "color": "色",
       "change_color": "色を変更",
+      "random_color": "新しいランダムな色",
       "add_calendar": "カレンダーを追加",
       "edit": "編集",
       "delete": "削除",

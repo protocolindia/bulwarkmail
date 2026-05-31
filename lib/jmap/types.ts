@@ -488,6 +488,10 @@ export interface Calendar {
   // can route mutations to the right client. Distinct from `accountId`
   // which is the JMAP server's own account UUID.
   localAccountId?: string;
+  // Set when `color` has been replaced by the viewer's local override for a
+  // shared calendar (see lib/shared-calendar-colors). When true, the override
+  // wins over per-event colors so the whole shared calendar paints uniformly.
+  colorIsLocalOverride?: boolean;
 }
 
 export interface CalendarRights {

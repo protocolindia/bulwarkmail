@@ -2641,6 +2641,7 @@
       "name_placeholder": "Kalendāra nosaukums",
       "color": "Krāsa",
       "change_color": "Mainīt krāsu",
+      "random_color": "Jauna nejauša krāsa",
       "add_calendar": "Pievienot kalendāru",
       "edit": "Rediģēt",
       "delete": "Dzēst",

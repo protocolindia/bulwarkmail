@@ -183,6 +183,11 @@ interface SettingsState {
   showBirthdayCalendar: boolean;
   birthdayCalendarColor: string;
 
+  // Per-viewer color overrides for shared calendars, keyed by
+  // sharedCalendarColorKey(). Lets each recipient recolor calendars shared
+  // with them without changing the owner's color (see #345).
+  sharedCalendarColors: Record<string, string>;
+
   // Contacts Display
   groupContactsByLetter: boolean;
 
@@ -274,6 +279,10 @@ interface SettingsState {
   setFolderIcon: (mailboxId: string, icon: string) => void;
   removeFolderIcon: (mailboxId: string) => void;
 
+  // Shared-calendar color overrides
+  setSharedCalendarColor: (key: string, color: string) => void;
+  removeSharedCalendarColor: (key: string) => void;
+
   // Trusted senders
   addTrustedSender: (email: string) => void;
   removeTrustedSender: (email: string) => void;
@@ -359,6 +368,8 @@ const DEFAULT_SETTINGS = {
   // Contact Birthday Calendar
   showBirthdayCalendar: false,
   birthdayCalendarColor: '#eab308',
+
+  sharedCalendarColors: {} as Record<string, string>,
 
   // Contacts Display
   groupContactsByLetter: true,
@@ -546,6 +557,7 @@ export const useSettingsStore = create<SettingsState>()(
           showTasksOnCalendar: state.showTasksOnCalendar,
           showBirthdayCalendar: state.showBirthdayCalendar,
           birthdayCalendarColor: state.birthdayCalendarColor,
+          sharedCalendarColors: state.sharedCalendarColors,
           groupContactsByLetter: state.groupContactsByLetter,
           expandedFilterView: state.expandedFilterView,
           showTimeInMonthView: state.showTimeInMonthView,
@@ -640,6 +652,16 @@ export const useSettingsStore = create<SettingsState>()(
       removeFolderIcon: (mailboxId: string) => {
         const { [mailboxId]: _, ...rest } = get().folderIcons;
         set({ folderIcons: rest });
+      },
+
+      // Shared-calendar color override methods
+      setSharedCalendarColor: (key: string, color: string) => {
+        set({ sharedCalendarColors: { ...get().sharedCalendarColors, [key]: color } });
+      },
+
+      removeSharedCalendarColor: (key: string) => {
+        const { [key]: _, ...rest } = get().sharedCalendarColors;
+        set({ sharedCalendarColors: rest });
       },
 
       // Trusted senders methods

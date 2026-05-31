@@ -2642,6 +2642,7 @@
       "name_placeholder": "Název kalendáře",
       "color": "Barva",
       "change_color": "Změnit barvu",
+      "random_color": "Nová náhodná barva",
       "add_calendar": "Přidat kalendář",
       "edit": "Upravit",
       "delete": "Odstranit",

@@ -2642,6 +2642,7 @@
       "name_placeholder": "Nombre del calendario",
       "color": "Color",
       "change_color": "Cambiar color",
+      "random_color": "Nuevo color aleatorio",
       "add_calendar": "Añadir calendario",
       "edit": "Editar",
       "delete": "Eliminar",

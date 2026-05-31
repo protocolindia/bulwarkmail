@@ -15,25 +15,7 @@ import { ICalImportModal } from '@/components/calendar/ical-import-modal';
 import { ICalSubscriptionModal } from '@/components/calendar/ical-subscription-modal';
 import { useSettingsStore } from '@/stores/settings-store';
 import { apiFetch } from '@/lib/browser-navigation';
-
-const CALENDAR_COLORS = [
-  "#3b82f6", // blue
-  "#ef4444", // red
-  "#22c55e", // green
-  "#f59e0b", // amber
-  "#8b5cf6", // violet
-  "#ec4899", // pink
-  "#14b8a6", // teal
-  "#f97316", // orange
-  "#06b6d4", // cyan
-  "#84cc16", // lime
-  "#6366f1", // indigo
-  "#a855f7", // purple
-  "#e11d48", // rose
-  "#0ea5e9", // sky
-  "#10b981", // emerald
-  "#d946ef", // fuchsia
-];
+import { CALENDAR_COLORS, sharedCalendarColorKey } from '@/lib/shared-calendar-colors';
 
 function CalendarColorPicker({
   value,
@@ -182,6 +164,8 @@ export function CalendarManagementSettings() {
   const tImport = useTranslations('calendar.import');
   const tSub = useTranslations('calendar.subscription');
   const timeFormat = useSettingsStore((s) => s.timeFormat);
+  const sharedCalendarColors = useSettingsStore((s) => s.sharedCalendarColors);
+  const setSharedCalendarColor = useSettingsStore((s) => s.setSharedCalendarColor);
   const colorPickerRef = useRef<HTMLDivElement>(null);
 
   // Load calendars if not yet loaded
@@ -329,6 +313,15 @@ export function CalendarManagementSettings() {
 
   const handleColorChange = async (calendarId: string, color: string) => {
     if (!client) return;
+    // Shared calendars: recolor locally only - the viewer usually can't write
+    // the owner's calendar and it'd recolor it for everyone (see #345).
+    const cal = calendars.find((c) => c.id === calendarId);
+    if (cal?.isShared) {
+      setSharedCalendarColor(sharedCalendarColorKey(cal), color);
+      toast.success(t('color_updated'));
+      setColorPickerId(null);
+      return;
+    }
     try {
       await updateCalendar(client, calendarId, { color });
       toast.success(t('color_updated'));
@@ -396,7 +389,7 @@ export function CalendarManagementSettings() {
     <SettingsSection title={t('title')} description={t('description')}>
       <div className="space-y-2">
         {calendars.filter(cal => !isSubscriptionCalendar(cal.id)).map((cal) => {
-          const color = cal.color || '#3b82f6';
+          const color = (cal.isShared && sharedCalendarColors[sharedCalendarColorKey(cal)]) || cal.color || '#3b82f6';
 
           if (editingId === cal.id) {
             return (

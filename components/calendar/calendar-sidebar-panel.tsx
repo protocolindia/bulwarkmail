@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronRight, Globe, ListTodo, Pencil, RefreshCw, Share2, Trash2, Cake, User, Users, Plus, Eraser, Palette } from "lucide-react";
+import { ChevronDown, ChevronRight, Globe, ListTodo, Pencil, RefreshCw, Share2, Trash2, Cake, User, Users, Plus, Eraser, Palette, Shuffle } from "lucide-react";
 import { cn, formatDateTime } from "@/lib/utils";
 import type { Calendar } from "@/lib/jmap/types";
 import { CalendarColorPicker } from "@/components/settings/calendar-management-settings";
@@ -11,6 +11,7 @@ import { useSettingsStore } from "@/stores/settings-store";
 import { useTaskStore } from "@/stores/task-store";
 import { useAccountStore } from "@/stores/account-store";
 import { BIRTHDAY_CALENDAR_ID } from "@/lib/birthday-calendar";
+import { sharedCalendarColorKey } from "@/lib/shared-calendar-colors";
 import { toast } from "@/stores/toast-store";
 import { ContextMenu, ContextMenuItem, ContextMenuSeparator, ContextMenuSubMenu } from "@/components/ui/context-menu";
 import { useContextMenu } from "@/hooks/use-context-menu";
@@ -50,6 +51,7 @@ interface CalendarSidebarPanelProps {
   selectedCalendarIds: string[];
   onToggleVisibility: (id: string) => void;
   onColorChange?: (calendarId: string, color: string) => void;
+  onResetColor?: (calendar: Calendar) => void;
   onShareCalendar?: (calendar: Calendar) => void;
   onCreateEvent?: (calendar: Calendar) => void;
   onClearCalendar?: (calendar: Calendar) => void;
@@ -71,6 +73,7 @@ export function CalendarSidebarPanel({
   selectedCalendarIds,
   onToggleVisibility,
   onColorChange,
+  onResetColor,
   onShareCalendar,
   onCreateEvent,
   onClearCalendar,
@@ -94,6 +97,7 @@ export function CalendarSidebarPanel({
   const refreshICalSubscription = useCalendarStore((s) => s.refreshICalSubscription);
   const removeICalSubscription = useCalendarStore((s) => s.removeICalSubscription);
   const timeFormat = useSettingsStore((s) => s.timeFormat);
+  const sharedCalendarColors = useSettingsStore((s) => s.sharedCalendarColors);
   const enableCalendarTasks = useSettingsStore((s) => s.enableCalendarTasks);
   const tasks = useTaskStore((s) => s.tasks);
   const setViewMode = useCalendarStore((s) => s.setViewMode);
@@ -303,9 +307,11 @@ export function CalendarSidebarPanel({
     const canCreate = onCreateEvent && !isBirthday && cal.myRights?.mayWriteOwn !== false;
     const canShare = onShareCalendar && cal.myRights?.mayShare && !cal.isShared;
     const canChangeColor = !!onColorChange;
+    const hasColorOverride = !!cal.isShared && !!sharedCalendarColors[sharedCalendarColorKey(cal)];
+    const canResetColor = !!onResetColor && hasColorOverride;
     const canClear = onClearCalendar && !isBirthday && cal.myRights?.mayDelete !== false;
     const canDelete = onDeleteCalendar && !isBirthday && !cal.isDefault && !cal.isShared;
-    const showSeparator = (canCreate || canShare || canChangeColor) && (canClear || canDelete);
+    const showSeparator = (canCreate || canShare || canChangeColor || canResetColor) && (canClear || canDelete);
     const color = cal.color || "#3b82f6";
 
     return (
@@ -334,6 +340,13 @@ export function CalendarSidebarPanel({
               />
             </div>
           </ContextMenuSubMenu>
+        )}
+        {canResetColor && (
+          <ContextMenuItem
+            icon={Shuffle}
+            label={tMgmt('random_color')}
+            onClick={() => { closeContextMenu(); onResetColor!(cal); }}
+          />
         )}
         {showSeparator && <ContextMenuSeparator />}
         {canClear && (

@@ -2656,6 +2656,7 @@
       "name_placeholder": "Kalendernavn",
       "color": "Farve",
       "change_color": "Skift farve",
+      "random_color": "Ny tilfældig farve",
       "add_calendar": "Tilføj kalender",
       "edit": "Redigér",
       "delete": "Slet",

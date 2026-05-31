@@ -2642,6 +2642,7 @@
       "name_placeholder": "Agendanaam",
       "color": "Kleur",
       "change_color": "Kleur wijzigen",
+      "random_color": "Nieuwe willekeurige kleur",
       "add_calendar": "Agenda toevoegen",
       "edit": "Bewerken",
       "delete": "Verwijderen",

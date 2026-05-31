@@ -2656,6 +2656,7 @@
       "name_placeholder": "Nome do calendário",
       "color": "Cor",
       "change_color": "Alterar cor",
+      "random_color": "Nova cor aleatória",
       "add_calendar": "Adicionar calendário",
       "edit": "Editar",
       "delete": "Excluir",
