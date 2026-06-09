@@ -649,7 +649,11 @@
     "schedule_send_unsupported": "Scheduled send is not supported for this account.",
     "schedule_send_cleanup_warning": "Scheduled send was created, but draft cleanup failed.",
     "send_delay_unsupported": "Send delay is not supported for this account.",
-    "send_delay_unsupported_confirm": "This account does not support send delay. Send immediately instead?"
+    "send_delay_unsupported_confirm": "This account does not support send delay. Send immediately instead?",
+    "recipient_edit_email": "Edit email address",
+    "recipient_edit_name": "Edit display name",
+    "recipient_email_placeholder": "Email address",
+    "recipient_name_placeholder": "Display name"
   },
   "confirm_dialog": {
     "confirm": "Confirm",
