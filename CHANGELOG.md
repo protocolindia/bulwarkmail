@@ -1,5 +1,43 @@
 # Changelog
 
+## 1.7.4 (2026-06-15)
+
+### Features
+
+- **Mail**: New "All Mail" view across folders and accounts
+- **Mail**: Edit contact directly from the email viewer contact sidebar
+- **Calendar**: Recurrence editor, set-default calendar, and timezone-aware calendar queries
+- **Calendar**: Agenda plugin sidecar
+- **Composer**: Email display name support
+- **Composer**: Drag-and-drop recipient chips between To/CC/BCC fields, with the address shown in the drag preview
+- **Composer**: Avatars in recipient autocomplete suggestions, including directory users
+- **Files**: JMAP file/folder sharing in the Files app (#408)
+- **Auth**: QR-code SSO login and device pairing between webmail and the mobile app
+- **Auth**: Require re-authentication for device pairing and SSO
+- **Accounts**: Manage shared/group account settings from the Accounts page
+- **Setup**: Opt-in telemetry in the web setup wizard
+- **Mail**: Persist the email detail sidebar state
+
+### Fixes
+
+- **Mail**: Preserve line breaks in the generated `text/plain` alternative (#421)
+- **Mail**: Fix inconsistent threading of email messages in the inbox and folders
+- **Mail**: Stop draft emails from being marked as unread
+- **Mail**: Prevent wide email tables from rendering with rotated headers (#409)
+- **Mail**: Preserve the folder list when a mailbox refetch hits the concurrent-request limit
+- **Mail**: Correct dark-mode background-image inversion and height clipping in the email viewer
+- **Calendar**: Dedupe scheduling emails and use Stalwart-compatible calendar filters
+- **Calendar**: Redesign the custom recurrence editor to match the modal UI
+- **Files**: Don't send the connected-account key as the JMAP `accountId` when sharing files (#408)
+- **Routing**: Strip the build-time `basePath` from `router.push` redirects after login (#390)
+- **Nav**: Open recent contact emails at `/` instead of 404ing on `/mail`
+- **Nav**: Hide the Add App button when `sidebarAppsEnabled` is false
+- **Settings**: Move the "Plain Text Only" setting from Reading to Composing (#422)
+- **Privacy**: Make telemetry opt-in
+- **UI**: Fix the context menu being invisible on first right-click after page load
+- **Admin**: Remove the JMAP status from the admin dashboard
+- **i18n**: Add missing translation keys across 17 locales
+
 ## 1.7.3 (2026-06-04)
 
 ### Features
