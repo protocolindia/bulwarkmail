@@ -3194,7 +3194,17 @@ export default function Home() {
                     onReply={handleReply}
                     onReplyAll={handleReplyAll}
                     onForward={handleForward}
-                    onDelete={() => handleDelete()}
+                    onDelete={() => {
+                      // Deleting the open message returns to the list (Gmail-style),
+                      // not the next email — unless the user turned the setting off.
+                      // Deselect first so the store's remove-and-advance sees no
+                      // selection and doesn't auto-open the next message.
+                      const target = selectedEmail;
+                      if (useSettingsStore.getState().returnToListAfterAction) {
+                        handleMobileBack();
+                      }
+                      handleDelete(target);
+                    }}
                     onArchive={() => handleArchive()}
                     onToggleStar={handleToggleStar}
                     onSetColorTag={handleSetColorTag}
@@ -3203,6 +3213,12 @@ export default function Home() {
                     onMarkAsRead={async (emailId, read) => {
                       if (client) {
                         await markAsRead(client, emailId, read);
+                        // Marking the open message unread returns to the list
+                        // (Gmail-style, gated on returnToListAfterAction). Staying
+                        // in the reading pane would just re-mark it read on view.
+                        if (!read && useSettingsStore.getState().returnToListAfterAction) {
+                          handleMobileBack();
+                        }
                       }
                     }}
                     onDownloadAttachment={handleDownloadAttachment}
