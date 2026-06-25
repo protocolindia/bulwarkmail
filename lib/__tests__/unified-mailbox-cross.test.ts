@@ -6,6 +6,7 @@ import {
   buildCrossFilter,
   getCrossUnreadTotal,
   fetchCrossViewEmails,
+  advancedSearchCrossViewEmails,
   resolveSourceFolderName,
   type UnifiedAccountClient,
 } from '@/lib/unified-mailbox';
@@ -201,5 +202,30 @@ describe('fetchCrossViewEmails', () => {
     const result = await fetchCrossViewEmails([ok, bad], 'all', 50, 0);
     expect(result.emails.map((e) => e.id)).toEqual(['x']);
     expect(result.errors.get('bad')).toBe('boom');
+  });
+});
+
+describe('advancedSearchCrossViewEmails', () => {
+  it('ANDs the advanced filter onto the cross-view membership', async () => {
+    const advancedSearchEmails = vi.fn().mockResolvedValue({ emails: [], total: 0, hasMore: false });
+    const a = makeAccount({ accountId: 'a', mailboxes: [mb('inbox', 'inbox')] }, { advancedSearchEmails });
+
+    await advancedSearchCrossViewEmails([a], 'all', { hasKeyword: '$flagged' }, 50, 0);
+
+    const [filter] = advancedSearchEmails.mock.calls[0];
+    expect(filter).toEqual({
+      operator: 'AND',
+      conditions: [{ inMailbox: 'inbox' }, { hasKeyword: '$flagged' }],
+    });
+  });
+
+  it('uses only the membership filter when the extra filter is empty', async () => {
+    const advancedSearchEmails = vi.fn().mockResolvedValue({ emails: [], total: 0, hasMore: false });
+    const a = makeAccount({ accountId: 'a', mailboxes: [mb('inbox', 'inbox')] }, { advancedSearchEmails });
+
+    await advancedSearchCrossViewEmails([a], 'all', {}, 50, 0);
+
+    const [filter] = advancedSearchEmails.mock.calls[0];
+    expect(filter).toEqual({ inMailbox: 'inbox' });
   });
 });

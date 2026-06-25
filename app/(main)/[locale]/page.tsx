@@ -1838,7 +1838,18 @@ export default function Home() {
       }
 
       const populated = await buildPopulatedUnifiedAccounts();
-      await fetchUnifiedEmailsAction(populated, role);
+      // Keep an active search across the switch and re-run it in this view
+      // (mirrors normal mailboxes), preserving advanced filters; otherwise browse.
+      if (client && (!isFilterEmpty(searchFilters) || searchQuery)) {
+        useEmailStore.setState({ isUnifiedView: true, unifiedRole: role, crossView: null });
+        if (!isFilterEmpty(searchFilters)) {
+          await advancedSearch(client);
+        } else {
+          await searchEmails(client, searchQuery);
+        }
+      } else {
+        await fetchUnifiedEmailsAction(populated, role);
+      }
       refreshUnifiedCounts(populated);
       return;
     }
@@ -1860,7 +1871,18 @@ export default function Home() {
       }
 
       const populated = await buildPopulatedUnifiedAccounts();
-      await fetchCrossViewAction(populated, view);
+      // Keep an active search across the switch and re-run it in this view
+      // (mirrors normal mailboxes), preserving advanced filters; otherwise browse.
+      if (client && (!isFilterEmpty(searchFilters) || searchQuery)) {
+        useEmailStore.setState({ isUnifiedView: true, crossView: view, unifiedRole: null });
+        if (!isFilterEmpty(searchFilters)) {
+          await advancedSearch(client);
+        } else {
+          await searchEmails(client, searchQuery);
+        }
+      } else {
+        await fetchCrossViewAction(populated, view);
+      }
       refreshCrossCounts(populated);
       return;
     }
@@ -2206,13 +2228,16 @@ export default function Home() {
     setSearchQuery("");
     clearSearchFilters();
     if (!client) return;
-    // In unified view the active "mailbox" is a virtual role, so refresh via
-    // the unified fan-out instead of fetchEmails.
+    // In unified view the active "mailbox" is a virtual role or cross view, so
+    // refresh via the unified fan-out instead of fetchEmails.
     if (isUnifiedView) {
+      const populated = await buildPopulatedUnifiedAccounts();
       const role = useEmailStore.getState().unifiedRole;
+      const cross = useEmailStore.getState().crossView;
       if (role) {
-        const populated = await buildPopulatedUnifiedAccounts();
         await fetchUnifiedEmailsAction(populated, role);
+      } else if (cross) {
+        await fetchCrossViewAction(populated, cross);
       }
       return;
     }
@@ -2848,8 +2873,8 @@ export default function Home() {
                       className={cn("ps-9 h-9", searchQuery && "pe-8")}
                       data-search-input
                       data-tour="search-input"
-                      disabled={isUnifiedView || isScheduledView}
-                      title={isUnifiedView ? t("unified_mailbox.search_unavailable") : isScheduledView ? t('email_viewer.scheduled_actions_only') : undefined}
+                      disabled={isScheduledView}
+                      title={isScheduledView ? t('email_viewer.scheduled_actions_only') : undefined}
                     />
                     {searchQuery && (
                       <button
@@ -2865,15 +2890,15 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={toggleAdvancedSearch}
-                    disabled={isUnifiedView || isScheduledView}
+                    disabled={isScheduledView}
                     className={cn(
                       "relative flex-shrink-0 p-2 rounded-md transition-colors",
-                      (isUnifiedView || isScheduledView) && "opacity-50 cursor-not-allowed",
+                      isScheduledView && "opacity-50 cursor-not-allowed",
                       isAdvancedSearchOpen || activeFilterCount(searchFilters) > 0
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     )}
-                    title={isUnifiedView ? t("unified_mailbox.search_unavailable") : isScheduledView ? t('email_viewer.scheduled_actions_only') : t("advanced_search.toggle_filters")}
+                    title={isScheduledView ? t('email_viewer.scheduled_actions_only') : t("advanced_search.toggle_filters")}
                   >
                     <Filter className="w-4 h-4" />
                     {!isAdvancedSearchOpen && activeFilterCount(searchFilters) > 0 && (

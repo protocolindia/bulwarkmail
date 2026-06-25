@@ -6,6 +6,7 @@
 - Gmail-style threading with inline expansion and an optional conversation toggle
 - Unified Mailbox – combined Inbox, Sent, Drafts, Junk, Archive, and Trash, scoped by default to the active account and its shared/group folders, with an optional admin-gated cross-account mode that spans every connected account
 - Aggregated All mail / Unread / Starred entries in the Unified Mailbox – scoped by the same account boundary (or all accounts in cross-account mode) and narrowed by a per-account folder selection; each list labels the source folder of every message
+- Search inside the Unified Mailbox – text search across every unified view (the per-role mailboxes and the folder-selected All mail / Unread / Starred lists); advanced filters are additionally available in the per-role unified mailboxes
 - Three selectable mail layouts: split (three-pane), focused list, and reading pane at bottom
 - Draft auto-save with identity preservation, persisted HTML body, and proper `In-Reply-To` / `References` headers on replies
 - Attachment upload, download, drag-out to local file system, and inline preview – images, inline PDF on desktop and mobile, composer attachments (click to open), and `.eml` (`message/rfc822`) attachments rendered like an email; image thumbnails and forgotten-attachment warning

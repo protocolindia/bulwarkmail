@@ -466,6 +466,29 @@ export async function searchCrossViewEmails(
 }
 
 /**
+ * Like `searchCrossViewEmails`, but applies an advanced filter (text + field
+ * conditions from `buildJMAPFilter`, built WITHOUT an `inMailbox` clause) on top
+ * of the cross-view membership. `extraFilter` may be empty ({}), in which case
+ * only the membership filter is used (equivalent to a plain browse).
+ */
+export async function advancedSearchCrossViewEmails(
+  accounts: UnifiedAccountClient[],
+  view: CrossView,
+  extraFilter: Record<string, unknown>,
+  limit: number,
+  position: number,
+): Promise<UnifiedFetchResult> {
+  const hasExtra = Object.keys(extraFilter).length > 0;
+  return fanOutCrossQuery(accounts, (account, jmapAccountId, ids) => {
+    const membership = buildCrossFilter(view, ids);
+    const filter = hasExtra
+      ? { operator: 'AND', conditions: [membership, extraFilter] }
+      : membership;
+    return account.client.advancedSearchEmails(filter, jmapAccountId, limit, position);
+  });
+}
+
+/**
  * Returns the list of unified roles that exist in at least one account's
  * mailboxes.
  */

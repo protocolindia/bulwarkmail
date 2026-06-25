@@ -7,7 +7,7 @@ import { useCalendarStore } from "@/stores/calendar-store";
 import { SearchFilters, DEFAULT_SEARCH_FILTERS, buildJMAPFilter, isFilterEmpty } from "@/lib/jmap/search-utils";
 import { emailHooks } from "@/lib/plugin-hooks";
 import type { ExternalSearchResult } from "@/lib/plugin-types";
-import { fetchUnifiedEmails, fetchUnifiedMailboxCounts, searchUnifiedEmails, advancedSearchUnifiedEmails, fetchCrossViewEmails, searchCrossViewEmails, getCrossUnreadTotal, type UnifiedAccountClient, type UnifiedMailboxCounts } from "@/lib/unified-mailbox";
+import { fetchUnifiedEmails, fetchUnifiedMailboxCounts, searchUnifiedEmails, advancedSearchUnifiedEmails, fetchCrossViewEmails, searchCrossViewEmails, advancedSearchCrossViewEmails, getCrossUnreadTotal, type UnifiedAccountClient, type UnifiedMailboxCounts } from "@/lib/unified-mailbox";
 import { useAuthStore } from "@/stores/auth-store";
 import { useAccountStore } from "@/stores/account-store";
 
@@ -959,9 +959,12 @@ export const useEmailStore = create<EmailStore>((set, get) => ({
         const includeGroup = useSettingsStore.getState().includeGroupInUnified;
         const position = emails.length;
         const built = await buildUnifiedAccountClients({ includeGroup });
-        const result = searchQuery
-          ? await searchCrossViewEmails(built, crossView, searchQuery, emailsPerPage, position)
-          : await fetchCrossViewEmails(built, crossView, emailsPerPage, position);
+        const hasFilters = !isFilterEmpty(get().searchFilters);
+        const result = hasFilters
+          ? await advancedSearchCrossViewEmails(built, crossView, buildJMAPFilter(searchQuery, get().searchFilters, undefined), emailsPerPage, position)
+          : searchQuery
+            ? await searchCrossViewEmails(built, crossView, searchQuery, emailsPerPage, position)
+            : await fetchCrossViewEmails(built, crossView, emailsPerPage, position);
         const currentEmails = get().emails;
         const existingIds = new Set(currentEmails.map(e => e.id));
         const newEmails = result.emails.filter(e => !existingIds.has(e.id));
@@ -1796,7 +1799,11 @@ export const useEmailStore = create<EmailStore>((set, get) => ({
       if (isUnifiedView && crossView) {
         const includeGroup = useSettingsStore.getState().includeGroupInUnified;
         const built = await buildUnifiedAccountClients({ includeGroup });
-        const result = await searchCrossViewEmails(built, crossView, searchQuery, emailsPerPage, 0);
+        // Cross views apply the advanced filter (text + fields) on top of the
+        // view membership; an empty filter degrades to a plain membership query.
+        const result = await advancedSearchCrossViewEmails(
+          built, crossView, buildJMAPFilter(searchQuery, searchFilters, undefined), emailsPerPage, 0,
+        );
         if (controller.signal.aborted) return;
         const externals = await emailHooks.onProvideSearchResults.transform([] as ExternalSearchResult[], { query: searchQuery, filters: searchFilters });
         set({
@@ -3225,6 +3232,11 @@ export const useEmailStore = create<EmailStore>((set, get) => ({
       selectedMailbox: isScheduledView ? VIRTUAL_SCHEDULED_MAILBOX_ID : leavingScheduled ? "" : state.selectedMailbox,
       selectedEmail: leavingScheduled ? null : state.selectedEmail,
       selectedEmailIds: leavingScheduled ? new Set<string>() : state.selectedEmailIds,
+      // Search is unavailable in the scheduled view (the input is disabled there).
+      // Reset any active search when entering it so a stale query can't linger or
+      // re-run when the user leaves again.
+      searchQuery: isScheduledView ? "" : state.searchQuery,
+      searchFilters: isScheduledView ? { ...DEFAULT_SEARCH_FILTERS } : state.searchFilters,
     };
   }),
   clearPendingUndoSend: () => set({ pendingUndoSend: null }),
