@@ -523,9 +523,14 @@ export function EventModal({
         effectiveAttendees
       ) as Record<string, CalendarParticipant>;
       data.replyTo = { imip: `mailto:${organizerEmail}` };
+      // Stalwart (calcard) derives the iCalendar ORGANIZER property solely from
+      // organizerCalendarAddress; without it no ORGANIZER is emitted and iTIP
+      // scheduling is silently skipped (NoSchedulingInfo), so no invites are sent.
+      data.organizerCalendarAddress = `mailto:${organizerEmail}`;
     } else if (effectiveAttendees.length === 0 && event?.participants) {
       data.participants = null;
       data.replyTo = null;
+      data.organizerCalendarAddress = null;
     }
 
     const shouldSendScheduling = effectiveAttendees.length > 0 && sendInvitations;
