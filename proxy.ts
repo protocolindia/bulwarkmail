@@ -101,11 +101,17 @@ export async function proxy(request: NextRequest) {
 
   // Plugins may declare iframe origins they need (e.g. for embedded video).
   // Each origin is validated at install time and re-validated here.
+ 
   const pluginFrameOrigins = await getEnabledPluginFrameOrigins();
-  const frameSrc =
-    pluginFrameOrigins.length > 0
-      ? `frame-src 'self' blob: ${pluginFrameOrigins.join(" ")}`
-      : `frame-src 'self' blob:`;
+const extraFrameOrigins = (process.env.EXTRA_FRAME_ORIGINS || "")
+  .split(/[\s,]+/)
+  .map((s) => { try { return s ? new URL(s).origin : ""; } catch { return ""; } })
+  .filter(Boolean);
+const frameOrigins = [...pluginFrameOrigins, ...extraFrameOrigins];
+const frameSrc =
+  frameOrigins.length > 0
+    ? `frame-src 'self' blob: ${frameOrigins.join(" ")}`
+    : `frame-src 'self' blob:`;
 
   const csp = [
     `default-src 'self'`,
