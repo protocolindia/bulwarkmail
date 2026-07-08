@@ -8,7 +8,7 @@ import {
   seedAllMailSettings,
   folderRow,
   openFolder,
-  expectFolderUnread,
+  expectFolderCountsSynced,
   expectEmailVisible,
   emailItem,
   forceSync,
@@ -55,7 +55,7 @@ test.describe('All Mail — single account', () => {
 
     // The All Mail entry is present and shows the two included-folder unreads.
     await expect(folderRow(page, { name: ALL_MAIL }).first()).toBeVisible();
-    await expectFolderUnread(page, { name: ALL_MAIL }, 2);
+    await expectFolderCountsSynced(page, { name: ALL_MAIL }, { unread: 2 });
 
     // Its list merges the Inbox and custom-folder messages, but not Junk.
     await openFolder(page, { name: ALL_MAIL });
@@ -83,11 +83,10 @@ test.describe('All Mail — cross account', () => {
     await seedAllMailSettings(page, { crossAccount: true });
     await login(page, alice);
     await addAccount(page, bob);
-    await forceSync(page);
 
     // All Mail aggregates unread across both accounts (alice 1 + bob 1).
     await expect(folderRow(page, { name: ALL_MAIL }).first()).toBeVisible();
-    await expectFolderUnread(page, { name: ALL_MAIL }, 2);
+    await expectFolderCountsSynced(page, { name: ALL_MAIL }, { unread: 2 });
 
     await openFolder(page, { name: ALL_MAIL });
     await forceSync(page);

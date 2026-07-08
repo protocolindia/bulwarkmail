@@ -8,9 +8,9 @@ import {
   folderCounts,
   expectFolderUnread,
   expectFolderTotal,
+  expectFolderCountsSynced,
   emailItem,
   expectEmailVisible,
-  forceSync,
 } from './helpers/app';
 
 /**
@@ -82,11 +82,12 @@ test.describe('Single-account sync', () => {
     await jmap.request([
       ['Email/set', { accountId: jmap.accountId, update: { [email.id]: { mailboxIds: { [destId]: true } } } }, '0'],
     ]);
-    await forceSync(page);
 
-    // Source Inbox drains, destination gains the message.
-    await expectFolderUnread(page, { role: 'inbox' }, 0);
-    await expectFolderTotal(page, { name: 'Archive2' }, 1);
+    // Source Inbox drains, destination gains the message. These follow a
+    // reconcile (not live push), so nudge one before every poll to stay robust
+    // against a single missed reconcile under load.
+    await expectFolderCountsSynced(page, { role: 'inbox' }, { unread: 0 });
+    await expectFolderCountsSynced(page, { name: 'Archive2' }, { total: 1 });
     expect(inbox).toBeTruthy();
   });
 
@@ -99,13 +100,12 @@ test.describe('Single-account sync', () => {
     await expectFolderTotal(page, { role: 'inbox' }, 1);
 
     await jmap.request([['Email/set', { accountId: jmap.accountId, destroy: [email.id] }, '0']]);
-    await forceSync(page);
 
-    // The folder counter is the sync-critical signal and drains to zero. (The
-    // already-rendered list view is not re-queried on a background delete, so
-    // we don't assert on the row disappearing here.)
-    await expectFolderTotal(page, { role: 'inbox' }, 0);
-    await expectFolderUnread(page, { role: 'inbox' }, 0);
+    // The folder counter is the sync-critical signal and drains to zero (via a
+    // reconcile, nudged before every poll). (The already-rendered list view is
+    // not re-queried on a background delete, so we don't assert on the row
+    // disappearing here.)
+    await expectFolderCountsSynced(page, { role: 'inbox' }, { unread: 0, total: 0 });
   });
 
   test('counts are consistent between server and UI after a burst of deliveries', async ({ page }) => {

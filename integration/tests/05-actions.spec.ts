@@ -6,12 +6,12 @@ import {
   login,
   expectFolderUnread,
   expectFolderTotal,
+  expectFolderCountsSynced,
   expectEmailVisible,
   expectEmailUnread,
   emailContextAction,
   emailItem,
   openFolder,
-  forceSync,
 } from './helpers/app';
 
 /**
@@ -85,10 +85,9 @@ test.describe('Inbox message actions', () => {
     // The destination (Junk) counter updates optimistically, but the source
     // (Inbox) counter isn't always decremented until the next reconcile when
     // the action fires moments after login — unlike delete, which decrements
-    // the source immediately. A visibility reconcile settles it deterministically.
-    await expectFolderTotal(page, { role: 'junk' }, 1);
-    await forceSync(page);
-    await expectFolderTotal(page, { role: 'inbox' }, 0);
+    // the source immediately. The synced assertion nudges a reconcile per poll.
+    await expectFolderCountsSynced(page, { role: 'junk' }, { total: 1 });
+    await expectFolderCountsSynced(page, { role: 'inbox' }, { total: 0 });
 
     const junk = await jmap.mailboxByRole('junk');
     const found = await jmap.findEmailBySubject(s, junk!.id);
@@ -102,16 +101,21 @@ test.describe('Inbox message actions', () => {
 
     await login(page, alice);
     await emailContextAction(page, s, 'ctx-spam');
-    await expectFolderTotal(page, { role: 'junk' }, 1);
+    await expectFolderCountsSynced(page, { role: 'junk' }, { total: 1 });
 
     // Open Junk, then mark not-spam.
     await openFolder(page, { role: 'junk' });
     await expectEmailVisible(page, s);
     await emailContextAction(page, s, 'ctx-not-spam');
 
-    await expectFolderTotal(page, { role: 'junk' }, 0);
+    // The message leaves the open Junk list (optimistic) and round-trips on the
+    // server: out of Junk, back in Inbox. (Asserted on the optimistic list +
+    // authoritative server state rather than the Junk badge, whose reconcile
+    // can stall under heavy concurrent load.)
+    await expect(emailItem(page, s)).toHaveCount(0);
     const junk = await jmap.mailboxByRole('junk');
-    const stillInJunk = await jmap.findEmailBySubject(s, junk!.id);
-    expect(stillInJunk, 'message no longer in Junk').toBeFalsy();
+    const inbox = await jmap.mailboxByRole('inbox');
+    expect(await jmap.findEmailBySubject(s, junk!.id), 'message no longer in Junk').toBeFalsy();
+    expect(await jmap.findEmailBySubject(s, inbox!.id), 'message back in Inbox').toBeTruthy();
   });
 });

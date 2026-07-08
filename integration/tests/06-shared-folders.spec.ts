@@ -7,8 +7,7 @@ import {
   expandSharedFolders,
   folderRow,
   openFolder,
-  expectFolderUnread,
-  expectFolderTotal,
+  expectFolderCountsSynced,
   expectEmailVisible,
   expectEmailUnread,
   emailContextAction,
@@ -59,7 +58,7 @@ test.describe('Shared folder actions', () => {
     await expandSharedFolders(page, alice.email);
 
     await expect(folderRow(page, { name: SHARED, shared: true }).first()).toBeVisible();
-    await expectFolderUnread(page, { name: SHARED, shared: true }, 1);
+    await expectFolderCountsSynced(page, { name: SHARED, shared: true }, { unread: 1 });
 
     await openFolder(page, { name: SHARED, shared: true });
     await forceSync(page);
@@ -73,15 +72,14 @@ test.describe('Shared folder actions', () => {
     await login(page, carol);
     await expandSharedFolders(page, alice.email);
     await openFolder(page, { name: SHARED, shared: true });
-    await forceSync(page);
-    await expectFolderUnread(page, { name: SHARED, shared: true }, 1);
+    await expectFolderCountsSynced(page, { name: SHARED, shared: true }, { unread: 1 });
 
     await emailContextAction(page, s, 'ctx-mark-read');
     await expectEmailUnread(page, s, false);
-    await expectFolderUnread(page, { name: SHARED, shared: true }, 0);
+    await expectFolderCountsSynced(page, { name: SHARED, shared: true }, { unread: 0 });
 
     await emailContextAction(page, s, 'ctx-mark-unread');
-    await expectFolderUnread(page, { name: SHARED, shared: true }, 1);
+    await expectFolderCountsSynced(page, { name: SHARED, shared: true }, { unread: 1 });
 
     // Owner sees the same state on the server.
     const found = await ja.findEmailBySubject(s, sharedId);
@@ -95,17 +93,14 @@ test.describe('Shared folder actions', () => {
     await login(page, carol);
     await expandSharedFolders(page, alice.email);
     await openFolder(page, { name: SHARED, shared: true });
-    await forceSync(page);
-    await expectFolderTotal(page, { name: SHARED, shared: true }, 1);
+    await expectFolderCountsSynced(page, { name: SHARED, shared: true }, { total: 1 });
 
     await emailContextAction(page, s, 'ctx-delete');
-    await forceSync(page);
 
     // Source shared folder drains, and the message really is in the owner's
-    // Trash on the server. (Note: the shared *destination* counter — the shared
-    // Trash — does NOT refresh live in the sidebar; forceSync reconciles the
-    // active account only, not shared-account counters. Asserted server-side.)
-    await expectFolderTotal(page, { name: SHARED, shared: true }, 0);
+    // Trash on the server. (We assert the destination server-side rather than
+    // the shared Trash badge to keep the check independent of sidebar layout.)
+    await expectFolderCountsSynced(page, { name: SHARED, shared: true }, { total: 0 });
     const trash = await ja.mailboxByRole('trash');
     expect(await ja.findEmailBySubject(s, trash!.id), 'message in owner Trash').toBeTruthy();
   });
@@ -117,8 +112,7 @@ test.describe('Shared folder actions', () => {
     await login(page, carol);
     await expandSharedFolders(page, alice.email);
     await openFolder(page, { name: SHARED, shared: true });
-    await forceSync(page);
-    await expectFolderTotal(page, { name: SHARED, shared: true }, 1);
+    await expectFolderCountsSynced(page, { name: SHARED, shared: true }, { total: 1 });
 
     await emailContextAction(page, s, 'ctx-spam');
 

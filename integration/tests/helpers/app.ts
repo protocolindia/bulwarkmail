@@ -272,6 +272,34 @@ export async function expectFolderTotal(page: Page, sel: FolderSelector, expecte
     .toBe(expected);
 }
 
+/**
+ * Assert a folder's counts, nudging a reconcile (visibilitychange ->
+ * checkForStateChanges) before *every* poll. Use for counters that update via
+ * reconcile rather than live SSE push — after a server-side move/delete, a
+ * mark-as-spam, or a shared-account change — where a single missed reconcile
+ * would otherwise flake. Only the provided fields are compared.
+ */
+export async function expectFolderCountsSynced(
+  page: Page,
+  sel: FolderSelector,
+  expected: { unread?: number; total?: number },
+  timeout = 45000,
+): Promise<void> {
+  await expect
+    .poll(
+      async () => {
+        await forceSync(page);
+        const c = await folderCounts(page, sel);
+        return {
+          ...(expected.unread !== undefined ? { unread: c.unread } : {}),
+          ...(expected.total !== undefined ? { total: c.total } : {}),
+        };
+      },
+      { timeout, intervals: [500, 1000, 1500, 2000, 2000, 3000] },
+    )
+    .toEqual(expected);
+}
+
 /** Click a folder row to select it. */
 export async function openFolder(page: Page, sel: FolderSelector): Promise<void> {
   await folderRow(page, sel).first().click();

@@ -10,8 +10,7 @@ import {
   seedUnifiedSettings,
   folderRow,
   expectFolderUnread,
-  expectFolderTotal,
-  forceSync,
+  expectFolderCountsSynced,
 } from './helpers/app';
 
 /**
@@ -49,18 +48,17 @@ test.describe('Multi-account sync', () => {
     await expectFolderUnread(page, { role: 'inbox', name: 'Inbox' }, 2);
 
     await addAccount(page, bob);
-    await forceSync(page);
     // Both accounts are now registered in the switcher.
     await accountSwitcher(page).click();
     await expect(page.locator('[data-testid="account-option"]')).toHaveCount(2);
     await page.keyboard.press('Escape');
 
     // Active = bob: his own Inbox shows 1 unread — alice's 2 don't leak in.
-    await expectFolderUnread(page, { role: 'inbox', name: 'Inbox' }, 1);
+    await expectFolderCountsSynced(page, { role: 'inbox', name: 'Inbox' }, { unread: 1 });
 
     // Switch back to alice: her count is intact.
     await switchAccount(page, alice.email);
-    await expectFolderUnread(page, { role: 'inbox', name: 'Inbox' }, 2);
+    await expectFolderCountsSynced(page, { role: 'inbox', name: 'Inbox' }, { unread: 2 });
   });
 
   test('the cross-account Unified Inbox aggregates unread across accounts', async ({ page }) => {
@@ -70,30 +68,26 @@ test.describe('Multi-account sync', () => {
     await seedUnifiedSettings(page);
     await login(page, alice);
     await addAccount(page, bob);
-    await forceSync(page);
 
     // Unified Inbox = alice(1) + bob(1) = 2. The active account's own Inbox
     // (bob) still reports just its own 1.
     await expect(folderRow(page, { name: 'unified-inbox' }).first()).toBeVisible();
-    await expectFolderUnread(page, { name: 'unified-inbox' }, 2);
-    await expectFolderTotal(page, { name: 'unified-inbox' }, 2);
-    await expectFolderUnread(page, { role: 'inbox', name: 'Inbox' }, 1);
+    await expectFolderCountsSynced(page, { name: 'unified-inbox' }, { unread: 2, total: 2 });
+    await expectFolderCountsSynced(page, { role: 'inbox', name: 'Inbox' }, { unread: 1 });
   });
 
   test('a delivery to a background account bumps the Unified Inbox counter', async ({ page }) => {
     await seedUnifiedSettings(page);
     await login(page, alice);
     await addAccount(page, bob); // bob is now the active account
-    await forceSync(page);
-    await expectFolderUnread(page, { name: 'unified-inbox' }, 0);
+    await expectFolderCountsSynced(page, { name: 'unified-inbox' }, { unread: 0 });
 
     // Mail lands in alice's inbox while bob is the active account.
     await send(alice, subj('bg'));
-    await forceSync(page);
 
     // The unified counter reflects the background account's new mail.
-    await expectFolderUnread(page, { name: 'unified-inbox' }, 1);
+    await expectFolderCountsSynced(page, { name: 'unified-inbox' }, { unread: 1 });
     // bob (active) own Inbox is unaffected.
-    await expectFolderUnread(page, { role: 'inbox', name: 'Inbox' }, 0);
+    await expectFolderCountsSynced(page, { role: 'inbox', name: 'Inbox' }, { unread: 0 });
   });
 });
