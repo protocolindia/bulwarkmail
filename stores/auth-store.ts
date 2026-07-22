@@ -451,8 +451,11 @@ export async function connectedAccountCandidates(client: JMAPClient, serverUrl: 
   } catch { /* session unavailable */ }
   let primaryEmail: string | undefined;
   try {
-    const { primaryIdentity } = loadIdentities(await client.getIdentities(), client.getUsername());
-    primaryEmail = primaryIdentity?.email;
+    // Pure resolution (no setIdentities side effect): this guard runs while the
+    // previous account may still be on screen during a seamless switch, so it
+    // must not mutate the live identity store.
+    const sorted = sortIdentities(await client.getIdentities(), client.getUsername());
+    primaryEmail = sorted[0]?.email;
   } catch { /* identities unavailable */ }
   return buildServerIdentifiers(sessionUser, primaryEmail, serverUrl);
 }
@@ -1350,24 +1353,30 @@ export const useAuthStore = create<AuthState>()(
         const targetAccount = accountStore.getAccountById(accountId);
         if (!targetAccount) return;
 
-        // Null out the client immediately so the page doesn't fire data-loading
-        // effects with the old client while stores are being cleared.
-        set({ isLoading: true, client: null, isRateLimited: false, rateLimitUntil: null });
-
-        // Snapshot current account
-        if (state.activeAccountId) {
-          snapshotAccount(state.activeAccountId);
-        }
-
-        // Clear current stores
-        clearAllStores();
-        useSettingsStore.getState().disableSync();
-
-        // Get or create client for target account
+        // A switch between two already-connected accounts is done seamlessly:
+        // the current account's client and mail stay on screen while we verify
+        // the target session, then the store state is swapped in one synchronous
+        // batch (further below). Nulling the client / raising isLoading here
+        // would trip the page's full-screen loading gate and blank the whole app
+        // mid-switch, so we only do that when the target must be re-connected
+        // over the network (nothing worth keeping on screen while we wait).
         let targetClient = clients.get(accountId);
+        const wasConnected = !!targetClient;
         let targetRestoreRateLimited = false;
 
         if (!targetClient) {
+          // Null out the client immediately so the page doesn't fire data-loading
+          // effects with the old client while stores are being cleared.
+          set({ isLoading: true, client: null, isRateLimited: false, rateLimitUntil: null });
+
+          // Snapshot current account, then clear - there's nothing to keep on
+          // screen during the network round-trip.
+          if (state.activeAccountId) {
+            snapshotAccount(state.activeAccountId);
+          }
+          clearAllStores();
+          useSettingsStore.getState().disableSync();
+
           // Client not connected - try to restore
           try {
             if (targetAccount.authMode === 'oauth') {
@@ -1495,6 +1504,18 @@ export const useAuthStore = create<AuthState>()(
         // baseline now that we've confirmed a good session.
         if (connectedCandidates.length > 0) {
           accountStore.updateAccount(accountId, { serverIdentifiers: connectedCandidates });
+        }
+
+        // Seamless path: the outgoing account is still on screen (we deferred
+        // clearing it), so snapshot + clear it now - synchronously, right before
+        // the restore and client swap below - so the UI never blanks between the
+        // two accounts. The network path already snapshotted and cleared above.
+        if (wasConnected) {
+          if (state.activeAccountId) {
+            snapshotAccount(state.activeAccountId);
+          }
+          clearAllStores();
+          useSettingsStore.getState().disableSync();
         }
 
         // Restore cached state or fetch fresh
