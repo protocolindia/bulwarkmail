@@ -757,6 +757,18 @@ function findTrashMailbox(
   });
 }
 
+// Plugin re-render for already fetched emails.
+// Plugins can trigger: window.dispatchEvent(new Event('plugin:rerender-fetched-emails'))
+if (typeof window !== 'undefined') {
+  window.addEventListener('plugin:rerender-fetched-emails', async () => {
+    const state = useEmailStore.getState();
+    const transformed = await emailHooks.onEmailsFetched.transform(state.emails);
+    useEmailStore.setState({
+      emails: annotateScheduledEmails(transformed, state.scheduledSubmissionByEmailId),
+    });
+  });
+}
+
 export const useEmailStore = create<EmailStore>((set, get) => ({
   emails: [],
   mailboxes: [],
