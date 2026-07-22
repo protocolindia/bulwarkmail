@@ -29,6 +29,7 @@ import type {
 } from './protocol';
 import { themeSnapshotToCSS, type ThemeSnapshot } from './host-theme';
 import type { SlotName } from '../plugin-types';
+import { ContactCard } from '../jmap/types';
 
 // ─── Module-scope state ──────────────────────────────────────
 
@@ -203,6 +204,12 @@ function buildPluginApi(manifest: PluginManifest) {
         mailboxRoles: string[],
         opts?:  { keywords?: Record<string, boolean>; accountId?: string },
       ) => callApi('jmap.importRaw', [rawBytes, mailboxRoles, opts]),
+    },
+    contacts: {
+      get: (contactId: string) => callApi('contact.get', [contactId]) as Promise<ContactCard>,
+      update: (contactId: string, updates: Partial<ContactCard>) => callApi('contact.update', [contactId, updates]),
+      create: (contact: ContactCard) => callApi('contact.create', [contact]) as Promise<string>,
+      search: (query: string) => callApi('contact.search', [query]) as Promise<ContactCard[]>,
     },
     /**
      * Used to alterate files before they are uploaded to server.

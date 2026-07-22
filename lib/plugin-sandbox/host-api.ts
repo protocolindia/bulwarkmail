@@ -14,6 +14,7 @@ import { apiFetch } from '../browser-navigation';
 import { awaitDialog, awaitPrompt, type PromptField } from './host-dialog';
 import { fileStorage } from '../plugin-storage';
 import { generateUUID } from '../utils';
+import { ContactCard } from '../jmap/types';
 
 /**
  * Methods only callable from the privileged (same-origin) tier. These expose
@@ -56,6 +57,11 @@ const PERM_PER_METHOD: Record<string, Permission | null> = {
   'upfiles.get' : 'email:blob-write',
   'upfiles.save' : 'email:blob-write',
   'webauthn.getOrCreate': 'crypto:full',
+  // contact
+  'contact.get': 'contacts:read',
+  'contact.update': 'contacts:write',
+  'contact.create': 'contacts:write',
+  'contact.search': 'contacts:read',
   // admin
   'admin.getConfig': 'admin:config',
   'admin.getAllConfig': 'admin:config',
@@ -388,6 +394,40 @@ async function doJmapImportRaw(
   );
 }
 
+async function doContactSearch(query: string): Promise<ContactCard[]> {
+    const { client } = useAuthStore.getState();
+  if (!client) {
+    throw new Error('jmap.importRaw: no active session');
+  }
+  return await client.searchContacts(query);
+}
+
+async function doContactGet(contactId: string): Promise<ContactCard | null> {
+    const { client } = useAuthStore.getState();
+  if (!client) {
+    throw new Error('jmap.importRaw: no active session');
+  }
+  return await client.getContact(contactId);
+}
+
+async function doContactUpdate(id: string, contact: Partial<ContactCard>): Promise<void> {
+    const { client } = useAuthStore.getState();
+  if (!client) {
+    throw new Error('jmap.importRaw: no active session');
+  }
+
+  await client.updateContact(id, contact);
+}
+
+async function doContactCreate(contact: ContactCard): Promise<ContactCard> {
+    const { client } = useAuthStore.getState();
+      if (!client) {
+    throw new Error('jmap.importRaw: no active session');
+  }
+
+  return await client.createContact(contact);
+}
+
 // ─── WebAuthn (privileged tier) ─────────────────────────────────────────────
 
 // This salt acts as a constant context identifier for key derivation.
@@ -699,6 +739,11 @@ export async function dispatchApiCall(
     case 'upfiles.get' : return getFile(args[0] as string);
     case 'upfiles.save' : return saveFile(args[0] as string, args[1] as File);
     case 'webauthn.getOrCreate': return doGetOrCreatePRF(args[0] as number[] | undefined, args[1] as string | undefined, args[2] as string | undefined);
+    
+    case 'contact.get': return doContactGet(args[0] as string);
+    case 'contact.update': return doContactUpdate(args[0] as string, args[1] as Partial<ContactCard>);
+    case 'contact.create': return doContactCreate(args[0] as ContactCard);
+    case 'contact.search': return doContactSearch(args[0] as string);
 
     case 'admin.getConfig':    return adminGet(plugin.id, args[0] as string);
     case 'admin.getAllConfig': return adminGetAll(plugin.id);

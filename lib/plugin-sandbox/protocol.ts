@@ -244,6 +244,7 @@ export const API_METHODS = [
   'webauthn.getOrCreate',
   'jmap.fetchBlob', 'jmap.sendRaw',
   'upfiles.get', 'upfiles.save',
+  'contact.get', 'contact.update', 'contact.create', 'contact.search',
   'admin.getConfig', 'admin.getAllConfig', 'admin.setConfig', 'admin.deleteConfig',
   'toast.success', 'toast.error', 'toast.info', 'toast.warning',
   'ui.confirm', 'ui.alert', 'ui.prompt', 'ui.rerenderEmail', 'ui.rerenderFetchedEmails', 'ui.openExternalUrl', 'ui.downloadFile',
