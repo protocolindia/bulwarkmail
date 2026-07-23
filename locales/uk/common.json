@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "Адреса ел. пошти",
     "recipient_name_placeholder": "Відображуване ім'я",
     "autocomplete_search_server": "Шукати на сервері",
-    "autocomplete_searching": "Пошук..."
+    "autocomplete_searching": "Пошук...",
+    "send_filing_warning": "Надіслано - але подальше очищення не вдалося, може залишитися застаріла чернетка."
   },
   "confirm_dialog": {
     "confirm": "Підтвердити",

@@ -2707,6 +2707,7 @@ export class JMAPClient implements IJMAPClient {
     let createdEmailId: string | undefined;
     let emailSubmissionId: string | undefined;
     let serverSendAt: string | undefined;
+    let filingError: string | undefined;
 
     if (response.methodResponses) {
       for (const [methodName, result] of response.methodResponses) {
@@ -2740,6 +2741,24 @@ export class JMAPClient implements IJMAPClient {
           );
         }
 
+        // Post-submission filing problems (the implicit Email/set from
+        // onSuccessUpdateEmail, or destroying the old draft) must not fail
+        // the send - the message already left - but they must not stay
+        // silent either: a silently rejected filing/cleanup is exactly how
+        // "sent mail still sits in Drafts" reports look (#592, #588's
+        // sibling note in 4dc76bbb). Log the details and surface a warning
+        // to the caller.
+        if (result.notUpdated && Object.keys(result.notUpdated).length) {
+          console.error(`[sendEmail] ${methodName} notUpdated:`, JSON.stringify(result.notUpdated, null, 2));
+          const first = Object.values(result.notUpdated as Record<string, { type?: string; description?: string }>)[0];
+          filingError = filingError ?? (first?.description || first?.type || 'post-send filing failed');
+        }
+        if (result.notDestroyed && Object.keys(result.notDestroyed).length) {
+          console.error(`[sendEmail] ${methodName} notDestroyed (old draft):`, JSON.stringify(result.notDestroyed, null, 2));
+          const first = Object.values(result.notDestroyed as Record<string, { type?: string; description?: string }>)[0];
+          filingError = filingError ?? (first?.description || first?.type || 'old draft cleanup failed');
+        }
+
         if (methodName === 'Email/set' && result.created?.[emailId]?.id) {
           createdEmailId = result.created[emailId].id;
         }
@@ -2755,8 +2774,8 @@ export class JMAPClient implements IJMAPClient {
     }
 
     return delayedUntil
-      ? { scheduled: true, emailId: createdEmailId, emailSubmissionId, sendAt: serverSendAt }
-      : { scheduled: false, emailId: createdEmailId, emailSubmissionId };
+      ? { scheduled: true, emailId: createdEmailId, emailSubmissionId, sendAt: serverSendAt, filingError }
+      : { scheduled: false, emailId: createdEmailId, emailSubmissionId, filingError };
   }
 
   /**

@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "Endereço de e-mail",
     "recipient_name_placeholder": "Nome de exibição",
     "autocomplete_search_server": "Pesquisar no servidor",
-    "autocomplete_searching": "Pesquisando..."
+    "autocomplete_searching": "Pesquisando...",
+    "send_filing_warning": "Enviado - mas a limpeza posterior falhou, um rascunho antigo pode permanecer."
   },
   "confirm_dialog": {
     "confirm": "Confirmar",

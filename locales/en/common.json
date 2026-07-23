@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "Email address",
     "recipient_name_placeholder": "Display name",
     "autocomplete_search_server": "Search the server",
-    "autocomplete_searching": "Searching..."
+    "autocomplete_searching": "Searching...",
+    "send_filing_warning": "Sent - but the post-send cleanup failed, a stale draft may remain."
   },
   "confirm_dialog": {
     "confirm": "Confirm",

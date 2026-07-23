@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "E-mail-cím",
     "recipient_name_placeholder": "Megjelenített név",
     "autocomplete_search_server": "Keresés a kiszolgálón",
-    "autocomplete_searching": "Keresés..."
+    "autocomplete_searching": "Keresés...",
+    "send_filing_warning": "Elküldve - de az utólagos rendrakás nem sikerült, egy elavult piszkozat megmaradhat."
   },
   "confirm_dialog": {
     "confirm": "Megerősítés",

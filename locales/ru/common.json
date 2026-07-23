@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "Адрес эл. почты",
     "recipient_name_placeholder": "Отображаемое имя",
     "autocomplete_search_server": "Искать на сервере",
-    "autocomplete_searching": "Поиск..."
+    "autocomplete_searching": "Поиск...",
+    "send_filing_warning": "Отправлено - но последующая очистка не удалась, может остаться устаревший черновик."
   },
   "confirm_dialog": {
     "confirm": "Подтвердить",

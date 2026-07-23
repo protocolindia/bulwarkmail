@@ -1222,6 +1222,14 @@ export default function Home() {
 
       const result = await sendEmail(client, data.to, data.subject, data.body, data.cc, data.bcc, data.identityId, data.fromEmail, data.draftId, data.fromName, data.htmlBody, data.attachments, data.inReplyTo, data.references, data.delayedUntil, data.envelopeMailFrom, { requestReadReceipt: data.requestReadReceipt });
       setShowComposer(false);
+      if (result.filingError) {
+        // The mail went out, but a post-send step (filing to Sent /
+        // removing the old draft) was rejected - warn instead of staying
+        // silent, so a stale draft row is not mistaken for a failed send
+        // and re-sent (#592).
+        const toastInstance = (await import('sonner')).toast;
+        toastInstance.warning(t('email_composer.send_filing_warning'));
+      }
       if (result.scheduled) {
         await refreshScheduledMetadata(client);
         if (isScheduledView) await fetchScheduledEmails(client);

@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "آدرس ایمیل",
     "recipient_name_placeholder": "نام نمایشی",
     "autocomplete_search_server": "جستجو در سرور",
-    "autocomplete_searching": "در حال جستجو..."
+    "autocomplete_searching": "در حال جستجو...",
+    "send_filing_warning": "ارسال شد - اما پاک‌سازی پس از ارسال ناموفق بود، ممکن است پیش‌نویس قدیمی باقی بماند."
   },
   "confirm_dialog": {
     "confirm": "تأیید",

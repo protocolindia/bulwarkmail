@@ -1848,7 +1848,12 @@ export function EmailComposer({
         inReplyTo: threadingHeaders?.inReplyTo?.[0],
       };
       const sendAllowed = await emailHooks.onBeforeEmailSend.intercept(sendablePreview);
-      if (!sendAllowed) return;
+      if (!sendAllowed) {
+        // A plugin vetoed the send (it is expected to show its own UI).
+        // Leave a trace so a silent no-op send is diagnosable (#592).
+        debug.log('email', 'Send aborted by an onBeforeEmailSend plugin handler');
+        return;
+      }
 
       // Hand off to a crypto plugin (S/MIME, PGP, …) if one wants to take over
       // the send: it builds raw MIME, signs/encrypts, and submits via

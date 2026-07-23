@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "Adres e-mail",
     "recipient_name_placeholder": "Wyświetlana nazwa",
     "autocomplete_search_server": "Szukaj na serwerze",
-    "autocomplete_searching": "Wyszukiwanie..."
+    "autocomplete_searching": "Wyszukiwanie...",
+    "send_filing_warning": "Wysłano - ale późniejsze porządkowanie nie powiodło się, może pozostać nieaktualna wersja robocza."
   },
   "confirm_dialog": {
     "confirm": "Potwierdź",

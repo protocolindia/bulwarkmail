@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "电子邮件地址",
     "recipient_name_placeholder": "显示名称",
     "autocomplete_search_server": "在服务器上搜索",
-    "autocomplete_searching": "搜索中..."
+    "autocomplete_searching": "搜索中...",
+    "send_filing_warning": "已发送，但发送后的清理失败，可能会残留旧草稿。"
   },
   "confirm_dialog": {
     "confirm": "确认",

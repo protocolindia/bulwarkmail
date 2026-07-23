@@ -2884,7 +2884,14 @@ export const useEmailStore = create<EmailStore>((set, get) => ({
       const merged: Email[] = [...refreshedEmails];
       const mergedIds = new Set(refreshedEmails.map((e: Email) => e.id));
       const insertedCount = Math.max((result.total || 0) - previousTotal, 0);
-      const appendFromIndex = Math.max(refreshedEmails.length - insertedCount, 0);
+      // Derive the cutoff from the page size, not from the refreshed list's
+      // length: when the folder shrank (a deletion - e.g. the draft of a just
+      // sent mail), the fresh page is shorter than the stale list and a
+      // length-based cutoff re-appends the deleted rows from stale local
+      // state. That ghost row is how "sent mail still shows as draft"
+      // reports happen (#592) - and re-sending the ghost delivers the mail
+      // again.
+      const appendFromIndex = Math.max(emailsPerPage - insertedCount, 0);
 
       for (const email of currentEmails.slice(appendFromIndex)) {
         if (!mergedIds.has(email.id)) {

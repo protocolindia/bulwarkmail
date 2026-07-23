@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "E-mailová adresa",
     "recipient_name_placeholder": "Zobrazené meno",
     "autocomplete_search_server": "Hľadať na serveri",
-    "autocomplete_searching": "Hľadanie..."
+    "autocomplete_searching": "Hľadanie...",
+    "send_filing_warning": "Odoslané - ale následné upratovanie zlyhalo, môže zostať zastaraný koncept."
   },
   "confirm_dialog": {
     "confirm": "Potvrdiť",

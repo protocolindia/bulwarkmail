@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "E-posta adresi",
     "recipient_name_placeholder": "Görünen ad",
     "autocomplete_search_server": "Sunucuda ara",
-    "autocomplete_searching": "Aranıyor..."
+    "autocomplete_searching": "Aranıyor...",
+    "send_filing_warning": "Gönderildi - ancak sonrasındaki temizleme başarısız oldu, eski bir taslak kalabilir."
   },
   "confirm_dialog": {
     "confirm": "Onayla",

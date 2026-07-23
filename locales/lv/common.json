@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "E-pasta adrese",
     "recipient_name_placeholder": "Parādāmais vārds",
     "autocomplete_search_server": "Meklēt serverī",
-    "autocomplete_searching": "Meklē..."
+    "autocomplete_searching": "Meklē...",
+    "send_filing_warning": "Nosūtīts - bet pēcapstrāde neizdevās, var palikt novecojis melnraksts."
   },
   "confirm_dialog": {
     "confirm": "Apstiprināt",

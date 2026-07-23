@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "Indirizzo email",
     "recipient_name_placeholder": "Nome visualizzato",
     "autocomplete_search_server": "Cerca nel server",
-    "autocomplete_searching": "Ricerca in corso..."
+    "autocomplete_searching": "Ricerca in corso...",
+    "send_filing_warning": "Inviato - ma la pulizia successiva non è riuscita, potrebbe restare una bozza obsoleta."
   },
   "confirm_dialog": {
     "confirm": "Conferma",

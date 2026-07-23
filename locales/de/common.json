@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "E-Mail-Adresse",
     "recipient_name_placeholder": "Anzeigename",
     "autocomplete_search_server": "Auf dem Server suchen",
-    "autocomplete_searching": "Suche läuft..."
+    "autocomplete_searching": "Suche läuft...",
+    "send_filing_warning": "Gesendet - aber das Aufräumen danach schlug fehl, evtl. bleibt ein alter Entwurf sichtbar."
   },
   "confirm_dialog": {
     "confirm": "Bestätigen",

@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "Dirección de correo",
     "recipient_name_placeholder": "Nombre para mostrar",
     "autocomplete_search_server": "Buscar en el servidor",
-    "autocomplete_searching": "Buscando..."
+    "autocomplete_searching": "Buscando...",
+    "send_filing_warning": "Enviado - pero la limpieza posterior falló, puede quedar un borrador obsoleto."
   },
   "confirm_dialog": {
     "confirm": "Confirmar",

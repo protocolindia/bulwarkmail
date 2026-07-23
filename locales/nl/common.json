@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "E-mailadres",
     "recipient_name_placeholder": "Weergavenaam",
     "autocomplete_search_server": "Op de server zoeken",
-    "autocomplete_searching": "Bezig met zoeken..."
+    "autocomplete_searching": "Bezig met zoeken...",
+    "send_filing_warning": "Verzonden - maar het opruimen daarna is mislukt, mogelijk blijft een oud concept staan."
   },
   "confirm_dialog": {
     "confirm": "Bevestigen",

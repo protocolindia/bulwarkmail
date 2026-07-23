@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "E-mailadresse",
     "recipient_name_placeholder": "Visningsnavn",
     "autocomplete_search_server": "Søg på serveren",
-    "autocomplete_searching": "Søger..."
+    "autocomplete_searching": "Søger...",
+    "send_filing_warning": "Sendt - men oprydningen bagefter mislykkedes, en forældet kladde kan blive stående."
   },
   "confirm_dialog": {
     "confirm": "Bekræft",

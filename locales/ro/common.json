@@ -685,7 +685,8 @@
     "recipient_email_placeholder": "Adresă de e-mail",
     "recipient_name_placeholder": "Numele afișat",
     "autocomplete_search_server": "Caută pe server",
-    "autocomplete_searching": "Se caută..."
+    "autocomplete_searching": "Se caută...",
+    "send_filing_warning": "Trimis - dar curățarea ulterioară a eșuat, poate rămâne o ciornă veche."
   },
   "confirm_dialog": {
     "confirm": "Confirmare",
