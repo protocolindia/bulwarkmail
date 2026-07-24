@@ -114,6 +114,7 @@
     "unified_archive": "Všechny archivy",
     "unified_junk": "Všechen spam",
     "all_accounts": "Všechny účty",
+    "unified_mailbox": "Sjednocená schránka",
     "expand": "Rozbalit",
     "collapse": "Sbalit",
     "expand_tooltip": "Rozbalit",
@@ -137,7 +138,9 @@
     "scheduled": "Naplánováno",
     "unified_all_unread": "Vše nepřečtené",
     "unified_all_starred": "Vše s hvězdičkou",
-    "unified_all_mail": "Veškerá pošta"
+    "unified_all_mail": "Veškerá pošta",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "Výchozí aplikace",
@@ -274,6 +277,8 @@
     "no_subject": "(Bez předmětu)",
     "no_body_content": "(Žádný obsah těla)",
     "no_preview_available": "Náhled není k dispozici",
+    "show_quoted_text": "Zobrazit citovaný text",
+    "hide_quoted_text": "Skrýt citovaný text",
     "loading_email": "Načítání zprávy...",
     "loading": "Načítání...",
     "reply": "Odpovědět",
@@ -436,7 +441,9 @@
       "confirm_button": "Potvrdit",
       "cancel": "Zrušit",
       "success_http": "Stránka pro odhlášení byla otevřena na nové kartě",
-      "success_mailto": "Požadavek na odhlášení byl odeslán do e-mailového klienta",
+      "success_mailto": "Odhlašovací e-mail byl odeslán",
+      "confirm_message_http": "Odhlašovací stránka se otevře na nové kartě.",
+      "confirm_message_mailto": "Odesílateli bude zaslán odhlašovací e-mail.",
       "error": "Odběr nelze odhlásit",
       "dismiss": "Zavřít"
     },
@@ -632,7 +639,9 @@
     "validation": {
       "recipient_required": "Chcete-li zprávu odeslat, přidejte příjemce",
       "subject_required": "Přidejte předmět",
-      "body_required": "Napište zprávu nebo připojte soubor"
+      "body_required": "Napište zprávu nebo připojte soubor",
+      "attachments_uploading": "Přílohy se stále nahrávají – odeslání proběhne po dokončení",
+      "attachment_upload_failed": "Neodesláno - přílohu se nepodařilo nahrát. Odeberte ji a zkuste to znovu."
     },
     "upload_progress": "Nahrávání {uploaded} / {total}",
     "upload_cancel": "Zrušit nahrávání",
@@ -643,7 +652,6 @@
     "continue_draft": "Pokračovat v úpravě konceptu",
     "close_draft_title": "Uložit nebo zahodit koncept?",
     "close_draft_message": "Máte neuložené změny. Chcete je uložit jako koncept, nebo zahodit?",
-    "save_draft": "Uložit koncept",
     "smime_sign_on": "Podepisování S/MIME zapnuto",
     "smime_sign_off": "Zapnout podepisování S/MIME",
     "smime_encrypt_on": "Šifrování S/MIME zapnuto",
@@ -675,7 +683,10 @@
     "recipient_edit_email": "Upravit e-mailovou adresu",
     "recipient_edit_name": "Upravit zobrazované jméno",
     "recipient_email_placeholder": "E-mailová adresa",
-    "recipient_name_placeholder": "Zobrazované jméno"
+    "recipient_name_placeholder": "Zobrazované jméno",
+    "autocomplete_search_server": "Hledat na serveru",
+    "autocomplete_searching": "Hledání...",
+    "send_filing_warning": "Odesláno - ale následný úklid selhal, může zůstat zastaralý koncept."
   },
   "confirm_dialog": {
     "confirm": "Potvrdit",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -916,14 +929,16 @@
       "unified_mailbox": {
         "label": "Sjednocená schránka",
         "description": "Zobrazovat sloučené složky (Doručené, Odeslané atd.) ze všech připojených účtů",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "Zahrnout skupinové schránky",
           "description": "Zahrnout do sjednoceného zobrazení také sdílené/skupinové schránky."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Applies to {account}.",
@@ -933,9 +948,17 @@
         "label": "Barevné ikony postranního panelu",
         "description": "Obarví ikony složek a štítků podle typu (modré Doručené, červený Spam, zelené Odeslané atd.). Vypněte pro jednobarevný postranní panel."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "Zobrazit celkový počet zpráv",
         "description": "Zobrazí celkový počet zpráv vedle složek a štítků spolu s počtem nepřečtených. Vypněte pro zobrazení pouze nepřečtených."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro rozhraní (experimentální)",
@@ -1047,6 +1070,14 @@
         "preview_this_week": "Tento týden:",
         "preview_older": "Starší:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "Formát času",
         "description": "Vyberte 12hodinový nebo 24hodinový formát času",
@@ -1089,6 +1120,13 @@
         "trash_and_read": "Přesunout do Koše a označit jako přečtené",
         "permanent": "Trvale odstranit",
         "warning": "E-maily budou trvale odstraněny a nebude možné je obnovit. Tato akce je nevratná."
+      },
+      "message_spacing": {
+        "label": "Odsazení zprávy",
+        "description": "Odsazení kolem těla zprávy při čtení",
+        "auto": "Automaticky (doporučeno)",
+        "always": "Vždy přidat odsazení",
+        "edge": "Od okraje k okraji"
       },
       "archive_mode": {
         "label": "Archivovat do",
@@ -1253,8 +1291,12 @@
         "unsupported": "Aktuální účet neoznamuje podporu odloženého odeslání. Nastavení zůstane uloženo pro jiné účty."
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "Návrat do seznamu po smazání nebo označení jako nepřečtené",
+        "description": "Po smazání nebo označení otevřené zprávy jako nepřečtené se vrátit do seznamu zpráv místo otevření následující zprávy."
+      },
+      "rtl_editing": {
+        "label": "Podpora psaní zprava doleva",
+        "description": "Přidá do panelu nástrojů editoru tlačítko směru textu, kterým lze odstavce nastavit zleva doprava nebo zprava doleva"
       }
     },
     "composer": {
@@ -1501,7 +1543,10 @@
         "subject_placeholder": "Mimo kancelář",
         "body_label": "Tělo zprávy",
         "body_description": "Obsah zprávy v prostém textu",
-        "body_placeholder": "Děkuji za vaši zprávu. Momentálně jsem mimo kancelář a odpovím po svém návratu."
+        "body_placeholder": "Děkuji za vaši zprávu. Momentálně jsem mimo kancelář a odpovím po svém návratu.",
+        "html_label": "Formátovaná zpráva (HTML)",
+        "html_description": "Přidejte formátovanou verzi s odkazy a stylem. Příjemci, jejichž poštovní klient ji nedokáže zobrazit, uvidí prostý text výše.",
+        "html_placeholder": "Napište formátovanou odpověď o nepřítomnosti…"
       },
       "preview": {
         "title": "Náhled",
@@ -1533,6 +1578,8 @@
       "role_none": "Žádná",
       "create_folder": "Vytvořit složku",
       "create_subfolder": "Vytvořit podsložku",
+      "reorder": "Přetažením změníte pořadí",
+      "reorder_error": "Nepodařilo se změnit pořadí složek",
       "subfolder_of": "Ve složce {name}",
       "subfolder_name": "Název podsložky",
       "new_folder_name": "Název složky",
@@ -1597,6 +1644,11 @@
         "label": "Klávesové zkratky",
         "description": "Zobrazit dostupné klávesové zkratky",
         "button": "Zobrazit zkratky"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "Resetovat nastavení",
@@ -1942,6 +1994,8 @@
     "mark_unread": "Označit jako nepřečtené",
     "star": "Označit hvězdičkou",
     "unstar": "Odebrat hvězdičku",
+    "pin": "Připnout",
+    "unpin": "Odepnout",
     "move_to": "Přesunout do...",
     "archive": "Archivovat",
     "delete": "Odstranit",
@@ -2081,9 +2135,9 @@
       "email_invalid": "Zadejte platnou e-mailovou adresu",
       "email_immutable": "E-mailovou adresu nelze po vytvoření změnit",
       "reply_to_label": "Odpovědět na (volitelně)",
-      "reply_to_placeholder": "jiny@email.com",
+      "reply_to_placeholder": "jiny@example.com",
       "bcc_label": "Automatická skrytá kopie (volitelně)",
-      "bcc_placeholder": "archiv@email.com",
+      "bcc_placeholder": "archiv@example.com",
       "text_signature_label": "Textový podpis",
       "html_signature_label": "HTML podpis",
       "signature_byte_counter": "{bytes} / {max} bajtů",
@@ -2878,7 +2932,19 @@
       "sep": "zář",
       "oct": "říj",
       "nov": "lis",
-      "dec": "pro"
+      "dec": "pro",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "nav_open_menu": "Otevřít nabídku"
   },

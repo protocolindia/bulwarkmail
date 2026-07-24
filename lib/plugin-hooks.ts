@@ -183,7 +183,14 @@ export const emailHooks = {
   onComposerOpen: new HookBus(),
   onBeforeEmailSend: new HookBus(),
   onAfterEmailSend: new HookBus(),
+  // Transform hook - fires before the draft is auto-saved to the server.
+  // Receive fields passed to client.createDraft and may mutate fields in place.
+  // Return false to cancel the auto-save or a the fields.
+  onBeforeDraftAutoSave: new HookBus(),
   onDraftAutoSave: new HookBus(),
+  // Transform hook - fires before a draft is created from an email in draft mailbox.
+  // Receive a Email object and may mutate fields in place.
+  onBeforeEditDraft: new HookBus(),
   onBeforeEmailDelete: new HookBus(),
   onAfterEmailDelete: new HookBus(),
   onBeforeEmailMove: new HookBus(),
@@ -232,6 +239,12 @@ export const emailHooks = {
   // attachment. Handler receives AttachmentInfo (size/type/name only - the
   // raw file is not exposed). Return false to refuse the upload.
   onBeforeAttachmentUpload: new HookBus(),
+  // Intercept hook fired before a file is uploaded to JMAP server. 
+  // It is fired after onBeforeAttachmentUpload.
+  // Handler receive the {file: File, blobId: 'undefined'} object. 
+  // If it uploaded, it must return the object with true blobId. 
+  // Here, the raw file sended is exposed and can be modified or replaced. 
+  onBeforeBlobUpload: new HookBus(),
   // Observer fired after an attachment has been uploaded and its blobId is
   // available. Handler receives AttachmentInfo with `blobId` populated.
   onAfterAttachmentUpload: new HookBus(),
@@ -259,6 +272,14 @@ export const emailHooks = {
   // normally. This is the send-takeover hook used by the S/MIME plugin to
   // replace the former native sign+encrypt+sendRaw pipeline.
   onComposeSend: new HookBus(),
+  // Transform hook - receive Email[] or ScheduledEmail[] just after there are fetched to 
+  // lets plugin edit emails before they are shown in row. Used to populate preview 
+  // field for encryption plugins.
+  onEmailsFetched: new HookBus(),
+  // Transform hook - lets plugins edit the recipient chips in composer fields.
+  // They can add, remove, or modify chips (e.g. rewrite addresses, add colors/icons).
+  // Take Recipient[] as argument.
+  onRecipientChipsChange: new HookBus(),
 };
 
 // §7.2 Calendar Hooks
@@ -371,8 +392,22 @@ export const identityHooks = {
 export const filterHooks = {
   onFiltersLoaded: new HookBus(),
   onFilterRuleChange: new HookBus(),
+  // Observer fired after the host successfully uploads the account's active
+  // Sieve script (visual-builder save or plugin-triggered regenerate).
   onFiltersSave: new HookBus(),
   onSieveScriptChange: new HookBus(),
+  /**
+   * Transform hook - runs on the full Sieve script text immediately before
+   * the host uploads it as the account's active script.
+   *
+   *   handler(script: string, ctx: SieveScriptGenerateContext): string | undefined
+   *
+   * Return a modified script (e.g. append a plugin-managed categorizer
+   * section) or undefined to pass through. Handlers MUST keep the script
+   * valid — put extra `require` statements at the very top. Trigger a
+   * regeneration from a plugin via `api.sieve.regenerate()`.
+   */
+  onSieveScriptGenerate: new HookBus(),
 };
 
 // §7.9 Task Hooks
@@ -544,6 +579,26 @@ export const renderHooks = {
   onRenderEmailBody: new HookBus(),
 };
 
+// §7.24 Message-List Tab Hooks (Gmail-style category tabs)
+export const messageListTabHooks = {
+  // Observer - the merged tab set changed (a plugin registered or cleared
+  // its tabs). Receives the resolved MessageListTab[] (empty when cleared).
+  onTabsChange: new HookBus(),
+  // Observer - the user switched tabs. Receives TabActivateContext.
+  onTabActivate: new HookBus(),
+  // Intercept - fires before the host applies a category keyword patch to
+  // messages (api.tabs.categorize or native UI). Receives
+  // EmailCategorizeContext; return false to cancel the move.
+  onBeforeEmailCategorize: new HookBus(),
+  // Observer - fires after the keyword patch was applied. Receives the same
+  // EmailCategorizeContext. This is where a plugin persists per-sender
+  // overrides and calls api.sieve.regenerate() ("do this for all mail from X").
+  onEmailCategorize: new HookBus(),
+  // Observer - per-tab unread counts were refreshed. Receives
+  // Record<tabId, number>.
+  onTabCountsRefresh: new HookBus(),
+};
+
 // ─── Aggregate: remove all handlers for a plugin across all buses ───
 
 const allHookGroups = [
@@ -552,7 +607,7 @@ const allHookGroups = [
   taskHooks, templateHooks, smimeHooks, vacationHooks,
   uiHooks, themeHooks, toastHooks, dragDropHooks,
   keyboardHooks, appLifecycleHooks, accountSecurityHooks, sidebarAppHooks,
-  avatarHooks, renderHooks, routerHooks,
+  avatarHooks, renderHooks, routerHooks, messageListTabHooks,
 ];
 
 export function removeAllPluginHooks(pluginId: string): void {

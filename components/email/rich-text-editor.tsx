@@ -8,6 +8,7 @@ import Heading from "@tiptap/extension-heading";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
+import { TextDirection } from "@/components/email/text-direction";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import { ResizableImage } from "@/components/email/resizable-image";
@@ -19,6 +20,7 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { QuotedHtml, serializeEditorContent } from "@/components/email/quoted-html";
 import { SignatureBlock } from "@/components/email/signature-block";
 import { cn } from "@/lib/utils";
+import { useSettingsStore } from "@/stores/settings-store";
 import {
   Bold,
   Italic,
@@ -29,6 +31,7 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  ArrowLeftRight,
   Link as LinkIcon,
   Undo,
   Redo,
@@ -38,6 +41,7 @@ import {
   Heading1,
   Heading2,
   Table as TableIcon,
+  Baseline,
   Trash2,
   Rows3,
   Columns3,
@@ -140,6 +144,14 @@ function ToolbarSeparator() {
 const TABLE_PICKER_ROWS = 6;
 const TABLE_PICKER_COLS = 8;
 
+// Preset text colours (2 x 8). Inline `style="color: …"` survives email
+// round-trips; the TextStyle/Color extensions are already registered to
+// preserve pasted colours - this palette just adds a UI to set them.
+const TEXT_COLORS = [
+  "#000000", "#5f6368", "#9aa0a6", "#c5221f", "#e8710a", "#f9ab00", "#188038", "#1967d2",
+  "#7627bb", "#c2185b", "#795548", "#fa5252", "#fd7e14", "#40c057", "#4dabf7", "#e64980",
+];
+
 function TableSizePicker({ onPick }: { onPick: (rows: number, cols: number) => void }) {
   const [hover, setHover] = useState<{ r: number; c: number } | null>(null);
   return (
@@ -183,6 +195,7 @@ export function RichTextEditor({
   hasError,
   onEditorReady,
 }: RichTextEditorProps) {
+  const rtlEditingSupport = useSettingsStore((st) => st.rtlEditingSupport);
   const onImageUploadRef = React.useRef(onImageUpload);
   onImageUploadRef.current = onImageUpload;
   const onEditorReadyRef = React.useRef(onEditorReady);
@@ -240,6 +253,7 @@ export function RichTextEditor({
       // rich/branded signatures keep their inline styling in the editor and
       // in the sent mail (see signature-block.ts).
       SignatureBlock,
+      TextDirection,
     ],
     content,
     editorProps: {
@@ -331,6 +345,19 @@ export function RichTextEditor({
 
   const [tableMenuOpen, setTableMenuOpen] = useState(false);
   const tableWrapperRef = useRef<HTMLDivElement>(null);
+  const [colorMenuOpen, setColorMenuOpen] = useState(false);
+  const colorWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!colorMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (colorWrapperRef.current && !colorWrapperRef.current.contains(e.target as Node)) {
+        setColorMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [colorMenuOpen]);
 
   useEffect(() => {
     if (!tableMenuOpen) return;
@@ -381,6 +408,49 @@ export function RichTextEditor({
         >
           <Strikethrough className="w-4 h-4" />
         </ToolbarButton>
+        <div ref={colorWrapperRef} className="relative">
+          <ToolbarButton
+            active={!!editor.getAttributes("textStyle").color}
+            onClick={() => setColorMenuOpen((v) => !v)}
+            title="Text color"
+          >
+            {/* The icon itself previews the active colour - no layout shift. */}
+            <Baseline className="w-4 h-4" style={{ color: editor.getAttributes("textStyle").color || undefined }} />
+          </ToolbarButton>
+          {colorMenuOpen && (
+            <div className="absolute z-50 top-full start-0 mt-1 bg-popover border border-border rounded-md shadow-md p-2">
+              <div className="grid gap-0.5" style={{ gridTemplateColumns: "repeat(8, 1fr)" }}>
+                {TEXT_COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    title={color}
+                    onClick={() => {
+                      editor.chain().focus().setColor(color).run();
+                      setColorMenuOpen(false);
+                    }}
+                    className={cn(
+                      "w-4 h-4 border border-border/60 rounded-[2px] transition-transform hover:scale-110",
+                      editor.getAttributes("textStyle").color === color && "ring-1 ring-ring ring-offset-1"
+                    )}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+              <div className="h-px bg-border my-1.5" />
+              <button
+                type="button"
+                className="flex items-center gap-2 px-2 py-1 text-sm rounded hover:bg-accent text-start w-full"
+                onClick={() => {
+                  editor.chain().focus().unsetColor().run();
+                  setColorMenuOpen(false);
+                }}
+              >
+                <RemoveFormatting className="w-4 h-4" /> Remove color
+              </button>
+            </div>
+          )}
+        </div>
 
         <ToolbarSeparator />
 
@@ -454,6 +524,22 @@ export function RichTextEditor({
           <AlignRight className="w-4 h-4" />
         </ToolbarButton>
 
+        {rtlEditingSupport && (
+          <ToolbarButton
+            active={
+              (editor.getAttributes("paragraph").dir || editor.getAttributes("heading").dir) === "rtl"
+            }
+            onClick={() => {
+              const cur =
+                editor.getAttributes("paragraph").dir || editor.getAttributes("heading").dir;
+              editor.chain().focus().setTextDirection(cur === "rtl" ? "ltr" : "rtl").run();
+            }}
+            title="Text direction (RTL/LTR)"
+          >
+            <ArrowLeftRight className="w-4 h-4" />
+          </ToolbarButton>
+        )}
+
         <ToolbarSeparator />
 
         <ToolbarButton
@@ -473,33 +559,33 @@ export function RichTextEditor({
             <TableIcon className="w-4 h-4" />
           </ToolbarButton>
           {tableMenuOpen && (
-            <div className="absolute z-50 top-full left-0 mt-1 bg-popover border border-border rounded-md shadow-md p-2 min-w-[200px]">
+            <div className="absolute z-50 top-full start-0 mt-1 bg-popover border border-border rounded-md shadow-md p-2 min-w-[200px]">
               {editor.isActive("table") ? (
                 <div className="flex flex-col gap-0.5">
                   <button
                     type="button"
-                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-left"
+                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-start"
                     onClick={() => { editor.chain().focus().addRowBefore().run(); setTableMenuOpen(false); }}
                   >
                     <Rows3 className="w-4 h-4" /> Add row above
                   </button>
                   <button
                     type="button"
-                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-left"
+                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-start"
                     onClick={() => { editor.chain().focus().addRowAfter().run(); setTableMenuOpen(false); }}
                   >
                     <Rows3 className="w-4 h-4" /> Add row below
                   </button>
                   <button
                     type="button"
-                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-left"
+                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-start"
                     onClick={() => { editor.chain().focus().addColumnBefore().run(); setTableMenuOpen(false); }}
                   >
                     <Columns3 className="w-4 h-4" /> Add column before
                   </button>
                   <button
                     type="button"
-                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-left"
+                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-start"
                     onClick={() => { editor.chain().focus().addColumnAfter().run(); setTableMenuOpen(false); }}
                   >
                     <Columns3 className="w-4 h-4" /> Add column after
@@ -507,21 +593,21 @@ export function RichTextEditor({
                   <div className="h-px bg-border my-1" />
                   <button
                     type="button"
-                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-left"
+                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-start"
                     onClick={() => { editor.chain().focus().deleteRow().run(); setTableMenuOpen(false); }}
                   >
                     <Trash2 className="w-4 h-4" /> Delete row
                   </button>
                   <button
                     type="button"
-                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-left"
+                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-start"
                     onClick={() => { editor.chain().focus().deleteColumn().run(); setTableMenuOpen(false); }}
                   >
                     <Trash2 className="w-4 h-4" /> Delete column
                   </button>
                   <button
                     type="button"
-                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-left"
+                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-start"
                     onClick={() => { editor.chain().focus().toggleHeaderRow().run(); setTableMenuOpen(false); }}
                   >
                     <Rows3 className="w-4 h-4" /> Toggle header row
@@ -529,7 +615,7 @@ export function RichTextEditor({
                   <div className="h-px bg-border my-1" />
                   <button
                     type="button"
-                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-left text-red-600 dark:text-red-400"
+                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-accent text-start text-red-600 dark:text-red-400"
                     onClick={() => { editor.chain().focus().deleteTable().run(); setTableMenuOpen(false); }}
                   >
                     <Trash2 className="w-4 h-4" /> Delete table

@@ -302,6 +302,11 @@ describe('JMAPClient resilience', () => {
     });
 
     it('does not mark the connection lost or reconnect repeatedly while rate limited', async () => {
+      // The file-level shouldAdvanceTime lets fake time creep forward with
+      // the wall clock, which can fire the 30s keep-alive an extra time on a
+      // slow or loaded machine. This test counts pings, so pin the clock and
+      // advance it explicitly.
+      vi.useFakeTimers({ shouldAdvanceTime: false });
       const client = await createConnectedClient();
       const callback = vi.fn();
       client.onConnectionChange(callback);
@@ -341,6 +346,68 @@ describe('JMAPClient resilience', () => {
       await vi.advanceTimersByTimeAsync(60_000);
 
       expect(callback).not.toHaveBeenCalled();
+    });
+  });
+
+  // Every account switch tears down and re-creates push for all connected
+  // clients. Aborting an SSE connect that is still in flight must read as an
+  // intentional close: treated as a network failure it spawns an unsupervised
+  // 3s polling interval per client, and its late rejection nulls the abort
+  // controller of the connection set up right after - which then can never be
+  // closed and reconnects itself in parallel. Rapid switching multiplies both
+  // until the server's concurrency limit stalls the app.
+  describe('SSE connect aborted mid-flight (account-switch churn)', () => {
+    function inFlightFetch(signals: AbortSignal[]) {
+      return (_url: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.signal) signals.push(init.signal);
+        return new Promise<Response>((_resolve, reject) => {
+          const abort = () => reject(new DOMException('The operation was aborted.', 'AbortError'));
+          if (init?.signal?.aborted) return abort();
+          init?.signal?.addEventListener('abort', abort);
+        });
+      };
+    }
+
+    it('does not fall back to polling when the in-flight connect was aborted', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: false });
+      const client = await createConnectedClient();
+      fetchSpy.mockImplementation(inFlightFetch([]));
+
+      client.setupPushNotifications();
+      client.closePushNotifications();
+
+      // Flush the 1s network-error retry inside authenticatedFetch and a few
+      // would-be polling ticks (3s each).
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      // The polling fallback is recognizable by its state-poll body; a
+      // keep-alive Core/echo that slips in must not fail the assertion.
+      const statePolls = fetchSpy.mock.calls.filter((call: unknown[]) => {
+        const body = (call[1] as RequestInit | undefined)?.body;
+        return typeof body === 'string' && body.includes('Mailbox/get');
+      });
+      expect(statePolls).toHaveLength(0);
+    });
+
+    it('keeps the replacement connection abortable when the aborted connect settles late', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: false });
+      const client = await createConnectedClient();
+      const signals: AbortSignal[] = [];
+      fetchSpy.mockImplementation(inFlightFetch(signals));
+
+      client.setupPushNotifications();
+      client.closePushNotifications();
+      client.setupPushNotifications();
+      // The retry inside authenticatedFetch re-sends the aborted first
+      // attempt later, so grab the replacement's signal now.
+      const replacementSignal = signals[signals.length - 1];
+
+      // Let the first attempt run through its retry and reject - after the
+      // replacement connect is already up.
+      await vi.advanceTimersByTimeAsync(2_000);
+
+      client.closePushNotifications();
+      expect(replacementSignal.aborted).toBe(true);
     });
   });
 
@@ -395,6 +462,55 @@ describe('JMAPClient resilience', () => {
       await expect(
         client.fetchBlobAsObjectUrl('bad-blob', 'file.dat')
       ).rejects.toThrow('Failed to fetch blob: 404');
+    });
+  });
+
+  // #281 V3: every email fetch path must namespace mailboxIds for shared/
+  // delegated accounts (`${ownerId}:${id}`) so they line up with the store's
+  // namespaced shared-mailbox ids. searchEmails/advancedSearchEmails are the
+  // cross-view (All mail / Unread / Starred) browse paths and previously did not.
+  describe('shared-account mailboxId namespacing', () => {
+    function queryAndGet(email: Record<string, unknown>) {
+      return {
+        methodResponses: [
+          ['Email/query', { total: 1, ids: ['e1'] }, '0'],
+          ['Email/get', { list: [email] }, '1'],
+        ],
+      };
+    }
+
+    it('advancedSearchEmails namespaces bare owner mailboxIds for a foreign account', async () => {
+      const client = await createConnectedClient(); // primary acct-1
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse(200, queryAndGet({ id: 'e1', receivedAt: '2026-01-01T00:00:00Z', mailboxIds: { 'x-inbox': true } })),
+      );
+
+      const { emails } = await client.advancedSearchEmails({ inMailbox: 'owner-x:x-inbox' }, 'owner-x');
+
+      expect(emails[0].mailboxIds).toEqual({ 'owner-x:x-inbox': true });
+      expect(emails[0].mailboxIds['x-inbox']).toBeUndefined();
+    });
+
+    it('searchEmails namespaces bare owner mailboxIds for a foreign account', async () => {
+      const client = await createConnectedClient();
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse(200, queryAndGet({ id: 'e1', receivedAt: '2026-01-01T00:00:00Z', mailboxIds: { 'x-inbox': true } })),
+      );
+
+      const { emails } = await client.searchEmails('hello', undefined, 'owner-x');
+
+      expect(emails[0].mailboxIds).toEqual({ 'owner-x:x-inbox': true });
+    });
+
+    it('leaves own-account mailboxIds untouched (no foreign accountId)', async () => {
+      const client = await createConnectedClient(); // primary acct-1
+      fetchSpy.mockResolvedValueOnce(
+        mockFetchResponse(200, queryAndGet({ id: 'e1', receivedAt: '2026-01-01T00:00:00Z', mailboxIds: { inbox: true } })),
+      );
+
+      const { emails } = await client.advancedSearchEmails({ inMailbox: 'inbox' });
+
+      expect(emails[0].mailboxIds).toEqual({ inbox: true });
     });
   });
 });

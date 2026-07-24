@@ -39,14 +39,30 @@ export type SignaturePosition = 'above_quote' | 'below_quote';
 /** How to handle an incoming Disposition-Notification-To (read-receipt) request. */
 export type ReadReceiptResponse = 'ask' | 'always' | 'never';
 export type DateFormat = 'smart' | 'relative' | 'full';
+/**
+ * Regional ordering of numeric dates, independent of the `DateFormat` style.
+ *   - `auto`  — follow the UI language (today's behaviour).
+ *   - `iso`   — ISO 8601, `YYYY-MM-DD`.
+ *   - `en-GB` — Day/Month/Year (`DD/MM/YYYY`).
+ *   - `en-US` — Month/Day/Year (`MM/DD/YYYY`).
+ */
+export type DateLocale = 'auto' | 'iso' | 'en-GB' | 'en-US';
 export type TimeFormat = '12h' | '24h';
-export type FirstDayOfWeek = 0 | 1; // 0 = Sunday, 1 = Monday
+export type FirstDayOfWeek = 0 | 1 | 6; // 0 = Sunday, 1 = Monday, 6 = Saturday
 export type ExternalContentPolicy = 'ask' | 'block' | 'allow';
 export type MailAttachmentAction = 'preview' | 'download';
 export type AttachmentPosition = 'beside-sender' | 'below-header';
 export type ToolbarPosition = 'top' | 'below-subject';
 export type ArchiveMode = 'single' | 'year' | 'month';
 export type MailLayout = 'split' | 'focus' | 'horizontal';
+
+/**
+ * Spacing around a message body in the reader.
+ * - 'auto'  : add a gutter unless the email paints its own full-bleed background
+ * - 'always': always add the gutter
+ * - 'edge'  : never add one (render edge-to-edge)
+ */
+export type MessageSpacing = 'auto' | 'always' | 'edge';
 export type CalendarHoverPreview = 'off' | 'instant' | 'delay-500ms' | 'delay-1s' | 'delay-2s';
 export type SendDelaySeconds = 0 | 10 | 30 | 60;
 export type ProtocolOpenMode = 'active-session' | 'new-tab';
@@ -135,6 +151,7 @@ interface SettingsState {
 
   // Language & Region
   dateFormat: DateFormat;
+  dateLocale: DateLocale;
   timeFormat: TimeFormat;
   firstDayOfWeek: FirstDayOfWeek;
 
@@ -147,6 +164,7 @@ interface SettingsState {
   mailLayout: MailLayout;
   emailsPerPage: number;
   externalContentPolicy: ExternalContentPolicy;
+  messageSpacing: MessageSpacing; // Gutter around the message body in the reader
   mailAttachmentAction: MailAttachmentAction;
   attachmentPosition: AttachmentPosition;
   emailAlwaysLightMode: boolean; // Always render email content in light mode
@@ -161,6 +179,7 @@ interface SettingsState {
   defaultReplyMode: ReplyMode;
   autoSelectReplyIdentity: boolean;
   plainTextMode: boolean; // Send plain text only (no rich text editor)
+  rtlEditingSupport: boolean; // Show a per-paragraph LTR/RTL direction control in the composer (Gmail-style)
   subAddressDelimiter: string; // Character separating user from tag (e.g. "user+tag@")
   sendDelaySeconds: SendDelaySeconds;
   signaturePosition: SignaturePosition; // Position of the signature relative to quoted text in replies/forwards
@@ -168,17 +187,14 @@ interface SettingsState {
   requestReadReceiptDefault: boolean; // Pre-check "request read receipt" in the composer
   readReceiptResponse: ReadReceiptResponse; // How to respond to incoming read-receipt requests
 
-  // Identities
-  // Per-account default ("preferred primary") sender identity, keyed by
-  // username (the same key settings sync uses). A JMAP identity id is only
-  // meaningful within its own account, so this must be account-scoped. Synced
-  // so the choice survives a new browser / cleared site data (#507).
-  preferredIdentityIds: Record<string, string | null>;
-
   // Privacy & Security
   sessionTimeout: number; // minutes (0 = never)
   trustedSenders: string[]; // Email addresses that can load external content
-  trustedSendersAddressBook: boolean; // Store trusted senders in a dedicated JMAP address book
+  // Store trusted senders in a dedicated JMAP address book so they sync across
+  // devices. `null` means "not yet decided": resolved on first connect to
+  // `true` when the server supports contacts, otherwise left off. Once the user
+  // toggles it, it holds a concrete boolean and is never auto-changed again.
+  trustedSendersAddressBook: boolean | null;
 
   // Filters
   expandedFilterView: boolean;
@@ -226,32 +242,44 @@ interface SettingsState {
 
   // Unified Mailbox
   enableUnifiedMailbox: boolean;
+  // Include shared/delegated folders in the unified mailbox. Default true: the
+  // account-bounded unified view is defined by spanning the account's own folders
+  // plus every shared folder it can access.
   includeGroupInUnified: boolean;
+  // When true, the unified mailbox merges across every logged-in account
+  // (cross-account). When false (default for new installs) it stays within the
+  // active account boundary (own + shared folders). Gated by the admin
+  // `unifiedCrossAccountEnabled` feature.
+  unifiedCrossAccount: boolean;
 
-  // All Mail view (gated): user toggle (like the unified mailbox) plus the set
-  // of folder ids merged into the virtual "All Mail" mailbox. `null` = never
-  // configured, in which case the view defaults to all non-special (no-role)
-  // folders of the active account.
-  enableAllMailView: boolean;
-
-  // Cross-account "All accounts" views (gated per-view by the admin policy)
+  // Unified Mailbox entries, each gated per-view by the admin policy. These show
+  // the All mail / Unread / Starred lists, scoped by `unifiedCrossAccount` and
+  // narrowed by the `allMailFolderIds` folder selection.
   enableCrossUnreadView: boolean;
   enableCrossStarredView: boolean;
   enableCrossAllView: boolean;
 
-  // Per-account "All Mail" folder selection, keyed by AccountEntry.id. A
-  // missing entry = "not configured" -> defaults to every no-role folder; an
-  // explicit [] = "no folders". (Replaced the legacy global string[] | null.)
+  // Per-account folder selection narrowing the unified All mail / Unread /
+  // Starred lists, keyed by AccountEntry.id. A missing entry = "not configured"
+  // -> defaults to inbox + custom folders; an explicit [] = "no own folders".
   allMailFolderIds: Record<string, string[]>;
+
+  // Per-account default sender identity, keyed by AccountEntry.id -> JMAP
+  // Identity id. Synced (and exported) so the chosen default survives clearing
+  // site data and follows the user across browsers/devices (issue #507). Kept
+  // per account because JMAP identity ids are account-scoped and would collide.
+  preferredIdentityIds: Record<string, string>;
 
   // Email Display
   disableThreading: boolean; // Show emails as individual messages instead of grouped by conversation
 
   senderFavicons: boolean;
   showAvatarsInJunk: boolean; // Show profile images/favicons in the junk folder
+  faviconUnreadBadge: boolean; // Badge the browser-tab icon with the inbox unread count
 
   // Sidebar
   colorfulSidebarIcons: boolean; // Tint folder icons by role (inbox blue, junk red, etc.)
+  tintListRowsByTag: boolean; // Tint mail-list rows by the first tag color
   showFolderTotalCount: boolean; // Show total message count next to folders/tags (alongside unread)
 
   // Folders
@@ -346,6 +374,7 @@ const DEFAULT_SETTINGS = {
 
   // Language & Region
   dateFormat: 'smart' as DateFormat,
+  dateLocale: 'auto' as DateLocale,
   timeFormat: '24h' as TimeFormat,
   firstDayOfWeek: 1 as FirstDayOfWeek, // Monday
 
@@ -358,6 +387,7 @@ const DEFAULT_SETTINGS = {
   mailLayout: 'split' as MailLayout,
   emailsPerPage: 50,
   externalContentPolicy: 'ask' as ExternalContentPolicy,
+  messageSpacing: 'auto' as MessageSpacing,
   mailAttachmentAction: 'preview' as MailAttachmentAction,
   attachmentPosition: 'beside-sender' as AttachmentPosition,
   emailAlwaysLightMode: false,
@@ -372,6 +402,7 @@ const DEFAULT_SETTINGS = {
   defaultReplyMode: 'reply' as ReplyMode,
   autoSelectReplyIdentity: false,
   plainTextMode: false,
+  rtlEditingSupport: false,
   subAddressDelimiter: DEFAULT_SUB_ADDRESS_DELIMITER,
   sendDelaySeconds: 0 as SendDelaySeconds,
   signaturePosition: 'below_quote' as SignaturePosition,
@@ -379,13 +410,10 @@ const DEFAULT_SETTINGS = {
   requestReadReceiptDefault: false,
   readReceiptResponse: 'ask' as ReadReceiptResponse,
 
-  // Identities
-  preferredIdentityIds: {} as Record<string, string | null>,
-
   // Privacy & Security
   sessionTimeout: 0, // Never
   trustedSenders: [] as string[],
-  trustedSendersAddressBook: false,
+  trustedSendersAddressBook: null as boolean | null,
 
   // Filters
   expandedFilterView: false,
@@ -430,11 +458,11 @@ const DEFAULT_SETTINGS = {
 
   // Unified Mailbox
   enableUnifiedMailbox: false,
-  includeGroupInUnified: false,
+  includeGroupInUnified: true,
+  unifiedCrossAccount: false,
 
-  // All Mail view (gated)
-  enableAllMailView: false,
   allMailFolderIds: {} as Record<string, string[]>,
+  preferredIdentityIds: {} as Record<string, string>,
 
   enableCrossUnreadView: false,
   enableCrossStarredView: false,
@@ -445,9 +473,11 @@ const DEFAULT_SETTINGS = {
 
   senderFavicons: true,
   showAvatarsInJunk: false,
+  faviconUnreadBadge: true,
 
   // Sidebar
   colorfulSidebarIcons: true,
+  tintListRowsByTag: true,
   showFolderTotalCount: true,
 
   // Folders
@@ -561,6 +591,7 @@ export const useSettingsStore = create<SettingsState>()(
           density: state.density,
           animationsEnabled: state.animationsEnabled,
           dateFormat: state.dateFormat,
+          dateLocale: state.dateLocale,
           timeFormat: state.timeFormat,
           firstDayOfWeek: state.firstDayOfWeek,
           markAsReadDelay: state.markAsReadDelay,
@@ -570,6 +601,7 @@ export const useSettingsStore = create<SettingsState>()(
           mailLayout: state.mailLayout,
           emailsPerPage: state.emailsPerPage,
           externalContentPolicy: state.externalContentPolicy,
+          messageSpacing: state.messageSpacing,
           mailAttachmentAction: state.mailAttachmentAction,
           attachmentPosition: state.attachmentPosition,
           archiveMode: state.archiveMode,
@@ -583,13 +615,13 @@ export const useSettingsStore = create<SettingsState>()(
           defaultReplyMode: state.defaultReplyMode,
           autoSelectReplyIdentity: state.autoSelectReplyIdentity,
           plainTextMode: state.plainTextMode,
+          rtlEditingSupport: state.rtlEditingSupport,
           subAddressDelimiter: state.subAddressDelimiter,
           sendDelaySeconds: state.sendDelaySeconds,
           signaturePosition: state.signaturePosition,
           signatureSeparatorEnabled: state.signatureSeparatorEnabled,
           requestReadReceiptDefault: state.requestReadReceiptDefault,
           readReceiptResponse: state.readReceiptResponse,
-          preferredIdentityIds: state.preferredIdentityIds,
           sessionTimeout: state.sessionTimeout,
           emailNotificationsEnabled: state.emailNotificationsEnabled,
           emailNotificationSound: state.emailNotificationSound,
@@ -615,14 +647,17 @@ export const useSettingsStore = create<SettingsState>()(
           // (see DEVICE_LOCAL_SETTING_KEYS) and must not be synced.
           enableUnifiedMailbox: state.enableUnifiedMailbox,
           includeGroupInUnified: state.includeGroupInUnified,
-          enableAllMailView: state.enableAllMailView,
+          unifiedCrossAccount: state.unifiedCrossAccount,
           allMailFolderIds: state.allMailFolderIds,
+          preferredIdentityIds: state.preferredIdentityIds,
           enableCrossUnreadView: state.enableCrossUnreadView,
           enableCrossStarredView: state.enableCrossStarredView,
           enableCrossAllView: state.enableCrossAllView,
           senderFavicons: state.senderFavicons,
           showAvatarsInJunk: state.showAvatarsInJunk,
+          faviconUnreadBadge: state.faviconUnreadBadge,
           colorfulSidebarIcons: state.colorfulSidebarIcons,
+          tintListRowsByTag: state.tintListRowsByTag,
           showFolderTotalCount: state.showFolderTotalCount,
           folderIcons: state.folderIcons,
           emailKeywords: state.emailKeywords,
@@ -673,8 +708,8 @@ export const useSettingsStore = create<SettingsState>()(
               if (key === 'allMailFolderIds' && !isPlainRecord(settings[key])) {
                 return;
               }
-              // Defensive: a non-record (e.g. a legacy scalar) would break the
-              // per-account map lookups - ignore it.
+              // Per-account map (accountId -> identityId); ignore any legacy
+              // global/non-record value rather than corrupting the map.
               if (key === 'preferredIdentityIds' && !isPlainRecord(settings[key])) {
                 return;
               }
@@ -856,14 +891,10 @@ export const useSettingsStore = create<SettingsState>()(
             get().importSettings(JSON.stringify(settings));
             isLoadingFromServer = false;
             syncLog('Settings loaded from server successfully');
-            // Re-apply the (possibly server-updated) per-account preferred
-            // sender identity to the already-loaded identities, so a fresh
-            // browser reflects the synced default without waiting for the next
-            // identity refresh. Dynamic import avoids a static import cycle
-            // (auth-store imports this store). (#507)
-            import('./auth-store')
-              .then(({ useAuthStore }) => useAuthStore.getState().applyPreferredIdentityOrdering())
-              .catch(() => {});
+            // The per-account preferred sender identity (#507) is re-applied by
+            // applyPreferredIdentity() in auth-store, invoked from the
+            // loadFromServer().finally() of every login / switch / restore path,
+            // so no extra hook is needed here.
             return true;
           }
           return false;
@@ -876,9 +907,36 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'settings-storage',
-      version: 5,
-      migrate: (persisted, version) => {
-        const state = persisted as Record<string, unknown>;
+      version: 7,
+      migrate: migrateSettings,
+      onRehydrateStorage: () => {
+        return (state) => {
+          if (state) {
+            // Defensive: a legacy global array or any non-record value (e.g.
+            // synced from an older client) is coerced to an empty map so
+            // per-account consumers never see a non-record.
+            if (!isPlainRecord(state.allMailFolderIds)) {
+              state.allMailFolderIds = {};
+            }
+            if (!isPlainRecord(state.preferredIdentityIds)) {
+              state.preferredIdentityIds = {};
+            }
+            applyFontSize(state.fontSize);
+            applyDensity(state.density);
+            applyAnimations(state.animationsEnabled);
+          }
+        };
+      },
+    }
+  )
+);
+
+/**
+ * Versioned migration for persisted settings. Exported for tests. Mutates and
+ * returns the persisted record so each bump only needs to handle its own delta.
+ */
+export function migrateSettings(persisted: unknown, version: number): SettingsState {
+  const state = persisted as Record<string, unknown>;
         if (version < 2 && state.listDensity) {
           state.density = state.listDensity;
           delete state.listDensity;
@@ -904,29 +962,40 @@ export const useSettingsStore = create<SettingsState>()(
         if (version < 5 || !isPlainRecord(state.allMailFolderIds)) {
           state.allMailFolderIds = {};
         }
-        return state as unknown as SettingsState;
-      },
-      onRehydrateStorage: () => {
-        return (state) => {
-          if (state) {
-            // Defensive: a legacy global array or any non-record value (e.g.
-            // synced from an older client) is coerced to an empty map so
-            // per-account consumers never see a non-record.
-            if (!isPlainRecord(state.allMailFolderIds)) {
-              state.allMailFolderIds = {};
-            }
-            if (!isPlainRecord(state.preferredIdentityIds)) {
-              state.preferredIdentityIds = {};
-            }
-            applyFontSize(state.fontSize);
-            applyDensity(state.density);
-            applyAnimations(state.animationsEnabled);
+        // "All accounts" was reworked into the account-bounded "Unified
+        // Mailbox". The standalone __all_mail__ view (`enableAllMailView`) was
+        // folded into the unified "All mail" entry (`enableCrossAllView`), and a
+        // `unifiedCrossAccount` toggle now governs whether the views span every
+        // logged-in account. Existing users keep their current behaviour:
+        //  - if any cross view was on, they were already cross-account -> keep it on
+        //  - else if only standalone All Mail was on, enable the account-bounded
+        //    unified "All mail" entry (folder selection carries over via allMailFolderIds)
+        // Guarded at <7 (not <6) so users who stopped at main's interim v6
+        // identity-map bump - which shipped without this rework - still receive it.
+        if (version < 7) {
+          const hadCross = !!(state.enableCrossUnreadView || state.enableCrossStarredView || state.enableCrossAllView);
+          if (hadCross) {
+            state.unifiedCrossAccount = true;
+          } else if (state.enableAllMailView) {
+            state.enableUnifiedMailbox = true;
+            state.enableCrossAllView = true;
+            state.unifiedCrossAccount = false;
           }
-        };
-      },
-    }
-  )
-);
+          delete state.enableAllMailView;
+          if (typeof state.unifiedCrossAccount !== 'boolean') state.unifiedCrossAccount = false;
+          // The reworked unified mailbox spans the account's own folders plus its
+          // shared/group folders, so enable shared inclusion for every migrated
+          // configuration (matches the new-install default).
+          state.includeGroupInUnified = true;
+        }
+        // Per-account default-identity map (issue #507). Coerce any
+        // missing/legacy value to an empty record. Guarded at <6 so users who
+        // already received it via main's v6 bump keep their populated map.
+        if (version < 6 || !isPlainRecord(state.preferredIdentityIds)) {
+          state.preferredIdentityIds = {};
+        }
+        return state as unknown as SettingsState;
+}
 
 // Helper functions to apply settings to DOM
 function applyFontSize(size: FontSize) {

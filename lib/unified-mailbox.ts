@@ -22,6 +22,18 @@ export interface UnifiedAccountClient {
   // must use the mailbox's `originalId` and explicitly target this accountId
   // so the server routes to the owner's data.
   isShared?: boolean;
+  // Store-side mailbox ids that make up THIS account's contribution to the
+  // cross views (All mail / Unread / Starred). It is intentionally per-account,
+  // not a global list: mailbox ids are account-scoped, so an id from one account
+  // is meaningless in another. The effective folder set of a cross view is the
+  // UNION across every account's entry (one UnifiedAccountClient per account),
+  // i.e. the sum of the respective per-account selections.
+  //
+  // For personal accounts this is the user's folder selection
+  // (`allMailFolderIds[accountId]`); shared/group accounts are not individually
+  // configurable and leave this undefined. When undefined, getCrossIncludedMailboxes
+  // falls back to the role-exclusion default (inbox + custom folders).
+  crossIncludedMailboxIds?: string[];
 }
 
 export interface UnifiedFetchResult {
@@ -49,7 +61,12 @@ const ALL_UNIFIED_ROLES: UnifiedMailboxRole[] = [
  */
 export function resolveSourceFolderName(email: Email, mailboxes: Mailbox[]): string | undefined {
   for (const m of mailboxes) {
-    if (email.mailboxIds?.[m.originalId ?? m.id]) return m.name;
+    // All fetch paths now namespace shared emails' mailboxIds to the store id
+    // (`${ownerId}:${origId}`), so matching `m.id` works for own and shared
+    // alike. The `originalId` check stays as a defensive fallback for any email
+    // that still carries a bare owner id. (#281 V3)
+    if (email.mailboxIds?.[m.id]) return m.name;
+    if (m.originalId && email.mailboxIds?.[m.originalId]) return m.name;
   }
   return undefined;
 }
@@ -313,10 +330,18 @@ export function fetchUnifiedMailboxCounts(
 // filter is built from each account's included-mailbox ids.
 
 /**
- * Mailboxes of an account included in the cross-account views: everything whose
- * role is not excluded (inbox + custom/no-role folders).
+ * Mailboxes of an account included in the cross views (All mail / Unread /
+ * Starred). When the account carries an explicit `crossIncludedMailboxIds`
+ * selection (personal accounts honor the user's folder picker, shared accounts
+ * include everything), only those mailboxes are used. Otherwise it falls back
+ * to the role-exclusion default: everything whose role is not excluded (inbox +
+ * custom/no-role folders).
  */
 export function getCrossIncludedMailboxes(account: UnifiedAccountClient): Mailbox[] {
+  if (account.crossIncludedMailboxIds) {
+    const selected = new Set(account.crossIncludedMailboxIds);
+    return account.mailboxes.filter((m) => selected.has(m.id));
+  }
   return account.mailboxes.filter((m) => !CROSS_EXCLUDED_ROLES.has(m.role ?? ''));
 }
 
@@ -443,6 +468,29 @@ export async function searchCrossViewEmails(
       limit,
       position,
     ));
+}
+
+/**
+ * Like `searchCrossViewEmails`, but applies an advanced filter (text + field
+ * conditions from `buildJMAPFilter`, built WITHOUT an `inMailbox` clause) on top
+ * of the cross-view membership. `extraFilter` may be empty ({}), in which case
+ * only the membership filter is used (equivalent to a plain browse).
+ */
+export async function advancedSearchCrossViewEmails(
+  accounts: UnifiedAccountClient[],
+  view: CrossView,
+  extraFilter: Record<string, unknown>,
+  limit: number,
+  position: number,
+): Promise<UnifiedFetchResult> {
+  const hasExtra = Object.keys(extraFilter).length > 0;
+  return fanOutCrossQuery(accounts, (account, jmapAccountId, ids) => {
+    const membership = buildCrossFilter(view, ids);
+    const filter = hasExtra
+      ? { operator: 'AND', conditions: [membership, extraFilter] }
+      : membership;
+    return account.client.advancedSearchEmails(filter, jmapAccountId, limit, position);
+  });
 }
 
 /**

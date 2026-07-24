@@ -114,6 +114,7 @@
     "unified_archive": "Visi arhīvi",
     "unified_junk": "Viss mēstules",
     "all_accounts": "Visi konti",
+    "unified_mailbox": "Apvienotā pastkaste",
     "expand": "Izvērst",
     "collapse": "Sairt",
     "expand_tooltip": "Izvērst",
@@ -137,7 +138,9 @@
     "scheduled": "Ieplānots",
     "unified_all_unread": "Visi nelasītie",
     "unified_all_starred": "Visi ar zvaigzni",
-    "unified_all_mail": "Visas vēstules"
+    "unified_all_mail": "Visas vēstules",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "Noklusējuma lietotnes",
@@ -274,6 +277,8 @@
     "no_subject": "(nav temata)",
     "no_body_content": "(nav satura)",
     "no_preview_available": "Priekšskatījums nav pieejams",
+    "show_quoted_text": "Rādīt citēto tekstu",
+    "hide_quoted_text": "Paslēpt citēto tekstu",
     "loading_email": "Ielādē vēstuli...",
     "loading": "Ielādē...",
     "reply": "Atbildēt",
@@ -436,7 +441,9 @@
       "confirm_button": "Apstiprināt",
       "cancel": "Atcelt",
       "success_http": "Atteikšanās lapa atvērta jaunā cilnē",
-      "success_mailto": "Atteikšanās pieprasījums nosūtīts",
+      "success_mailto": "Atrakstīšanās e-pasts nosūtīts",
+      "confirm_message_http": "Atrakstīšanās lapa tiks atvērta jaunā cilnē.",
+      "confirm_message_mailto": "Sūtītājam tiks nosūtīts atrakstīšanās e-pasts.",
       "error": "Neizdevās atteikties",
       "dismiss": "Aizvērt"
     },
@@ -632,7 +639,9 @@
     "validation": {
       "recipient_required": "Norādiet vismaz vienu saņēmēju",
       "subject_required": "Norādiet tematu",
-      "body_required": "Ierakstiet ziņojumu vai pievienojiet failu"
+      "body_required": "Ierakstiet ziņojumu vai pievienojiet failu",
+      "attachments_uploading": "Pielikumi joprojām tiek augšupielādēti — nosūtīs, tiklīdz tas pabeigts",
+      "attachment_upload_failed": "Nav nosūtīts - pielikumu neizdevās augšupielādēt. Noņemiet to un mēģiniet vēlreiz."
     },
     "upload_progress": "Augšupielāde {uploaded} / {total}",
     "upload_cancel": "Atcelt augšupielādi",
@@ -643,7 +652,6 @@
     "continue_draft": "Turpināt melnrakstu",
     "close_draft_title": "Saglabāt vai atmest melnrakstu?",
     "close_draft_message": "Ir nesaglabātas izmaiņas. Vai vēlaties saglabāt kā melnrakstu vai atmest?",
-    "save_draft": "Saglabāt melnrakstu",
     "smime_sign_on": "S/MIME paraksts iespējots",
     "smime_sign_off": "Iespējot S/MIME parakstu",
     "smime_encrypt_on": "S/MIME šifrēšana iespējota",
@@ -675,7 +683,10 @@
     "recipient_edit_email": "Rediģēt e-pasta adresi",
     "recipient_edit_name": "Rediģēt parādāmo vārdu",
     "recipient_email_placeholder": "E-pasta adrese",
-    "recipient_name_placeholder": "Parādāmais vārds"
+    "recipient_name_placeholder": "Parādāmais vārds",
+    "autocomplete_search_server": "Meklēt serverī",
+    "autocomplete_searching": "Meklē...",
+    "send_filing_warning": "Nosūtīts - bet pēcapstrāde neizdevās, var palikt novecojis melnraksts."
   },
   "confirm_dialog": {
     "confirm": "Apstiprināt",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -916,14 +929,16 @@
       "unified_mailbox": {
         "label": "Apvienotā pastkaste",
         "description": "Rādīt apvienotās mapes (Iesūtne, Nosūtītie u.c.) no visiem pievienotajiem kontiem",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "Iekļaut grupas pastkastes",
           "description": "Iekļaut apvienotajā skatā arī koplietotās/grupas pastkastes."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Applies to {account}.",
@@ -933,9 +948,17 @@
         "label": "Krāsainas sānjoslas ikonas",
         "description": "Iekrāsojiet mapju un birku ikonas pēc to veida (zila Iesūtne, sarkana Mēstules, zaļa Nosūtītie utt.). Atspējojiet, lai iegūtu vienkrāsainu sānjoslu."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "Rādīt kopējo ziņojumu skaitu",
         "description": "Rāda kopējo ziņojumu skaitu blakus mapēm un tagiem, kā arī nelasīto ziņojumu skaitu. Atspējojiet, lai rādītu tikai nelasītos."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro saskarne (eksperimentāla)",
@@ -1047,6 +1070,14 @@
         "preview_this_week": "Šajā nedēļā:",
         "preview_older": "Vecāks:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "Laika formāts",
         "description": "Izvēlieties starp 12 vai 24 stundu formātu",
@@ -1089,6 +1120,13 @@
         "trash_and_read": "Pārvietot uz atkritni un atzīmēt kā lasītu",
         "permanent": "Dzēst neatgriezeniski",
         "warning": "Vēstules tiks dzēstas neatgriezeniski. Šī darbība nav atceļama."
+      },
+      "message_spacing": {
+        "label": "Ziņojuma atstarpes",
+        "description": "Atstarpe ap ziņojuma tekstu lasītājā",
+        "auto": "Automātiski (ieteicams)",
+        "always": "Vienmēr pievienot atstarpi",
+        "edge": "No malas līdz malai"
       },
       "archive_mode": {
         "label": "Arhivēt mapē",
@@ -1253,8 +1291,12 @@
         "unsupported": "Pašreizējais konts neziņo par aizturētas sūtīšanas atbalstu. Iestatījums joprojām tiks saglabāts citiem kontiem."
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "Atgriezties sarakstā pēc dzēšanas vai atzīmēšanas kā nelasītu",
+        "description": "Pēc atvērtā ziņojuma dzēšanas vai atzīmēšanas kā nelasīta atgriezieties ziņojumu sarakstā, nevis atveriet nākamo ziņojumu."
+      },
+      "rtl_editing": {
+        "label": "Rakstīšanas no labās uz kreiso atbalsts",
+        "description": "Pievieno redaktora rīkjoslai virziena pogu, ar kuru rindkopas var iestatīt no kreisās uz labo vai no labās uz kreiso"
       }
     },
     "composer": {
@@ -1501,7 +1543,10 @@
         "subject_placeholder": "Atvaļinājumā / Esmu prom",
         "body_label": "Ziņojuma teksts",
         "body_description": "Ziņojuma saturs parastā tekstā",
-        "body_placeholder": "Paldies par e-pastu. Pašlaik esmu prombūtnē un atbildēšu, kad atgriezīšos."
+        "body_placeholder": "Paldies par e-pastu. Pašlaik esmu prombūtnē un atbildēšu, kad atgriezīšos.",
+        "html_label": "Formatēts ziņojums (HTML)",
+        "html_description": "Pievienojiet formatētu versiju ar saitēm un noformējumu. Saņēmēji, kuru e-pasta programma to nevar parādīt, redzēs iepriekš redzamo vienkāršo tekstu.",
+        "html_placeholder": "Rakstiet formatētu prombūtnes atbildi…"
       },
       "preview": {
         "title": "Priekšskatījums",
@@ -1533,6 +1578,8 @@
       "role_none": "Nav",
       "create_folder": "Izveidot mapi",
       "create_subfolder": "Izveidot apakšmapi",
+      "reorder": "Velciet, lai pārkārtotu",
+      "reorder_error": "Neizdevās pārkārtot mapes",
       "subfolder_of": "Mapē {name}",
       "subfolder_name": "Apakšmapes nosaukums",
       "new_folder_name": "Mapes nosaukums",
@@ -1578,6 +1625,11 @@
         "label": "Īsinājumtaustiņi",
         "description": "Skatīt pieejamos tastatūras īsinājumtaustiņus",
         "button": "Rādīt īsinājumtaustiņus"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "Atiestatīt iestatījumus",
@@ -1942,6 +1994,8 @@
     "mark_unread": "Atzīmēt kā nelasītu",
     "star": "Pievienot zvaigznīti",
     "unstar": "Noņemt zvaigznīti",
+    "pin": "Piespraust",
+    "unpin": "Atspraust",
     "move_to": "Pārvietot uz...",
     "archive": "Arhivēt",
     "delete": "Dzēst",
@@ -2878,7 +2932,19 @@
       "sep": "sept.",
       "oct": "okt.",
       "nov": "nov.",
-      "dec": "dec."
+      "dec": "dec.",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "nav_open_menu": "Atvērt izvēlni"
   },

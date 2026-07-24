@@ -114,6 +114,7 @@
     "unified_archive": "Все архивы",
     "unified_junk": "Весь спам",
     "all_accounts": "Все аккаунты",
+    "unified_mailbox": "Общий почтовый ящик",
     "expand": "Развернуть",
     "collapse": "Свернуть",
     "expand_tooltip": "Развернуть",
@@ -137,7 +138,9 @@
     "scheduled": "Запланировано",
     "unified_all_unread": "Все непрочитанные",
     "unified_all_starred": "Все помеченные",
-    "unified_all_mail": "Вся почта"
+    "unified_all_mail": "Вся почта",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "Приложения по умолчанию",
@@ -274,6 +277,8 @@
     "no_subject": "(Без темы)",
     "no_body_content": "(Содержимое отсутствует)",
     "no_preview_available": "Предварительный просмотр недоступен",
+    "show_quoted_text": "Показать цитируемый текст",
+    "hide_quoted_text": "Скрыть цитируемый текст",
     "loading_email": "Загрузка письма...",
     "loading": "Загрузка...",
     "reply": "Ответить",
@@ -436,7 +441,9 @@
       "confirm_button": "Подтвердить",
       "cancel": "Отмена",
       "success_http": "Страница отписки открыта в новой вкладке",
-      "success_mailto": "Запрос на отписку отправлен в ваш почтовый клиент",
+      "success_mailto": "Письмо для отписки отправлено",
+      "confirm_message_http": "Страница отписки откроется в новой вкладке.",
+      "confirm_message_mailto": "Отправителю будет отправлено письмо для отписки.",
       "error": "Не удалось отписаться",
       "dismiss": "Закрыть"
     },
@@ -632,7 +639,9 @@
     "validation": {
       "recipient_required": "Укажите получателя для отправки",
       "subject_required": "Укажите тему",
-      "body_required": "Напишите сообщение или прикрепите файл"
+      "body_required": "Напишите сообщение или прикрепите файл",
+      "attachments_uploading": "Вложения ещё загружаются — отправка начнётся, как только загрузка завершится",
+      "attachment_upload_failed": "Не отправлено — не удалось загрузить вложение. Удалите его и попробуйте снова."
     },
     "upload_progress": "Загрузка {uploaded} / {total}",
     "upload_cancel": "Отменить загрузку",
@@ -643,7 +652,6 @@
     "continue_draft": "Продолжить черновик",
     "close_draft_title": "Сохранить или удалить черновик?",
     "close_draft_message": "Есть несохранённые изменения. Сохранить как черновик или удалить?",
-    "save_draft": "Сохранить черновик",
     "smime_sign_on": "Подпись S/MIME включена",
     "smime_sign_off": "Включить подпись S/MIME",
     "smime_encrypt_on": "Шифрование S/MIME включено",
@@ -675,7 +683,10 @@
     "recipient_edit_email": "Изменить адрес эл. почты",
     "recipient_edit_name": "Изменить отображаемое имя",
     "recipient_email_placeholder": "Адрес эл. почты",
-    "recipient_name_placeholder": "Отображаемое имя"
+    "recipient_name_placeholder": "Отображаемое имя",
+    "autocomplete_search_server": "Искать на сервере",
+    "autocomplete_searching": "Поиск...",
+    "send_filing_warning": "Отправлено - но последующая очистка не удалась, может остаться устаревший черновик."
   },
   "confirm_dialog": {
     "confirm": "Подтвердить",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -916,14 +929,16 @@
       "unified_mailbox": {
         "label": "Общий почтовый ящик",
         "description": "Показывать объединённые папки (Входящие, Отправленные и др.) для всех подключённых аккаунтов",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "Включать групповые ящики",
           "description": "Также объединять общие/групповые ящики в едином представлении."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Applies to {account}.",
@@ -933,9 +948,17 @@
         "label": "Цветные значки боковой панели",
         "description": "Окрашивать значки папок и тегов по типу (синий «Входящие», красный «Спам», зелёный «Отправленные» и т. д.). Отключите для монохромной боковой панели."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "Показывать общее количество сообщений",
         "description": "Показывает общее количество сообщений рядом с папками и метками, наряду с количеством непрочитанных. Отключите, чтобы показывать только непрочитанные."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro-интерфейс (экспериментальный)",
@@ -1047,6 +1070,14 @@
         "preview_this_week": "На этой неделе:",
         "preview_older": "Старее:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "Формат времени",
         "description": "Выберите формат 12- или 24-часовой нотации",
@@ -1089,6 +1120,13 @@
         "trash_and_read": "Переместить в корзину и пометить как прочитанное",
         "permanent": "Удалить навсегда",
         "warning": "Письма будут удалены навсегда и не могут быть восстановлены. Это действие необратимо."
+      },
+      "message_spacing": {
+        "label": "Отступы сообщения",
+        "description": "Отступы вокруг текста сообщения при чтении",
+        "auto": "Автоматически (рекомендуется)",
+        "always": "Всегда добавлять отступы",
+        "edge": "От края до края"
       },
       "archive_mode": {
         "label": "Архивировать в",
@@ -1253,8 +1291,12 @@
         "unsupported": "Текущая учетная запись не заявляет поддержку отложенной отправки. Настройка сохранится для других учетных записей."
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "Возврат к списку после удаления или отметки как непрочитанного",
+        "description": "После удаления или отметки открытого письма как непрочитанного возвращаться к списку писем вместо открытия следующего."
+      },
+      "rtl_editing": {
+        "label": "Поддержка редактирования справа налево",
+        "description": "Добавляет кнопку направления текста на панель инструментов редактора, позволяя задавать абзацам направление слева направо или справа налево"
       }
     },
     "composer": {
@@ -1501,7 +1543,10 @@
         "subject_placeholder": "Вне офиса",
         "body_label": "Текст сообщения",
         "body_description": "Содержимое сообщения в виде обычного текста",
-        "body_placeholder": "Спасибо за ваше письмо. Я сейчас вне офиса и отвечу, когда вернусь."
+        "body_placeholder": "Спасибо за ваше письмо. Я сейчас вне офиса и отвечу, когда вернусь.",
+        "html_label": "Форматированное сообщение (HTML)",
+        "html_description": "Добавьте форматированную версию со ссылками и оформлением. Получатели, чей почтовый клиент не может её отобразить, увидят обычный текст выше.",
+        "html_placeholder": "Напишите форматированный ответ об отсутствии…"
       },
       "preview": {
         "title": "Предпросмотр",
@@ -1533,6 +1578,8 @@
       "role_none": "Нет",
       "create_folder": "Создать папку",
       "create_subfolder": "Создать подпапку",
+      "reorder": "Перетащите, чтобы изменить порядок",
+      "reorder_error": "Не удалось изменить порядок папок",
       "subfolder_of": "Внутри {name}",
       "subfolder_name": "Название подпапки",
       "new_folder_name": "Название папки",
@@ -1597,6 +1644,11 @@
         "label": "Сочетания клавиш",
         "description": "Просмотреть доступные сочетания клавиш",
         "button": "Показать сочетания"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "Сбросить настройки",
@@ -1942,6 +1994,8 @@
     "mark_unread": "Отметить как непрочитанное",
     "star": "Добавить звёздочку",
     "unstar": "Убрать звёздочку",
+    "pin": "Закрепить",
+    "unpin": "Открепить",
     "move_to": "Переместить в...",
     "archive": "В архив",
     "delete": "Удалить",
@@ -2081,7 +2135,7 @@
       "email_invalid": "Введите корректный адрес электронной почты",
       "email_immutable": "Адрес электронной почты нельзя изменить после создания",
       "reply_to_label": "Ответить на (необязательно)",
-      "reply_to_placeholder": "other@email.com",
+      "reply_to_placeholder": "other@example.com",
       "bcc_label": "Авто СК (необязательно)",
       "bcc_placeholder": "archive@пример.рф",
       "text_signature_label": "Текстовая подпись",
@@ -2878,7 +2932,19 @@
       "sep": "сент.",
       "oct": "окт.",
       "nov": "нояб.",
-      "dec": "дек."
+      "dec": "дек.",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "nav_open_menu": "Открыть меню"
   },

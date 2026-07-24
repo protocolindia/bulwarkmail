@@ -114,6 +114,7 @@
     "unified_archive": "All Archive",
     "unified_junk": "All Junk",
     "all_accounts": "All Accounts",
+    "unified_mailbox": "Unified Mailbox",
     "expand": "Expand",
     "collapse": "Collapse",
     "expand_tooltip": "Expand",
@@ -137,7 +138,9 @@
     "scheduled": "Scheduled",
     "unified_all_unread": "All unread",
     "unified_all_starred": "All starred",
-    "unified_all_mail": "All mail"
+    "unified_all_mail": "All mail",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "Default apps",
@@ -257,7 +260,7 @@
   },
   "email_viewer": {
     "read_receipt": {
-      "prompt": "The sender requested a read receipt:",
+      "prompt": "The sender asked to be notified when you open this message.",
       "send": "Send receipt",
       "ignore": "Ignore",
       "sent": "Read receipt sent.",
@@ -274,6 +277,8 @@
     "no_subject": "(No Subject)",
     "no_body_content": "(No body content available)",
     "no_preview_available": "No preview available",
+    "show_quoted_text": "Show quoted text",
+    "hide_quoted_text": "Hide quoted text",
     "loading_email": "Loading email...",
     "loading": "Loading...",
     "reply": "Reply",
@@ -461,7 +466,9 @@
       "confirm_button": "Confirm",
       "cancel": "Cancel",
       "success_http": "Unsubscribe page opened in new tab",
-      "success_mailto": "Unsubscribe request sent to your email client",
+      "success_mailto": "Unsubscribe email sent",
+      "confirm_message_http": "The unsubscribe page will open in a new tab.",
+      "confirm_message_mailto": "An unsubscribe email will be sent to the sender.",
       "error": "Unable to unsubscribe",
       "dismiss": "Dismiss"
     },
@@ -635,7 +642,9 @@
     "validation": {
       "recipient_required": "Add a recipient to send",
       "subject_required": "Add a subject",
-      "body_required": "Write a message or attach a file"
+      "body_required": "Write a message or attach a file",
+      "attachments_uploading": "Attachments are still uploading — sending as soon as they finish",
+      "attachment_upload_failed": "Not sent — an attachment failed to upload. Remove it and try again."
     },
     "upload_progress": "Uploading {uploaded} / {total}",
     "upload_cancel": "Cancel upload",
@@ -646,7 +655,6 @@
     "continue_draft": "Continue draft",
     "close_draft_title": "Save or discard draft?",
     "close_draft_message": "You have unsaved changes. Would you like to save this as a draft or discard it?",
-    "save_draft": "Save Draft",
     "smime_sign_on": "S/MIME signing enabled",
     "smime_sign_off": "Enable S/MIME signing",
     "smime_encrypt_on": "S/MIME encryption enabled",
@@ -675,7 +683,10 @@
     "recipient_edit_email": "Edit email address",
     "recipient_edit_name": "Edit display name",
     "recipient_email_placeholder": "Email address",
-    "recipient_name_placeholder": "Display name"
+    "recipient_name_placeholder": "Display name",
+    "autocomplete_search_server": "Search the server",
+    "autocomplete_searching": "Searching...",
+    "send_filing_warning": "Sent - but the post-send cleanup failed, a stale draft may remain."
   },
   "confirm_dialog": {
     "confirm": "Confirm",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -918,17 +931,19 @@
       },
       "unified_mailbox": {
         "label": "Unified Mailbox",
-        "description": "Show combined folders (Inbox, Sent, etc.) across all connected accounts",
+        "description": "Show combined folders (Inbox, Sent, etc.) for the active account and its shared folders.",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "Include group inboxes",
           "description": "Also merge shared/group inboxes into the unified view."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
-        "folders_label": "Folders in All Mail",
-        "folders_description": "Choose which folders are merged into the All Mail view.",
+        "folders_label": "Folders in the unified lists",
+        "folders_description": "Choose which of this account's folders are merged into the All mail / Unread / Starred lists.",
         "account_hint": "Applies to {account}.",
         "no_folders": "No folders available."
       },
@@ -936,9 +951,17 @@
         "label": "Colorful Sidebar Icons",
         "description": "Tint folder and tag icons by type (blue Inbox, red Junk, green Sent, etc.). Disable for a monochrome sidebar."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "Show Total Message Count",
         "description": "Show the total message count next to folders and tags, alongside the unread count. Disable to show only unread counts."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro Interface (Experimental)",
@@ -947,16 +970,16 @@
         "back_to_standard": "Back to standard"
       },
       "cross_unread": {
-        "label": "All accounts: Unread",
-        "description": "Show an entry in the All accounts section listing unread mail across every account, spanning all folders except junk, sent, archive, trash and drafts."
+        "label": "Unread",
+        "description": "Show an Unread entry in the Unified Mailbox listing unread mail across the selected folders."
       },
       "cross_starred": {
-        "label": "All accounts: Starred",
-        "description": "Show an entry in the All accounts section listing starred mail across every account, spanning all folders except junk, sent, archive, trash and drafts."
+        "label": "Starred",
+        "description": "Show a Starred entry in the Unified Mailbox listing flagged/starred mail across the selected folders."
       },
       "cross_all": {
-        "label": "All accounts: All mail",
-        "description": "Show an entry in the All accounts section listing all mail across every account, spanning all folders except junk, sent, archive, trash and drafts."
+        "label": "All mail",
+        "description": "Show an All mail entry in the Unified Mailbox listing all mail across the selected folders."
       }
     },
     "keywords": {
@@ -1050,6 +1073,14 @@
         "preview_this_week": "This week:",
         "preview_older": "Older:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "Time Format",
         "description": "Choose between 12-hour or 24-hour clock",
@@ -1092,6 +1123,13 @@
         "trash_and_read": "Move to Trash and mark as read",
         "permanent": "Delete Permanently",
         "warning": "Emails will be permanently deleted and cannot be recovered. This action is irreversible."
+      },
+      "message_spacing": {
+        "label": "Message Spacing",
+        "description": "Padding around the message body in the reader",
+        "auto": "Auto (recommended)",
+        "always": "Always add spacing",
+        "edge": "Edge to edge"
       },
       "archive_mode": {
         "label": "Archive in",
@@ -1258,6 +1296,10 @@
       "return_to_list_after_action": {
         "label": "Return to list after delete or mark unread",
         "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+      },
+      "rtl_editing": {
+        "label": "Right-to-left editing support",
+        "description": "Adds a direction button to the composer toolbar so you can set paragraphs left-to-right or right-to-left"
       }
     },
     "composer": {
@@ -1508,7 +1550,10 @@
         "subject_placeholder": "Out of Office",
         "body_label": "Message Body",
         "body_description": "Plain text message content",
-        "body_placeholder": "Thank you for your email. I am currently out of the office and will respond when I return."
+        "body_placeholder": "Thank you for your email. I am currently out of the office and will respond when I return.",
+        "html_label": "Formatted message (HTML)",
+        "html_description": "Add a rich, formatted version with links and styling. Recipients whose mail client can't display it fall back to the plain text above.",
+        "html_placeholder": "Write a formatted out-of-office reply…"
       },
       "preview": {
         "title": "Preview",
@@ -1540,6 +1585,8 @@
       "role_none": "None",
       "create_folder": "Create Folder",
       "create_subfolder": "Create Subfolder",
+      "reorder": "Drag to reorder",
+      "reorder_error": "Failed to reorder folders",
       "subfolder_of": "Inside {name}",
       "subfolder_name": "Subfolder name",
       "new_folder_name": "Folder name",
@@ -1604,6 +1651,11 @@
         "label": "Keyboard Shortcuts",
         "description": "View available keyboard shortcuts",
         "button": "View Shortcuts"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions \u2014 fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "Reset Settings",
@@ -1942,6 +1994,8 @@
     "mark_unread": "Mark as Unread",
     "star": "Star",
     "unstar": "Unstar",
+    "pin": "Pin",
+    "unpin": "Unpin",
     "move_to": "Move to...",
     "archive": "Archive",
     "delete": "Delete",
@@ -2081,9 +2135,9 @@
       "email_invalid": "Please enter a valid email address",
       "email_immutable": "Email address cannot be changed after creation",
       "reply_to_label": "Reply-To (optional)",
-      "reply_to_placeholder": "different@email.com",
+      "reply_to_placeholder": "different@example.com",
       "bcc_label": "Auto BCC (optional)",
-      "bcc_placeholder": "archive@email.com",
+      "bcc_placeholder": "archive@example.com",
       "text_signature_label": "Text Signature",
       "html_signature_label": "HTML Signature",
       "signature_byte_counter": "{bytes} / {max} bytes",
@@ -2652,7 +2706,7 @@
       "invitation_parsing": "Parse email invitations",
       "invitation_parsing_desc": "Detect calendar invitations in email attachments and show calendar actions",
       "show_time_in_month_view": "Show time in month view",
-      "show_time_in_month_view_desc": "Display event times in the month calendar view",
+      "show_time_in_month_view_desc": "Display event times in the month calendar view. On small screens this shows full event entries instead of dots.",
       "show_week_numbers": "Show week numbers",
       "show_week_numbers_desc": "Display week numbers in the mini-calendar",
       "enable_tasks": "Enable tasks",
@@ -2697,7 +2751,19 @@
       "sep": "Sep",
       "oct": "Oct",
       "nov": "Nov",
-      "dec": "Dec"
+      "dec": "Dec",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "notifications": {
       "event_created": "Event created",

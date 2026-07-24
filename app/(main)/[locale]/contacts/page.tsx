@@ -20,7 +20,7 @@ import { exportContacts } from "@/components/contacts/contact-export";
 import { AppTopBannerSlot } from "@/components/plugins/app-top-banner-slot";
 import { useContactStore, getContactDisplayName, getContactPrimaryEmail } from "@/stores/contact-store";
 import { savePendingMailto } from "@/lib/protocol-handlers/session";
-import { formatRecipient } from "@/lib/email-composer-utils";
+import { formatRecipient, formatRecipientEntry, type Recipient } from "@/lib/email-composer-utils";
 import { useAuthStore, redirectToLogin } from "@/stores/auth-store";
 import { useEmailStore } from "@/stores/email-store";
 import { usePolicyStore } from "@/stores/policy-store";
@@ -400,8 +400,8 @@ export default function ContactsPage() {
   }, [clearSelection, toggleContactSelection, groups.length]);
 
   const handleDuplicateContact = useCallback(async (source: ContactCard) => {
-    const { id: _id, created: _created, updated: _updated, ...rest } = source;
-    void _id; void _created; void _updated;
+    const { id: _id, uid: _uid, created: _created, updated: _updated, ...rest } = source;
+    void _id; void _uid; void _created; void _updated;
     const data: Partial<ContactCard> = JSON.parse(JSON.stringify(rest));
     if (supportsSync && client) {
       await createContact(client, data);
@@ -513,23 +513,31 @@ export default function ContactsPage() {
   }, [router]);
 
   const handleComposeGroupFromSidebar = useCallback((groupId: string, field: "to" | "cc" | "bcc") => {
-    // Format each member as "Name <email>" so the composer keeps the display
-    // name (round-trips via formatRecipient -> parseRecipientList). Dedupe by
-    // email, case-insensitively; members without an email are skipped.
+    // Hand the composer a single group chip (RFC 5322 group syntax survives
+    // the string hand-off) instead of one entry per member - the chip expands
+    // into the members when the message is sent. Dedupe by email,
+    // case-insensitively; members without an email are skipped.
     const seen = new Set<string>();
-    const recipients: string[] = [];
+    const members: Array<{ name?: string; email: string }> = [];
     for (const member of getGroupMembers(groupId)) {
       const email = getContactPrimaryEmail(member).trim();
       const key = email.toLowerCase();
       if (!email || seen.has(key)) continue;
       seen.add(key);
-      recipients.push(formatRecipient(getContactDisplayName(member), email));
+      const name = getContactDisplayName(member);
+      members.push({ name: name && name !== email ? name : undefined, email });
     }
-    if (recipients.length === 0) {
+    if (members.length === 0) {
       toast.error(t("groups.no_member_emails"));
       return;
     }
-    openComposeInApp(recipients, field);
+    const group = useContactStore.getState().contacts.find((c) => c.id === groupId);
+    const chip: Recipient = {
+      name: (group && getContactDisplayName(group)) || "Group",
+      email: "",
+      group: { members },
+    };
+    openComposeInApp([formatRecipientEntry(chip)], field);
   }, [getGroupMembers, t, openComposeInApp]);
 
   const handleComposeContact = useCallback((contact: ContactCard) => {
@@ -751,7 +759,7 @@ export default function ContactsPage() {
                   <button
                     key={group.id}
                     onClick={() => handleBulkAddToGroupConfirm(group.id)}
-                    className="w-full flex items-center gap-3 px-6 py-3 text-left hover:bg-muted transition-colors"
+                    className="w-full flex items-center gap-3 px-6 py-3 text-start hover:bg-muted transition-colors"
                   >
                     <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                       <Users className="w-4 h-4 text-primary" />
@@ -869,7 +877,7 @@ export default function ContactsPage() {
                 <>
                   <div
                     className={cn(
-                      "border-r border-border flex flex-col flex-shrink-0 bg-background",
+                      "border-e border-border flex flex-col flex-shrink-0 bg-background",
                       !isSidebarResizing && "transition-[width] duration-300",
                       isNarrow && cn(
                         "absolute inset-y-0 left-0 z-50 w-72 pt-[env(safe-area-inset-top)]",
@@ -937,7 +945,7 @@ export default function ContactsPage() {
               <div
                 data-tour="contacts-list"
                 className={cn(
-                  "border-r border-border bg-background flex flex-col flex-shrink-0",
+                  "border-e border-border bg-background flex flex-col flex-shrink-0",
                   isMobile ? "w-full" : "",
                   !isListResizing && !isMobile && "transition-[width] duration-300"
                 )}
@@ -991,7 +999,7 @@ export default function ContactsPage() {
                     onClick={mobileBackToList}
                     className="touch-manipulation"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    <ArrowLeft className="w-4 h-4 me-2" />
                     {returnToEmail ? t("back_to_email") : t("back_to_contacts")}
                   </Button>
                 </div>

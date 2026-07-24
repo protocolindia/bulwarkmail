@@ -201,7 +201,7 @@ export function ContactDetail({ contact, onEdit, onDelete, onAddToGroup, onDupli
                 onClick={onCompose}
                 className="touch-manipulation"
               >
-                <Send className="w-4 h-4 mr-1" />
+                <Send className="w-4 h-4 me-1" />
                 {t("detail.compose_email")}
               </Button>
             )}
@@ -210,12 +210,12 @@ export function ContactDetail({ contact, onEdit, onDelete, onAddToGroup, onDupli
                 href={`tel:${phone}`}
                 className="inline-flex items-center justify-center rounded-md font-medium h-9 px-3 text-sm border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors touch-manipulation"
               >
-                <Phone className="w-4 h-4 mr-1" />
+                <Phone className="w-4 h-4 me-1" />
                 {t("context_menu.call")}
               </a>
             )}
             <Button variant="outline" size="sm" onClick={onEdit} className="touch-manipulation">
-              <Pencil className="w-4 h-4 mr-1" />
+              <Pencil className="w-4 h-4 me-1" />
               {t("form.edit_title")}
             </Button>
             <MoreActionsMenu items={moreItems} label={t("detail.more_actions")} />
@@ -571,7 +571,7 @@ function MoreActionsMenu({ items, label }: { items: MoreItem[]; label: string })
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full mt-1 z-30 min-w-[200px] rounded-md border border-border bg-popover text-popover-foreground shadow-lg py-1 animate-in fade-in-0 zoom-in-95 duration-100"
+          className="absolute end-0 top-full mt-1 z-30 min-w-[200px] rounded-md border border-border bg-popover text-popover-foreground shadow-lg py-1 animate-in fade-in-0 zoom-in-95 duration-100"
         >
           {items.map((item, i) => {
             if (item.separator) {
@@ -587,7 +587,7 @@ function MoreActionsMenu({ items, label }: { items: MoreItem[]; label: string })
                   setOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:bg-muted focus:bg-muted focus:outline-none transition-colors",
+                  "w-full flex items-center gap-2 px-3 py-1.5 text-sm text-start hover:bg-muted focus:bg-muted focus:outline-none transition-colors",
                   item.destructive && "text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 focus:bg-red-50 dark:focus:bg-red-950",
                 )}
               >

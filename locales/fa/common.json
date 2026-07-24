@@ -114,6 +114,7 @@
     "unified_archive": "همه بایگانی‌ها",
     "unified_junk": "همه هرزنامه‌ها",
     "all_accounts": "همه حساب‌ها",
+    "unified_mailbox": "صندوق پستی یکپارچه",
     "expand": "باز کردن",
     "collapse": "جمع کردن",
     "expand_tooltip": "باز کردن",
@@ -137,7 +138,9 @@
     "scheduled": "زمان‌بندی شده",
     "unified_all_mail": "همه ایمیل‌ها",
     "unified_all_starred": "همه ستاره‌دارها",
-    "unified_all_unread": "همه خوانده‌نشده‌ها"
+    "unified_all_unread": "همه خوانده‌نشده‌ها",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "برنامه‌های پیش‌فرض",
@@ -274,6 +277,8 @@
     "no_subject": "(بدون موضوع)",
     "no_body_content": "(محتوایی موجود نیست)",
     "no_preview_available": "پیش‌نمایشی در دسترس نیست",
+    "show_quoted_text": "نمایش متن نقل‌قول‌شده",
+    "hide_quoted_text": "پنهان کردن متن نقل‌قول‌شده",
     "loading_email": "در حال بارگذاری ایمیل...",
     "loading": "در حال بارگذاری...",
     "reply": "پاسخ",
@@ -461,7 +466,9 @@
       "confirm_button": "تأیید",
       "cancel": "انصراف",
       "success_http": "صفحه لغو اشتراک در تب جدید باز شد",
-      "success_mailto": "درخواست لغو اشتراک ارسال شد",
+      "success_mailto": "ایمیل لغو اشتراک ارسال شد",
+      "confirm_message_http": "صفحه لغو اشتراک در برگه جدیدی باز خواهد شد.",
+      "confirm_message_mailto": "ایمیل لغو اشتراک برای فرستنده ارسال خواهد شد.",
       "error": "لغو اشتراک ممکن نیست",
       "dismiss": "رد کردن"
     },
@@ -635,7 +642,9 @@
     "validation": {
       "recipient_required": "یک گیرنده اضافه کنید",
       "subject_required": "یک موضوع اضافه کنید",
-      "body_required": "پیامی بنویسید یا فایلی پیوست کنید"
+      "body_required": "پیامی بنویسید یا فایلی پیوست کنید",
+      "attachments_uploading": "پیوست‌ها هنوز در حال بارگذاری هستند — پس از اتمام ارسال می‌شود",
+      "attachment_upload_failed": "ارسال نشد - بارگذاری یک پیوست ناموفق بود. آن را حذف کنید و دوباره تلاش کنید."
     },
     "upload_progress": "در حال بارگذاری {uploaded} / {total}",
     "upload_cancel": "لغو بارگذاری",
@@ -646,7 +655,6 @@
     "continue_draft": "ادامه پیش‌نویس",
     "close_draft_title": "ذخیره یا دور انداختن پیش‌نویس؟",
     "close_draft_message": "تغییرات ذخیره نشده دارید. ذخیره یا دور انداختن؟",
-    "save_draft": "ذخیره پیش‌نویس",
     "smime_sign_on": "امضای S/MIME فعال",
     "smime_sign_off": "فعال کردن امضای S/MIME",
     "smime_encrypt_on": "رمزنگاری S/MIME فعال",
@@ -675,7 +683,10 @@
     "recipient_edit_email": "ویرایش آدرس ایمیل",
     "recipient_edit_name": "ویرایش نام نمایشی",
     "recipient_email_placeholder": "آدرس ایمیل",
-    "recipient_name_placeholder": "نام نمایشی"
+    "recipient_name_placeholder": "نام نمایشی",
+    "autocomplete_search_server": "جستجو در سرور",
+    "autocomplete_searching": "در حال جستجو...",
+    "send_filing_warning": "ارسال شد - اما پاک‌سازی پس از ارسال ناموفق بود، ممکن است پیش‌نویس قدیمی باقی بماند."
   },
   "confirm_dialog": {
     "confirm": "تأیید",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -919,14 +932,16 @@
       "unified_mailbox": {
         "label": "صندوق پستی یکپارچه",
         "description": "نمایش پوشه‌های ترکیبی در همه حساب‌های متصل",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "شامل صندوق ورودی گروه‌ها",
           "description": "صندوق ورودی گروه‌های اشتراکی را هم ادغام کن"
         }
       },
       "all_mail": {
-        "label": "همه ایمیل‌ها",
-        "description": "نمایش گزینه \"همه ایمیل‌ها\" بالای پوشه‌ها",
         "folders_label": "پوشه‌ها در همه ایمیل‌ها",
         "folders_description": "انتخاب کنید کدام پوشه‌ها ادغام شوند",
         "no_folders": "پوشه‌ای موجود نیست",
@@ -936,9 +951,17 @@
         "label": "آیکون‌های رنگی نوار کناری",
         "description": "رنگ‌آمیزی آیکون‌های پوشه و برچسب بر اساس نوع"
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "نمایش تعداد کل پیام‌ها",
         "description": "تعداد کل پیام‌ها را در کنار پوشه‌ها و برچسب‌ها، همراه با تعداد خوانده‌نشده‌ها نمایش می‌دهد. برای نمایش فقط تعداد خوانده‌نشده‌ها غیرفعال کنید."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "رابط حرفه‌ای (آزمایشی)",
@@ -1050,6 +1073,14 @@
         "preview_this_week": "این هفته:",
         "preview_older": "قدیمی‌تر:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "فرمت زمان",
         "description": "۱۲ یا ۲۴ ساعته",
@@ -1092,6 +1123,13 @@
         "trash_and_read": "زباله‌دان و خوانده شده",
         "permanent": "حذف دائمی",
         "warning": "غیرقابل بازگشت"
+      },
+      "message_spacing": {
+        "label": "فاصله‌گذاری پیام",
+        "description": "حاشیه اطراف متن پیام در نمای خواندن",
+        "auto": "خودکار (پیشنهادی)",
+        "always": "همیشه فاصله اضافه شود",
+        "edge": "لبه به لبه"
       },
       "archive_mode": {
         "label": "بایگانی در",
@@ -1258,6 +1296,10 @@
       "return_to_list_after_action": {
         "label": "بازگشت به فهرست پس از حذف یا علامت‌گذاری به‌عنوان خوانده‌نشده",
         "description": "پس از حذف یا علامت‌گذاری پیام باز به‌عنوان خوانده‌نشده، به‌جای باز کردن پیام بعدی به فهرست پیام‌ها بازگردید."
+      },
+      "rtl_editing": {
+        "label": "پشتیبانی از ویرایش راست‌به‌چپ",
+        "description": "دکمه جهت متن را به نوار ابزار ویرایشگر اضافه می‌کند تا بتوانید پاراگراف‌ها را چپ‌به‌راست یا راست‌به‌چپ تنظیم کنید"
       }
     },
     "composer": {
@@ -1508,7 +1550,10 @@
         "subject_placeholder": "خارج از دفتر",
         "body_label": "بدنه پیام",
         "body_description": "محتوای پیام متنی ساده",
-        "body_placeholder": "از ایمیل شما متشکرم. من در حال حاضر خارج از دفتر هستم و پس از بازگشت پاسخ خواهم داد."
+        "body_placeholder": "از ایمیل شما متشکرم. من در حال حاضر خارج از دفتر هستم و پس از بازگشت پاسخ خواهم داد.",
+        "html_label": "پیام قالب‌بندی‌شده (HTML)",
+        "html_description": "یک نسخهٔ قالب‌بندی‌شده با پیوند و استایل اضافه کنید. گیرندگانی که برنامهٔ ایمیلشان نمی‌تواند آن را نمایش دهد، متن سادهٔ بالا را می‌بینند.",
+        "html_placeholder": "یک پاسخ خودکار قالب‌بندی‌شده بنویسید…"
       },
       "preview": {
         "title": "پیش‌نمایش",
@@ -1540,6 +1585,8 @@
       "role_none": "هیچکدام",
       "create_folder": "ایجاد پوشه",
       "create_subfolder": "ایجاد زیرپوشه",
+      "reorder": "برای تغییر ترتیب بکشید",
+      "reorder_error": "تغییر ترتیب پوشه‌ها ناموفق بود",
       "subfolder_of": "داخل {name}",
       "subfolder_name": "نام زیرپوشه",
       "new_folder_name": "نام پوشه",
@@ -1604,6 +1651,11 @@
         "label": "میانبرهای صفحه کلید",
         "description": "مشاهده میانبرهای صفحه کلید موجود",
         "button": "مشاهده میانبرها"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "بازنشانی تنظیمات",
@@ -1942,6 +1994,8 @@
     "mark_unread": "علامت‌گذاری خوانده نشده",
     "star": "ستاره‌دار",
     "unstar": "حذف ستاره",
+    "pin": "سنجاق کردن",
+    "unpin": "برداشتن سنجاق",
     "move_to": "انتقال به...",
     "archive": "بایگانی",
     "delete": "حذف",
@@ -2081,9 +2135,9 @@
       "email_invalid": "ایمیل معتبر وارد کنید",
       "email_immutable": "پس از ایجاد قابل تغییر نیست",
       "reply_to_label": "پاسخ به (اختیاری)",
-      "reply_to_placeholder": "different@email.com",
+      "reply_to_placeholder": "different@example.com",
       "bcc_label": "رونوشت مخفی خودکار (اختیاری)",
-      "bcc_placeholder": "archive@email.com",
+      "bcc_placeholder": "archive@example.com",
       "text_signature_label": "امضای متنی",
       "html_signature_label": "امضای HTML",
       "signature_byte_counter": "{bytes} / {max} بایت",
@@ -2697,7 +2751,19 @@
       "sep": "سپتامبر",
       "oct": "اکتبر",
       "nov": "نوامبر",
-      "dec": "دسامبر"
+      "dec": "دسامبر",
+      "far": "فروردین",
+      "ord": "اردیبهشت",
+      "kho": "خرداد",
+      "tir": "تیر",
+      "mor": "مرداد",
+      "sha": "شهریور",
+      "meh": "مهر",
+      "aba": "آبان",
+      "aza": "آذر",
+      "dey": "دی",
+      "bah": "بهمن",
+      "esf": "اسفند"
     },
     "notifications": {
       "event_created": "رویداد ایجاد شد",

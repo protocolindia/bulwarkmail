@@ -114,6 +114,7 @@
     "unified_archive": "Tutti gli archivi",
     "unified_junk": "Tutto lo spam",
     "all_accounts": "Tutti gli account",
+    "unified_mailbox": "Casella di posta unificata",
     "expand": "Espandi",
     "collapse": "Comprimi",
     "expand_tooltip": "Espandi",
@@ -137,7 +138,9 @@
     "scheduled": "Programmate",
     "unified_all_unread": "Tutti i non letti",
     "unified_all_starred": "Tutti gli speciali",
-    "unified_all_mail": "Tutta la posta"
+    "unified_all_mail": "Tutta la posta",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "App predefinite",
@@ -274,6 +277,8 @@
     "no_subject": "(Nessun oggetto)",
     "no_body_content": "(Nessun contenuto disponibile)",
     "no_preview_available": "Anteprima non disponibile",
+    "show_quoted_text": "Mostra testo citato",
+    "hide_quoted_text": "Nascondi testo citato",
     "loading_email": "Caricamento messaggio...",
     "loading": "Caricamento...",
     "reply": "Rispondi",
@@ -434,7 +439,9 @@
       "confirm_button": "Conferma",
       "cancel": "Annulla",
       "success_http": "Pagina di annullamento iscrizione aperta in una nuova scheda",
-      "success_mailto": "Richiesta di annullamento iscrizione inviata al tuo client email",
+      "success_mailto": "Email di disiscrizione inviata",
+      "confirm_message_http": "La pagina di disiscrizione si aprirà in una nuova scheda.",
+      "confirm_message_mailto": "Verrà inviata un'email di disiscrizione al mittente.",
       "error": "Impossibile annullare l'iscrizione",
       "dismiss": "Ignora"
     },
@@ -632,7 +639,9 @@
     "validation": {
       "recipient_required": "Aggiungi un destinatario per inviare",
       "subject_required": "Aggiungi un oggetto",
-      "body_required": "Scrivi un messaggio o allega un file"
+      "body_required": "Scrivi un messaggio o allega un file",
+      "attachments_uploading": "Gli allegati sono ancora in fase di caricamento: verrà inviato al termine",
+      "attachment_upload_failed": "Non inviato: caricamento di un allegato non riuscito. Rimuovilo e riprova."
     },
     "upload_progress": "Caricamento {uploaded} / {total}",
     "upload_cancel": "Annulla caricamento",
@@ -650,7 +659,6 @@
     "continue_draft": "Continua bozza",
     "close_draft_title": "Salvare o eliminare la bozza?",
     "close_draft_message": "Hai modifiche non salvate. Vuoi salvare come bozza o eliminare?",
-    "save_draft": "Salva bozza",
     "drop_files": "Trascina i file per allegarli",
     "show_less": "Mostra meno",
     "forgot_attachment": {
@@ -675,7 +683,10 @@
     "recipient_edit_email": "Modifica indirizzo email",
     "recipient_edit_name": "Modifica nome visualizzato",
     "recipient_email_placeholder": "Indirizzo email",
-    "recipient_name_placeholder": "Nome visualizzato"
+    "recipient_name_placeholder": "Nome visualizzato",
+    "autocomplete_search_server": "Cerca nel server",
+    "autocomplete_searching": "Ricerca in corso...",
+    "send_filing_warning": "Inviato - ma la pulizia successiva non è riuscita, potrebbe restare una bozza obsoleta."
   },
   "confirm_dialog": {
     "confirm": "Conferma",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -916,14 +929,16 @@
       "unified_mailbox": {
         "label": "Casella di posta unificata",
         "description": "Mostra le cartelle combinate (Posta in arrivo, Inviati, ecc.) di tutti gli account collegati",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "Includi le caselle di gruppo",
           "description": "Includi anche le caselle condivise o di gruppo nella vista unificata."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Applies to {account}.",
@@ -933,9 +948,17 @@
         "label": "Icone colorate nella barra laterale",
         "description": "Colora le icone di cartelle ed etichette per tipo (Posta in arrivo blu, Spam rosso, Inviati verde, ecc.). Disattiva per una barra laterale monocromatica."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "Mostra il numero totale di messaggi",
         "description": "Mostra il numero totale di messaggi accanto a cartelle ed etichette, insieme al conteggio dei non letti. Disattiva per mostrare solo i non letti."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Interfaccia Pro (sperimentale)",
@@ -1047,6 +1070,14 @@
         "preview_this_week": "Questa settimana:",
         "preview_older": "Più vecchio:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "Formato ora",
         "description": "Scegli tra formato 12 o 24 ore",
@@ -1089,6 +1120,13 @@
         "trash_and_read": "Sposta nel cestino e segna come letto",
         "permanent": "Elimina definitivamente",
         "warning": "I messaggi verranno eliminati definitivamente e non potranno essere recuperati. Questa azione è irreversibile."
+      },
+      "message_spacing": {
+        "label": "Spaziatura del messaggio",
+        "description": "Margine attorno al corpo del messaggio nel lettore",
+        "auto": "Automatica (consigliata)",
+        "always": "Aggiungi sempre spaziatura",
+        "edge": "Da bordo a bordo"
       },
       "archive_mode": {
         "label": "Archivia in",
@@ -1253,8 +1291,12 @@
         "unsupported": "L’account corrente non dichiara il supporto all’invio ritardato. L’impostazione resta salvata per altri account."
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "Torna all'elenco dopo l'eliminazione o il contrassegno come non letto",
+        "description": "Dopo aver eliminato o segnato come non letto il messaggio aperto, torna all'elenco dei messaggi invece di aprire il messaggio successivo."
+      },
+      "rtl_editing": {
+        "label": "Supporto alla scrittura da destra a sinistra",
+        "description": "Aggiunge un pulsante di direzione alla barra degli strumenti dell'editor per impostare i paragrafi da sinistra a destra o da destra a sinistra"
       }
     },
     "composer": {
@@ -1501,7 +1543,10 @@
         "subject_placeholder": "Fuori ufficio",
         "body_label": "Corpo del messaggio",
         "body_description": "Contenuto del messaggio in testo semplice",
-        "body_placeholder": "Grazie per la tua email. Sono attualmente fuori ufficio e risponderò al mio ritorno."
+        "body_placeholder": "Grazie per la tua email. Sono attualmente fuori ufficio e risponderò al mio ritorno.",
+        "html_label": "Messaggio formattato (HTML)",
+        "html_description": "Aggiungi una versione formattata con link e stile. I destinatari il cui client di posta non può visualizzarla vedranno il testo semplice qui sopra.",
+        "html_placeholder": "Scrivi una risposta di assenza formattata…"
       },
       "preview": {
         "title": "Anteprima",
@@ -1533,6 +1578,8 @@
       "role_none": "Nessuno",
       "create_folder": "Crea cartella",
       "create_subfolder": "Crea sottocartella",
+      "reorder": "Trascina per riordinare",
+      "reorder_error": "Impossibile riordinare le cartelle",
       "subfolder_of": "Dentro {name}",
       "subfolder_name": "Nome della sottocartella",
       "new_folder_name": "Nome della cartella",
@@ -1597,6 +1644,11 @@
         "label": "Scorciatoie da tastiera",
         "description": "Visualizza le scorciatoie da tastiera disponibili",
         "button": "Visualizza scorciatoie"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "Ripristina impostazioni",
@@ -1942,6 +1994,8 @@
     "mark_unread": "Segna come non letto",
     "star": "Aggiungi stella",
     "unstar": "Rimuovi stella",
+    "pin": "Fissa",
+    "unpin": "Non fissare più",
     "move_to": "Sposta in...",
     "archive": "Archivia",
     "delete": "Elimina",
@@ -2081,9 +2135,9 @@
       "email_invalid": "Inserisci un indirizzo email valido",
       "email_immutable": "L'indirizzo email non può essere modificato dopo la creazione",
       "reply_to_label": "Rispondi a (facoltativo)",
-      "reply_to_placeholder": "diversa@email.com",
+      "reply_to_placeholder": "diversa@example.com",
       "bcc_label": "CCN automatica (facoltativo)",
-      "bcc_placeholder": "archivio@email.com",
+      "bcc_placeholder": "archivio@example.com",
       "text_signature_label": "Firma di testo",
       "html_signature_label": "Firma HTML",
       "signature_byte_counter": "{bytes} / {max} byte",
@@ -2878,7 +2932,19 @@
       "sep": "set",
       "oct": "ott",
       "nov": "nov",
-      "dec": "dic"
+      "dec": "dic",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "nav_open_menu": "Apri menu"
   },

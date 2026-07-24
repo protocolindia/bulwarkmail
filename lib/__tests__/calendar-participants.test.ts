@@ -132,6 +132,42 @@ describe('isOrganizer', () => {
     const event = makeEvent({ org: orgParticipant });
     expect(isOrganizer(event, [])).toBe(false);
   });
+
+  it('matches the event-level organizerCalendarAddress when no owner role is set', () => {
+    // Stalwart / imported self-organized events: the user's participant only
+    // carries `attendee`, the organizer lives in organizerCalendarAddress.
+    const event = makeEvent({
+      self: {
+        '@type': 'Participant',
+        name: 'Alice',
+        email: '',
+        roles: { attendee: true },
+        participationStatus: 'accepted',
+        sendTo: { imip: 'mailto:alice@example.com' },
+        kind: 'individual',
+      },
+    });
+    event.organizerCalendarAddress = 'mailto:alice@example.com';
+    expect(isOrganizer(event, ['alice@example.com'])).toBe(true);
+  });
+
+  it('matches the event-level organizerCalendarAddress case-insensitively', () => {
+    const event = makeEvent({ att1: attendeeParticipant });
+    event.organizerCalendarAddress = 'mailto:Alice@Example.com';
+    expect(isOrganizer(event, ['alice@example.com'])).toBe(true);
+  });
+
+  it('falls back to replyTo when organizerCalendarAddress is absent', () => {
+    const event = makeEvent({ att1: attendeeParticipant });
+    event.replyTo = { imip: 'mailto:alice@example.com' };
+    expect(isOrganizer(event, ['alice@example.com'])).toBe(true);
+  });
+
+  it('returns false when the event organizer is someone else', () => {
+    const event = makeEvent({ att1: attendeeParticipant });
+    event.organizerCalendarAddress = 'mailto:someoneelse@example.com';
+    expect(isOrganizer(event, ['alice@example.com'])).toBe(false);
+  });
 });
 
 describe('getUserParticipantId', () => {
@@ -282,10 +318,13 @@ describe('buildParticipantMap', () => {
     expect(org).toBeDefined();
     expect(org!.name).toBe('Alice');
     expect(org!.email).toBe('alice@example.com');
-    expect(org!.roles).toEqual({ owner: true, attendee: true });
+    expect(org!.roles).toEqual({ owner: true });
     expect(org!.participationStatus).toBe('accepted');
     expect(org!.scheduleAgent).toBe('server');
-    expect(org!.sendTo).toEqual({ imip: 'mailto:alice@example.com' });
+    // sendTo is retired in draft-ietf-calext-jscalendarbis; the scheduling
+    // address is carried by calendarAddress instead.
+    expect(org!.sendTo).toBeUndefined();
+    expect(org!.calendarAddress).toBe('mailto:alice@example.com');
     expect(org!.expectReply).toBe(false);
 
     const att0 = entries.find(p => p.email === 'bob@example.com');
@@ -309,7 +348,7 @@ describe('buildParticipantMap', () => {
     expect(Object.keys(map)).toHaveLength(1);
     const org = Object.values(map)[0];
     expect(org).toBeDefined();
-    expect(org.roles).toEqual({ owner: true, attendee: true });
+    expect(org.roles).toEqual({ owner: true });
   });
 
   it('sets @type to Participant for all entries', () => {

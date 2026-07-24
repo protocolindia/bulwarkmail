@@ -38,11 +38,11 @@ function MailLayoutPreview({
 
       <div className="mt-3 overflow-hidden rounded-lg border border-border bg-muted/20">
         <div className="flex h-28">
-          <div className="w-11 border-r border-border bg-muted/40" />
+          <div className="w-11 border-e border-border bg-muted/40" />
 
           {value === 'split' && (
             <>
-              <div className="w-28 border-r border-border bg-background">
+              <div className="w-28 border-e border-border bg-background">
                 {MAIL_LAYOUT_PREVIEW_ROWS.map((row) => (
                   <div
                     key={row.subject}
@@ -118,19 +118,26 @@ function MailLayoutPreview({
 export function LayoutSettings() {
   const t = useTranslations('settings.appearance');
   const tEmail = useTranslations('settings.email_behavior');
-  const { toolbarPosition, showToolbarLabels, hideAccountSwitcher, showRailAccountList, enableUnifiedMailbox, includeGroupInUnified, enableAllMailView, allMailFolderIds, enableCrossUnreadView, enableCrossStarredView, enableCrossAllView, colorfulSidebarIcons, showFolderTotalCount, mailLayout, proInterface, updateSetting } = useSettingsStore();
+  const { toolbarPosition, showToolbarLabels, hideAccountSwitcher, showRailAccountList, enableUnifiedMailbox, includeGroupInUnified, unifiedCrossAccount, allMailFolderIds, enableCrossUnreadView, enableCrossStarredView, enableCrossAllView, colorfulSidebarIcons, tintListRowsByTag, showFolderTotalCount, faviconUnreadBadge, mailLayout, proInterface, updateSetting } = useSettingsStore();
   const { isSettingLocked, isSettingHidden, isFeatureEnabled } = usePolicyStore();
   const accounts = useAccountStore(s => s.accounts);
   const activeAccountId = useAccountStore(s => s.activeAccountId);
   const mailboxes = useEmailStore(s => s.mailboxes);
   const hasGroupInboxes = useMemo(() => mailboxes.some(m => m.isShared), [mailboxes]);
-  const allMailViewAllowed = isFeatureEnabled('allMailViewEnabled');
-  // Cross-account "All accounts" views, each gated independently by the admin.
+  const connectedAccountCount = useMemo(() => accounts.filter(a => a.isConnected).length, [accounts]);
+  const unifiedCrossAccountAllowed = isFeatureEnabled('unifiedCrossAccountEnabled');
+  // Unified Mailbox entries (All mail / Unread / Starred), each gated independently
+  // by the admin. Scope (single account vs. cross-account) is governed by
+  // `unifiedCrossAccount`; the folder picker below narrows which own folders feed them.
   const crossViews = [
     { setting: 'enableCrossUnreadView', value: enableCrossUnreadView, allowed: isFeatureEnabled('crossUnreadViewEnabled'), labelKey: 'cross_unread.label', descKey: 'cross_unread.description' },
     { setting: 'enableCrossStarredView', value: enableCrossStarredView, allowed: isFeatureEnabled('crossStarredViewEnabled'), labelKey: 'cross_starred.label', descKey: 'cross_starred.description' },
     { setting: 'enableCrossAllView', value: enableCrossAllView, allowed: isFeatureEnabled('crossAllViewEnabled'), labelKey: 'cross_all.label', descKey: 'cross_all.description' },
   ] as const;
+  // The folder picker narrows the own folders included in the entries above; show
+  // it once the user has enabled at least one of them.
+  const anyCrossEnabled = enableCrossUnreadView || enableCrossStarredView || enableCrossAllView;
+  const anyCrossAllowed = crossViews.some(c => c.allowed);
 
   // Own (non-shared) folders and the active account's All Mail selection. The
   // selection is per account: a missing entry = never configured, which
@@ -217,10 +224,24 @@ export function LayoutSettings() {
         />
       </SettingItem>
 
+      <SettingItem label={t('tint_list_rows.label')} description={t('tint_list_rows.description')}>
+        <ToggleSwitch
+          checked={tintListRowsByTag}
+          onChange={(checked) => updateSetting('tintListRowsByTag', checked)}
+        />
+      </SettingItem>
+
       <SettingItem label={t('show_folder_total_count.label')} description={t('show_folder_total_count.description')}>
         <ToggleSwitch
           checked={showFolderTotalCount}
           onChange={(checked) => updateSetting('showFolderTotalCount', checked)}
+        />
+      </SettingItem>
+
+      <SettingItem label={t('favicon_unread_badge.label')} description={t('favicon_unread_badge.description')}>
+        <ToggleSwitch
+          checked={faviconUnreadBadge}
+          onChange={(checked) => updateSetting('faviconUnreadBadge', checked)}
         />
       </SettingItem>
 
@@ -237,8 +258,23 @@ export function LayoutSettings() {
         </SettingItem>
       )}
 
-      {enableUnifiedMailbox && hasGroupInboxes && !isSettingHidden('includeGroupInUnified') && (
+      {enableUnifiedMailbox && connectedAccountCount > 1 && unifiedCrossAccountAllowed && !isSettingHidden('unifiedCrossAccount') && (
         <div className="ml-4 border-l-2 border-border pl-4 -mt-2">
+          <SettingItem
+            label={t('unified_mailbox.cross_account.label')}
+            description={t('unified_mailbox.cross_account.description')}
+            locked={isSettingLocked('unifiedCrossAccount')}
+          >
+            <ToggleSwitch
+              checked={unifiedCrossAccount}
+              onChange={(v) => updateSetting('unifiedCrossAccount', v)}
+            />
+          </SettingItem>
+        </div>
+      )}
+
+      {enableUnifiedMailbox && hasGroupInboxes && !isSettingHidden('includeGroupInUnified') && (
+        <div className="ms-4 border-s-2 border-border ps-4 -mt-2">
           <SettingItem
             label={t('unified_mailbox.include_group.label')}
             description={t('unified_mailbox.include_group.description')}
@@ -252,8 +288,9 @@ export function LayoutSettings() {
         </div>
       )}
 
-      {enableUnifiedMailbox && crossViews.some(c => c.allowed) && (
-        <div className="ml-4 border-l-2 border-border pl-4 -mt-2 space-y-2">
+      {enableUnifiedMailbox && anyCrossAllowed && (
+        <div className="ms-4 border-s-2 border-border ps-4 -mt-2 space-y-2">
+
           {crossViews.map(({ setting, value, allowed, labelKey, descKey }) => (
             allowed && !isSettingHidden(setting) && (
               <SettingItem
@@ -272,21 +309,9 @@ export function LayoutSettings() {
         </div>
       )}
 
-      {allMailViewAllowed && !isSettingHidden('enableAllMailView') && (
-        <SettingItem
-          label={t('all_mail.label')}
-          description={t('all_mail.description')}
-          locked={isSettingLocked('enableAllMailView')}
-        >
-          <ToggleSwitch
-            checked={enableAllMailView}
-            onChange={(v) => updateSetting('enableAllMailView', v)}
-          />
-        </SettingItem>
-      )}
+      {enableUnifiedMailbox && anyCrossAllowed && anyCrossEnabled && (
+        <div className="ms-4 border-s-2 border-border ps-4 -mt-2 space-y-2">
 
-      {allMailViewAllowed && enableAllMailView && (
-        <div className="ml-4 border-l-2 border-border pl-4 -mt-2 space-y-2">
           <div>
             <div className="text-sm font-medium text-foreground">{t('all_mail.folders_label')}</div>
             <div className="text-xs text-muted-foreground">{t('all_mail.folders_description')}</div>
@@ -305,7 +330,7 @@ export function LayoutSettings() {
                     key={mb.id}
                     type="button"
                     onClick={() => toggleAllMailFolder(mb.id)}
-                    className="w-full flex items-center gap-2.5 py-1.5 px-2 rounded-md hover:bg-muted/50 text-left"
+                    className="w-full flex items-center gap-2.5 py-1.5 px-2 rounded-md hover:bg-muted/50 text-start"
                     role="checkbox"
                     aria-checked={checked}
                   >

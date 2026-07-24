@@ -1,4 +1,8 @@
 import { isValidEmail } from "@/lib/validation";
+import { htmlToPlainText } from "@/lib/html-to-text";
+import { emailHooks } from "@/lib/plugin-hooks";
+import { Ellipsis, Lock, TriangleAlert } from "lucide-react";
+import type { Email } from "@/lib/jmap/types";
 
 const HTML_ESCAPE_MAP = {
   "&": "&amp;",
@@ -12,6 +16,41 @@ function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) =>
     HTML_ESCAPE_MAP[char as keyof typeof HTML_ESCAPE_MAP]
   );
+}
+
+/**
+ * Picks the plain-text and HTML bodies of an original message for seeding a
+ * reply/forward quote.
+ *
+ * Per RFC 8621 § 4.1.4 a message with only one body variant exposes that
+ * single part in BOTH `textBody` and `htmlBody`. So for an HTML-only message
+ * `textBody[0]` is the raw text/html source, and for a plain-text-only
+ * message `htmlBody[0]` is the text/plain part. Quoting either verbatim
+ * breaks the reply (#649): raw HTML tags end up in a plain-text quote, and
+ * plain text rendered as HTML collapses all newlines. Route by each part's
+ * actual MIME type instead: HTML listed under textBody is converted to
+ * readable text, and plain text listed under htmlBody is dropped so the
+ * composer's text path (escape + <br>) renders it.
+ */
+export function getQuoteBodies(
+  email: Pick<Email, "textBody" | "htmlBody" | "bodyValues" | "preview">
+): { body: string; htmlBody?: string } {
+  const textPart = email.textBody?.[0];
+  const htmlPart = email.htmlBody?.[0];
+  const textValue = textPart ? email.bodyValues?.[textPart.partId]?.value : undefined;
+  const htmlValue = htmlPart ? email.bodyValues?.[htmlPart.partId]?.value : undefined;
+
+  const textPartIsHtml = textPart?.type?.toLowerCase() === "text/html";
+  // A missing type is treated as HTML, matching the viewer's rendering path.
+  const htmlPartIsHtml = !htmlPart?.type || htmlPart.type.toLowerCase() === "text/html";
+
+  const body = textValue
+    ? (textPartIsHtml ? htmlToPlainText(textValue, { paragraphSpacing: true }) : textValue)
+    : (email.preview || "");
+  return {
+    body,
+    htmlBody: htmlPartIsHtml ? htmlValue || undefined : undefined,
+  };
 }
 
 export function plainTextToComposerBody(text: string): string {
@@ -54,8 +93,92 @@ export function rewriteCidImagesForEditor(html: string): string {
   return touched ? doc.body.innerHTML : html;
 }
 
-/** A composer recipient. Display name is optional; email is required. */
-export type Recipient = { name?: string; email: string };
+/**
+ * Reduce a composer body to just the user-authored text for the attachment
+ * reminder's keyword scan, dropping the quoted original of a reply/forward.
+ *
+ * Scanning the whole body triggered false positives whenever the quoted message
+ * mentioned an attachment - common, since the original often did carry one, and
+ * the default keyword list is broad and multilingual (#570). We strip:
+ *   - HTML mode: the QuotedHtml island ([data-quoted-html]) and any <blockquote>
+ *     (the wrapper used when the original had no HTML part), then convert to text.
+ *   - Plain-text mode: lines prefixed with ">" (the reply quote).
+ *   - Both modes: everything from the "Forwarded message" separator onward, which
+ *     also removes the forwarded From/Date/Subject header lines and the bare
+ *     forwarded original (which carries no blockquote/island wrapper).
+ *
+ * `forwardedSeparator` is the localized quote_header.forwarded_separator string;
+ * pass it so the forward cut works in the active locale.
+ */
+export function extractUserAuthoredText(
+  body: string,
+  options: { plainTextMode: boolean; forwardedSeparator?: string }
+): string {
+  const { plainTextMode, forwardedSeparator } = options;
+
+  let text: string;
+  if (plainTextMode) {
+    text = body
+      .split("\n")
+      .filter((line) => !/^\s*>/.test(line))
+      .join("\n");
+  } else {
+    const doc = new DOMParser().parseFromString(`<body>${body}</body>`, "text/html");
+    doc
+      .querySelectorAll("[data-quoted-html], blockquote")
+      .forEach((el) => el.remove());
+    text = htmlToPlainText(doc.body.innerHTML, { paragraphSpacing: true });
+  }
+
+  // Cut everything from the forwarded-message separator onward. htmlToPlainText
+  // collapses the separator's internal whitespace, so match with a
+  // whitespace-flexible, regex-escaped pattern rather than an exact string.
+  const trimmedSeparator = forwardedSeparator?.trim();
+  if (trimmedSeparator) {
+    const pattern = trimmedSeparator
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      .replace(/\s+/g, "\\s+");
+    const match = text.match(new RegExp(pattern));
+    if (match && match.index !== undefined) {
+      text = text.slice(0, match.index);
+    }
+  }
+
+  return text;
+}
+
+/**
+ * Used for hook to let plugins enrich recipient chips with colors and icons. 
+ * The icon is a key into ICON_MAP, which maps to a lucide-react component.
+ */
+export const ICON_MAP = {
+  'lock': Lock,
+  'triangle-alert': TriangleAlert,
+  'ellipsis': Ellipsis,
+};
+type IconName = keyof typeof ICON_MAP;
+
+/**
+ * A composer recipient. Display name is optional; email is required - except
+ * for contact-group chips, which carry their already-resolved members and an
+ * empty email. Group chips are expanded into their members when the message
+ * is sent or saved as a draft (see {@link expandRecipients}).
+ */
+export type Recipient = {
+  name?: string;
+  email: string;
+  group?: { members: Array<{ name?: string; email: string }> };
+  extra?: {
+    color?: "success" | "destructive" | "warning"; // optional color for display purposes. May be populated by plugins via the onRecipientChipsChange hook.
+    icon?: IconName; // optional icon for display purposes. May be populated by plugins via the onRecipientChipsChange hook.
+    enriched?: boolean; // optional flag to indicate if the recipient has been enriched by plugins via the onRecipientChipsChange hook.
+  };
+};
+
+/** Enriches recipient chips with colors and icons. */
+export async function enrichChipsWithColorsAndIcons(chips: Recipient[]): Promise<Recipient[]> {
+  return await emailHooks.onRecipientChipsChange.transform(chips);
+};
 
 /**
  * Splits a recipient string into individual entries on any character in
@@ -72,6 +195,7 @@ export function splitRecipients(value: string, separators = ','): string[] {
   let current = '';
   let inQuotes = false;
   let inAngle = false;
+  let inGroup = false;
   for (const ch of value) {
     if (ch === '"') {
       inQuotes = !inQuotes;
@@ -82,7 +206,17 @@ export function splitRecipients(value: string, separators = ','): string[] {
     } else if (ch === '>' && !inQuotes) {
       inAngle = false;
       current += ch;
-    } else if (separators.includes(ch) && !inQuotes && !inAngle) {
+    } else if (ch === ':' && !inQuotes && !inAngle) {
+      // RFC 5322 group syntax ("Team: a@x, b@y;") - keep the whole group,
+      // separators inside it included, as a single entry. A colon inside a
+      // display name is always quoted (see NAME_NEEDS_QUOTING), so a bare
+      // colon reliably opens a group.
+      inGroup = true;
+      current += ch;
+    } else if (ch === ';' && inGroup && !inQuotes && !inAngle) {
+      inGroup = false;
+      current += ch;
+    } else if (separators.includes(ch) && !inQuotes && !inAngle && !inGroup) {
       const trimmed = current.trim();
       if (trimmed) result.push(trimmed);
       current = '';
@@ -122,12 +256,41 @@ function unquoteName(name: string): string {
   return trimmed;
 }
 
+/** Index of the first colon outside quotes/angle brackets, or -1. */
+function findTopLevelColon(value: string): number {
+  let inQuotes = false;
+  let inAngle = false;
+  for (let i = 0; i < value.length; i++) {
+    const ch = value[i];
+    if (ch === '"') inQuotes = !inQuotes;
+    else if (ch === '<' && !inQuotes) inAngle = true;
+    else if (ch === '>' && !inQuotes) inAngle = false;
+    else if (ch === ':' && !inQuotes && !inAngle) return i;
+  }
+  return -1;
+}
+
 /**
  * Parses a single recipient string (`Name <email>`, `"Quoted, Name" <email>`,
  * or bare `email`) into a {@link Recipient}. The display name is unquoted.
+ * RFC 5322 group syntax (`Team: a@x, b@y;`) parses into a group chip - it is
+ * how contact groups round-trip through the composer's string boundaries.
  */
 export function parseRecipient(s: string): Recipient {
   const trimmed = s.trim();
+  if (trimmed.endsWith(';')) {
+    const colon = findTopLevelColon(trimmed);
+    if (colon !== -1) {
+      const members = splitRecipients(trimmed.slice(colon + 1, -1))
+        .map(parseRecipient)
+        .filter((m) => m.email && !m.group);
+      // Only accept the group form when it actually carries members - typed
+      // garbage like "Subject: hello;" stays a plain (invalid) recipient.
+      if (members.length > 0) {
+        return { name: unquoteName(trimmed.slice(0, colon)), email: '', group: { members } };
+      }
+    }
+  }
   const angleMatch = trimmed.match(/^(.+?)\s*<([^>]+)>$/);
   if (angleMatch) {
     return { name: unquoteName(angleMatch[1]), email: angleMatch[2].trim() };
@@ -140,9 +303,46 @@ export function parseRecipientList(value: string): Recipient[] {
   return splitRecipients(value).map(parseRecipient);
 }
 
+/**
+ * Formats a single composer recipient, using RFC 5322 group syntax for
+ * contact-group chips so they survive the composer's string boundaries
+ * (draft data, dirty compare, the contacts-page hand-off).
+ */
+export function formatRecipientEntry(r: Recipient): string {
+  if (r.group) {
+    const name = r.name?.trim() || 'Group';
+    const quoted = NAME_NEEDS_QUOTING.test(name)
+      ? `"${name.replace(/(["\\])/g, '\\$1')}"`
+      : name;
+    const members = r.group.members.map((m) => formatRecipient(m.name, m.email)).join(', ');
+    return `${quoted}: ${members};`;
+  }
+  return formatRecipient(r.name, r.email);
+}
+
 /** Serializes a recipient array into a comma-separated string. */
 export function formatRecipientList(recipients: Recipient[]): string {
-  return recipients.map((r) => formatRecipient(r.name, r.email)).join(', ');
+  return recipients.map(formatRecipientEntry).join(', ');
+}
+
+/**
+ * Expands contact-group chips into their members for sending and
+ * draft-saving. Deduplicates case-insensitively by address across the whole
+ * list, keeping the first occurrence - an explicitly added individual wins
+ * over the same address arriving again via a group.
+ */
+export function expandRecipients(recipients: Recipient[]): Recipient[] {
+  const seen = new Set<string>();
+  const out: Recipient[] = [];
+  for (const r of recipients) {
+    for (const entry of r.group ? r.group.members : [r]) {
+      const key = entry.email.trim().toLowerCase();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      out.push({ name: entry.name, email: entry.email });
+    }
+  }
+  return out;
 }
 
 /**
@@ -234,4 +434,35 @@ export function replaceInlineImagePlaceholders(
     changed = true;
   });
   return changed ? doc.body.innerHTML : html;
+}
+
+export type PendingUploadLike = {
+  uploading?: boolean;
+  error?: boolean;
+};
+
+export type PendingUploadWaitResult = "completed" | "cancelled" | "failed";
+
+/**
+ * Wait for in-flight attachment uploads to settle before sending.
+ *
+ * Polls `getAttachments` until nothing is `uploading`, checking
+ * `isCancelled` between polls (composer closed / draft discarded).
+ * Resolves:
+ * - "cancelled" - cancellation was signalled while waiting
+ * - "failed"    - uploads settled but at least one attachment errored;
+ *                 the caller must NOT auto-send (the user may not be
+ *                 looking at the composer to notice the failed chip)
+ * - "completed" - all uploads finished cleanly, safe to proceed
+ */
+export async function waitForPendingUploads(
+  getAttachments: () => readonly PendingUploadLike[],
+  isCancelled: () => boolean,
+  pollMs = 150
+): Promise<PendingUploadWaitResult> {
+  while (getAttachments().some((att) => att.uploading)) {
+    if (isCancelled()) return "cancelled";
+    await new Promise((resolve) => setTimeout(resolve, pollMs));
+  }
+  return getAttachments().some((att) => att.error) ? "failed" : "completed";
 }

@@ -6,7 +6,9 @@ import type { SettingsPolicy, FeatureGates } from '@/lib/admin/types';
 import { DEFAULT_FEATURE_GATES, DEFAULT_POLICY } from '@/lib/admin/types';
 import { apiFetch } from '@/lib/browser-navigation';
 
-const EXCLUDED_FEATURE_GATES: (keyof FeatureGates)[] = ['pluginsEnabled', 'pluginsUploadEnabled', 'themesEnabled', 'userThemesEnabled'];
+// `allMailViewEnabled` is deprecated (folded into `crossAllViewEnabled`, normalized
+// forward on policy load), so it is hidden from the admin UI.
+const EXCLUDED_FEATURE_GATES: (keyof FeatureGates)[] = ['pluginsEnabled', 'pluginsUploadEnabled', 'themesEnabled', 'userThemesEnabled', 'allMailViewEnabled'];
 
 const FEATURE_GATE_LABELS: Partial<Record<keyof FeatureGates, { label: string; description: string }>> = {
   sidebarAppsEnabled: { label: 'Sidebar Apps', description: 'Allow custom web apps in navigation rail' },
@@ -22,10 +24,10 @@ const FEATURE_GATE_LABELS: Partial<Record<keyof FeatureGates, { label: string; d
   folderIconsEnabled: { label: 'Folder Icons', description: 'Allow custom folder icon picker' },
   hoverActionsConfigEnabled: { label: 'Hover Actions Config', description: 'Allow users to customize email hover actions' },
   filesEnabled: { label: 'Files (WebDAV)', description: 'Enable file storage via WebDAV. WARNING: Large uploads can cause Stalwart/RocksDB instability. Not recommended for production.' },
-  allMailViewEnabled: { label: 'All Mail View', description: 'Show a virtual "All Mail" folder that merges messages from across an account’s folders into one list. Users choose which folders are included. Requires the per-user toggle in Settings → Appearance.' },
-  crossUnreadViewEnabled: { label: 'All Accounts: Unread', description: 'Allow an "All unread" entry in the All accounts section that lists unread mail across every account (incl. shared folders), spanning all folders except junk, sent, archive, trash and drafts. Requires the matching per-user toggle in Settings → Appearance.' },
-  crossStarredViewEnabled: { label: 'All Accounts: Starred', description: 'Allow an "All starred" entry in the All accounts section that lists flagged/starred mail across every account (incl. shared folders), spanning all folders except junk, sent, archive, trash and drafts. Requires the matching per-user toggle in Settings → Appearance.' },
-  crossAllViewEnabled: { label: 'All Accounts: All Mail', description: 'Allow an "All mail" entry in the All accounts section that lists all mail across every account (incl. shared folders), spanning all folders except junk, sent, archive, trash and drafts. Requires the matching per-user toggle in Settings → Appearance.' },
+  crossUnreadViewEnabled: { label: 'Unified Mailbox: Unread', description: 'Allow an "Unread" entry in the Unified Mailbox section that lists unread mail across the account and its shared folders (or every account when the cross-account sub-option is on). Honors the user\'s folder selection. Requires the matching per-user toggle in Settings → Appearance.' },
+  crossStarredViewEnabled: { label: 'Unified Mailbox: Starred', description: 'Allow a "Starred" entry in the Unified Mailbox section that lists flagged/starred mail across the account and its shared folders (or every account when the cross-account sub-option is on). Honors the user\'s folder selection. Requires the matching per-user toggle in Settings → Appearance.' },
+  crossAllViewEnabled: { label: 'Unified Mailbox: All Mail', description: 'Allow an "All mail" entry in the Unified Mailbox section that lists all mail across the account and its shared folders (or every account when the cross-account sub-option is on). Honors the user\'s folder selection. Requires the matching per-user toggle in Settings → Appearance.' },
+  unifiedCrossAccountEnabled: { label: 'Unified Mailbox: Cross-account', description: 'Allow users to expand the Unified Mailbox beyond the active account boundary so its lists merge across every logged-in account. When off, the Unified Mailbox stays within the active account and its shared folders.' },
 };
 
 const RESTRICTABLE_SETTINGS = [

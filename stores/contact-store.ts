@@ -155,6 +155,11 @@ interface ContactStore {
   trustedSendersLoaded: boolean;
   trustedSendersLoading: boolean;
 
+  // Recent recipients (from the Sent folder) for compose autocomplete - runtime only
+  recentRecipients: Array<{ name: string; email: string }>;
+  recentRecipientsLoaded: boolean;
+  sentMailboxId: string | null;
+
   selectedContactIds: Set<string>;
   lastSelectedContactId: string | null;
   activeTab: 'all' | 'groups';
@@ -183,7 +188,7 @@ interface ContactStore {
   setActiveTab: (tab: 'all' | 'groups') => void;
   clearContacts: () => void;
 
-  getAutocomplete: (query: string) => Array<{ name: string; email: string }>;
+  getAutocomplete: (query: string) => Array<{ name: string; email: string; group?: { id: string; memberCount: number } }>;
 
   getGroups: () => ContactCard[];
   getIndividuals: () => ContactCard[];
@@ -214,6 +219,11 @@ interface ContactStore {
   addToTrustedSendersBook: (client: IJMAPClient, email: string) => Promise<void>;
   removeFromTrustedSendersBook: (client: IJMAPClient, email: string) => Promise<void>;
   isTrustedAddressBookSender: (email: string) => boolean;
+
+  // Recent recipients (compose autocomplete, derived from the Sent folder)
+  loadRecentRecipients: (client: IJMAPClient, sentMailboxId: string) => Promise<void>;
+  // On-demand "search the server" for recipients not in the recent cache
+  searchRecipients: (client: IJMAPClient, query: string) => Promise<Array<{ name: string; email: string }>>;
 }
 
 export const useContactStore = create<ContactStore>()(
@@ -262,6 +272,9 @@ export const useContactStore = create<ContactStore>()(
       trustedSendersBookId: null,
       trustedSendersLoaded: false,
       trustedSendersLoading: false,
+      recentRecipients: [],
+      recentRecipientsLoaded: false,
+      sentMailboxId: null,
       selectedContactIds: new Set<string>(),
       lastSelectedContactId: null,
       activeTab: 'all' as const,
@@ -514,20 +527,18 @@ export const useContactStore = create<ContactStore>()(
         if (!query || query.length < 1) return [];
 
         const lower = query.toLowerCase();
-        const results: Array<{ name: string; email: string }> = [];
+        const results: Array<{ name: string; email: string; group?: { id: string; memberCount: number } }> = [];
 
         for (const contact of contacts) {
           if (contact.kind === 'group') {
+            // Suggest the group itself as a single entry (Outlook-style);
+            // the composer turns it into one chip carrying the members.
             const groupName = getContactDisplayName(contact);
-            if (groupName.toLowerCase().includes(lower)) {
-              const members = get().getGroupMembers(contact.id);
-              for (const member of members) {
-                const memberName = getContactDisplayName(member);
-                const memberEmails = member.emails ? Object.values(member.emails) : [];
-                for (const emailEntry of memberEmails) {
-                  if (!emailEntry.address) continue;
-                  results.push({ name: memberName, email: emailEntry.address });
-                }
+            if (groupName && groupName.toLowerCase().includes(lower)) {
+              const memberCount = get().getGroupMembers(contact.id)
+                .filter(m => getContactPrimaryEmail(m).trim()).length;
+              if (memberCount > 0) {
+                results.push({ name: groupName, email: '', group: { id: contact.id, memberCount } });
               }
             }
             continue;
@@ -572,6 +583,25 @@ export const useContactStore = create<ContactStore>()(
               const name = displayName !== p.email ? displayName : '';
               results.push({ name, email: p.email });
               seen.add(addr);
+            }
+          }
+        }
+
+        // Finally fold in recent recipients from the Sent folder (people you've
+        // written to - the OWA-style autocomplete cache). Contacts and directory
+        // principals take precedence, so skip any address already suggested (no
+        // duplicates). These carry the display name from the message, so match
+        // on name or address.
+        const { recentRecipients } = get();
+        if (recentRecipients.length > 0 && results.length < 10) {
+          const seenRecent = new Set(results.map(r => r.email.toLowerCase()));
+          for (const rec of recentRecipients) {
+            if (results.length >= 10) break;
+            const addr = rec.email.toLowerCase();
+            if (seenRecent.has(addr)) continue;
+            if (addr.includes(lower) || (rec.name && rec.name.toLowerCase().includes(lower))) {
+              results.push({ name: rec.name, email: rec.email });
+              seenRecent.add(addr);
             }
           }
         }
@@ -956,6 +986,44 @@ export const useContactStore = create<ContactStore>()(
             set({ error: msg });
             throw error;
           }
+        }
+      },
+
+      loadRecentRecipients: async (client, sentMailboxId) => {
+        if (sentMailboxId) set({ sentMailboxId });
+        if (get().recentRecipientsLoaded || !sentMailboxId) return;
+        try {
+          // Read the Sent folder and collect the people we've written to, so
+          // compose autocomplete can suggest them (OWA-style). getEmails sorts
+          // receivedAt desc, so keeping the first occurrence per address yields
+          // the most recent one plus its display name.
+          const { emails } = await client.getEmails(sentMailboxId, undefined, 300, 0);
+          const byEmail = new Map<string, { name: string; email: string }>();
+          for (const email of emails) {
+            for (const r of [...(email.to || []), ...(email.cc || [])]) {
+              if (!r.email) continue;
+              const key = r.email.toLowerCase().trim();
+              if (!key || byEmail.has(key)) continue;
+              byEmail.set(key, { name: (r.name || '').trim(), email: r.email });
+            }
+          }
+          set({ recentRecipients: Array.from(byEmail.values()), recentRecipientsLoaded: true });
+          debug.log('contacts', 'Loaded', byEmail.size, 'recent recipients from Sent');
+        } catch (error) {
+          debug.error('Failed to load recent recipients:', error);
+          set({ recentRecipientsLoaded: true });
+        }
+      },
+
+      searchRecipients: async (client, query) => {
+        const { sentMailboxId } = get();
+        const q = query.trim();
+        if (!sentMailboxId || q.length < 1) return [];
+        try {
+          return await client.searchSentRecipients(q, sentMailboxId);
+        } catch (error) {
+          debug.error('Recipient server search failed:', error);
+          return [];
         }
       },
 

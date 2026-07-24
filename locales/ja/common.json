@@ -114,6 +114,7 @@
     "unified_archive": "すべてのアーカイブ",
     "unified_junk": "すべての迷惑メール",
     "all_accounts": "すべてのアカウント",
+    "unified_mailbox": "統合メールボックス",
     "expand": "展開",
     "collapse": "折りたたむ",
     "expand_tooltip": "展開",
@@ -137,7 +138,9 @@
     "scheduled": "予約済み",
     "unified_all_unread": "すべての未読",
     "unified_all_starred": "すべてのスター付き",
-    "unified_all_mail": "すべてのメール"
+    "unified_all_mail": "すべてのメール",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "既定のアプリ",
@@ -274,6 +277,8 @@
     "no_subject": "（件名なし）",
     "no_body_content": "（本文がありません）",
     "no_preview_available": "プレビューは利用できません",
+    "show_quoted_text": "引用テキストを表示",
+    "hide_quoted_text": "引用テキストを非表示",
     "loading_email": "メールを読み込み中...",
     "loading": "読み込み中...",
     "reply": "返信",
@@ -434,7 +439,9 @@
       "confirm_button": "確認",
       "cancel": "キャンセル",
       "success_http": "購読解除ページを新しいタブで開きました",
-      "success_mailto": "購読解除リクエストをメールクライアントに送信しました",
+      "success_mailto": "配信停止メールを送信しました",
+      "confirm_message_http": "配信停止ページを新しいタブで開きます。",
+      "confirm_message_mailto": "送信者に配信停止メールを送信します。",
       "error": "購読解除できませんでした",
       "dismiss": "閉じる"
     },
@@ -632,7 +639,9 @@
     "validation": {
       "recipient_required": "送信するには宛先を追加してください",
       "subject_required": "件名を追加してください",
-      "body_required": "メッセージを入力するかファイルを添付してください"
+      "body_required": "メッセージを入力するかファイルを添付してください",
+      "attachments_uploading": "添付ファイルをアップロード中です。完了次第送信します",
+      "attachment_upload_failed": "送信されませんでした。添付ファイルのアップロードに失敗しました。削除してもう一度お試しください。"
     },
     "upload_progress": "アップロード中 {uploaded} / {total}",
     "upload_cancel": "アップロードをキャンセル",
@@ -650,7 +659,6 @@
     "continue_draft": "下書きを続ける",
     "close_draft_title": "下書きを保存または破棄しますか？",
     "close_draft_message": "未保存の変更があります。下書きとして保存しますか、それとも破棄しますか？",
-    "save_draft": "下書きを保存",
     "drop_files": "ファイルをドロップして添付",
     "show_less": "折りたたむ",
     "forgot_attachment": {
@@ -675,7 +683,10 @@
     "recipient_edit_email": "メールアドレスを編集",
     "recipient_edit_name": "表示名を編集",
     "recipient_email_placeholder": "メールアドレス",
-    "recipient_name_placeholder": "表示名"
+    "recipient_name_placeholder": "表示名",
+    "autocomplete_search_server": "サーバーを検索",
+    "autocomplete_searching": "検索中...",
+    "send_filing_warning": "送信されましたが、送信後の整理に失敗しました。古い下書きが残る場合があります。"
   },
   "confirm_dialog": {
     "confirm": "確認",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -916,14 +929,16 @@
       "unified_mailbox": {
         "label": "統合メールボックス",
         "description": "接続されたすべてのアカウントの統合フォルダ（受信トレイ、送信済みなど）を表示",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "グループ受信トレイを含める",
           "description": "共有/グループ受信トレイも統合ビューに含めます。"
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Applies to {account}.",
@@ -933,9 +948,17 @@
         "label": "カラフルなサイドバーアイコン",
         "description": "フォルダーとタグのアイコンを種類別に色分けします（受信トレイは青、迷惑メールは赤、送信済みは緑など）。モノクロのサイドバーにするには無効にしてください。"
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "メッセージの総数を表示",
         "description": "フォルダーやタグの横に、未読数に加えてメッセージの総数を表示します。未読数のみを表示するには無効にします。"
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro インターフェイス（実験的）",
@@ -1047,6 +1070,14 @@
         "preview_this_week": "今週:",
         "preview_older": "それ以前:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "時刻形式",
         "description": "12時間制または24時間制を選択",
@@ -1089,6 +1120,13 @@
         "trash_and_read": "ゴミ箱に移動して既読にする",
         "permanent": "完全に削除",
         "warning": "メールは完全に削除され、復元できません。この操作は元に戻せません。"
+      },
+      "message_spacing": {
+        "label": "メッセージの余白",
+        "description": "閲覧時のメッセージ本文まわりの余白",
+        "auto": "自動（推奨）",
+        "always": "常に余白を追加",
+        "edge": "余白なし"
       },
       "archive_mode": {
         "label": "アーカイブ先",
@@ -1253,8 +1291,12 @@
         "unsupported": "現在のアカウントは遅延送信のサポートを通知していません。この設定は他のアカウント用に保存されます。"
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "削除または未読にした後に一覧へ戻る",
+        "description": "開いているメッセージを削除または未読にした後、次のメッセージを開かずにメッセージ一覧へ戻ります。"
+      },
+      "rtl_editing": {
+        "label": "右から左への編集サポート",
+        "description": "エディターのツールバーに文字方向ボタンを追加し、段落を左から右または右から左に設定できます"
       }
     },
     "composer": {
@@ -1501,7 +1543,10 @@
         "subject_placeholder": "不在通知",
         "body_label": "メッセージ本文",
         "body_description": "テキスト形式のメッセージ内容",
-        "body_placeholder": "メールをいただきありがとうございます。現在不在にしており、戻り次第ご返信いたします。"
+        "body_placeholder": "メールをいただきありがとうございます。現在不在にしており、戻り次第ご返信いたします。",
+        "html_label": "書式付きメッセージ（HTML）",
+        "html_description": "リンクやスタイルを含む書式付きの版を追加します。表示できないメールソフトの受信者には上記のプレーンテキストが表示されます。",
+        "html_placeholder": "書式付きの不在返信を入力…"
       },
       "preview": {
         "title": "プレビュー",
@@ -1533,6 +1578,8 @@
       "role_none": "なし",
       "create_folder": "フォルダーを作成",
       "create_subfolder": "サブフォルダーを作成",
+      "reorder": "ドラッグして並べ替え",
+      "reorder_error": "フォルダーの並べ替えに失敗しました",
       "subfolder_of": "{name} の中",
       "subfolder_name": "サブフォルダー名",
       "new_folder_name": "フォルダー名",
@@ -1597,6 +1644,11 @@
         "label": "キーボードショートカット",
         "description": "利用可能なキーボードショートカットを表示",
         "button": "ショートカットを表示"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "設定をリセット",
@@ -1942,6 +1994,8 @@
     "mark_unread": "未読にする",
     "star": "スターを付ける",
     "unstar": "スターを外す",
+    "pin": "ピン留め",
+    "unpin": "ピン留めを外す",
     "move_to": "移動...",
     "archive": "アーカイブ",
     "delete": "削除",
@@ -2081,9 +2135,9 @@
       "email_invalid": "有効なメールアドレスを入力してください",
       "email_immutable": "メールアドレスは作成後に変更できません",
       "reply_to_label": "返信先（オプション）",
-      "reply_to_placeholder": "different@email.com",
+      "reply_to_placeholder": "different@example.com",
       "bcc_label": "自動BCC（オプション）",
-      "bcc_placeholder": "archive@email.com",
+      "bcc_placeholder": "archive@example.com",
       "text_signature_label": "テキスト署名",
       "html_signature_label": "HTML署名",
       "signature_byte_counter": "{bytes} / {max} バイト",
@@ -2878,7 +2932,19 @@
       "sep": "9月",
       "oct": "10月",
       "nov": "11月",
-      "dec": "12月"
+      "dec": "12月",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "nav_open_menu": "メニューを開く"
   },

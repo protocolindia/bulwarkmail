@@ -8,7 +8,11 @@ import DOMPurify from 'dompurify';
  */
 export const EMAIL_SANITIZE_CONFIG = {
   ADD_TAGS: [],
-  ADD_ATTR: ['target', 'rel', 'style', 'class', 'width', 'height', 'align', 'valign', 'bgcolor', 'color'],
+  // data-quoted-html is Bulwark's own reply-quote marker (see
+  // components/email/quoted-html.ts). Explicitly whitelisted despite
+  // ALLOW_DATA_ATTR:false so the viewer can detect and collapse the quoted
+  // original (lib/quote-collapse.ts); it's inert otherwise.
+  ADD_ATTR: ['target', 'rel', 'style', 'class', 'width', 'height', 'align', 'valign', 'bgcolor', 'color', 'data-quoted-html'],
   ALLOW_DATA_ATTR: false,
   FORCE_BODY: true,
   // Allow blob: URIs so authenticated inline images (CID) are not stripped.
@@ -79,26 +83,61 @@ export const SIGNATURE_SANITIZE_CONFIG = {
   FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
 };
 
+/** Drop images whose src isn't https: or a base64 raster data: URI. */
+function restrictSignatureImages(node: Element): void {
+  if (node.tagName !== 'IMG') return;
+  const src = node.getAttribute('src');
+  if (!src || !/^(?:https:\/\/|data:image\/(?:png|jpe?g|gif|webp);base64,)/i.test(src)) {
+    node.remove();
+  }
+}
+
 /**
- * Sanitize HTML signature for storage and display.
+ * Sanitize an HTML signature for storage and for the outgoing message.
  * img src is restricted to https: or base64-embedded raster data: URIs
  * (png/jpeg/gif/webp). SVG is excluded because DOMPurify cannot inspect
  * bytes inside a data: URI. Images with a disallowed src are removed
  * entirely so they don't render as broken-image icons.
+ *
+ * Deliberately does NOT force target="_blank": what we store, and what the
+ * recipient receives, should stay as the user wrote it. Use
+ * `sanitizeSignatureHtmlForDisplay` for anything rendered in our own DOM.
  * @param html - User-provided HTML signature
  * @returns Sanitized signature (no scripts, no external resources)
  */
 export function sanitizeSignatureHtml(html: string): string {
   if (!html?.trim()) return '';
+  DOMPurify.addHook('afterSanitizeAttributes', restrictSignatureImages);
+  try {
+    return DOMPurify.sanitize(html, SIGNATURE_SANITIZE_CONFIG);
+  } finally {
+    DOMPurify.removeAllHooks();
+  }
+}
+
+const SIGNATURE_DISPLAY_CONFIG = {
+  ...SIGNATURE_SANITIZE_CONFIG,
+  ALLOWED_ATTR: [...SIGNATURE_SANITIZE_CONFIG.ALLOWED_ATTR, 'target', 'rel'],
+};
+
+/**
+ * Sanitize an HTML signature for rendering inside our own DOM — the identity
+ * form's live preview and the composer's signature block. Both inject into the
+ * main document rather than the sandboxed iframe used for message bodies, so a
+ * link without target="_blank" navigates the whole app away, taking any unsent
+ * draft or unsaved signature with it. Force every anchor to open a new tab.
+ */
+export function sanitizeSignatureHtmlForDisplay(html: string): string {
+  if (!html?.trim()) return '';
   DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-    if (node.tagName !== 'IMG') return;
-    const src = node.getAttribute('src');
-    if (!src || !/^(?:https:\/\/|data:image\/(?:png|jpe?g|gif|webp);base64,)/i.test(src)) {
-      node.remove();
+    restrictSignatureImages(node);
+    if (node.tagName === 'A') {
+      node.setAttribute('target', '_blank');
+      node.setAttribute('rel', 'noopener noreferrer');
     }
   });
   try {
-    return DOMPurify.sanitize(html, SIGNATURE_SANITIZE_CONFIG);
+    return DOMPurify.sanitize(html, SIGNATURE_DISPLAY_CONFIG);
   } finally {
     DOMPurify.removeAllHooks();
   }
@@ -119,7 +158,24 @@ const I18N_SANITIZE_CONFIG = {
 };
 
 export function sanitizeI18nHtml(html: string): string {
-  return DOMPurify.sanitize(html, I18N_SANITIZE_CONFIG);
+  // A custom ALLOWED_URI_REGEXP makes DOMPurify strip target/rel from trusted
+  // translated links (e.g. settings.security.not_available's docs link); keep
+  // them, and force rel on _blank to prevent tab-nabbing when the catalog omits it.
+  DOMPurify.addHook('uponSanitizeAttribute', (_node, data) => {
+    if (data.attrName === 'target' || data.attrName === 'rel') {
+      data.forceKeepAttr = true;
+    }
+  });
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    if (node.tagName === 'A' && node.getAttribute('target') === '_blank') {
+      node.setAttribute('rel', 'noopener noreferrer');
+    }
+  });
+  try {
+    return DOMPurify.sanitize(html, I18N_SANITIZE_CONFIG);
+  } finally {
+    DOMPurify.removeAllHooks();
+  }
 }
 
 /**
@@ -130,13 +186,23 @@ export function sanitizeI18nHtml(html: string): string {
  * future code path passes raw HTML in by mistake.
  */
 const PLAIN_TEXT_RENDERED_CONFIG = {
-  ALLOWED_TAGS: ['a', 'br', 'p', 'div', 'span'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
+  // details/summary/title carry the script-less quote-collapse toggle emitted
+  // by collapsePlainTextQuotes (lib/quote-collapse.ts).
+  ALLOWED_TAGS: ['a', 'br', 'p', 'div', 'span', 'details', 'summary'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style', 'title'],
+  // DOMPurify URI-tests every attribute value not on its URI-safe list, so the
+  // strict ALLOWED_URI_REGEXP below would strip target="_blank" (and rel) —
+  // "_blank" is not a URI. This branch renders into the main document rather
+  // than the sandboxed iframe, so losing target turns every link into a
+  // whole-app navigation. Exempt the two from the URI check.
+  ADD_URI_SAFE_ATTR: ['target', 'rel'],
   ALLOW_DATA_ATTR: false,
   ALLOWED_URI_REGEXP: /^(?:https?:|mailto:|tel:|cid:|#)/i,
 };
 
 export function sanitizePlainTextRenderedHtml(html: string): string {
+  // target/rel survive the URI check via ADD_URI_SAFE_ATTR (#594); the plaintext
+  // linkifier only emits http(s), so no per-scheme handling is needed here.
   return DOMPurify.sanitize(html, PLAIN_TEXT_RENDERED_CONFIG);
 }
 
@@ -166,6 +232,36 @@ export function isExternalResourceUrl(value: string | null | undefined): boolean
   return /^(?:https?:\/\/|\/\/)/i.test(normalized);
 }
 
+
+/**
+ * True for external web links (http/https or protocol-relative `//host`) that
+ * should open in a new tab — unlike `mailto:`/`tel:`/`#fragments`, which navigate
+ * in place or hand off to the OS handler. Strips C0 controls first so obfuscated
+ * schemes (`"h\ttps://x"`) don't slip through.
+ */
+export function isHttpLinkHref(href: string | null | undefined): boolean {
+  if (!href) return false;
+  // eslint-disable-next-line no-control-regex
+  const normalized = href.replace(/[\u0000-\u0020]+/g, '');
+  return /^(?:https?:\/\/|\/\/)/i.test(normalized);
+}
+
+/**
+ * Give one `<a>` the new-tab treatment uniformly across the iframe render paths
+ * (the DOMPurify hook and the post-render DOM walk in email-viewer): http(s)
+ * links get target=_blank + rel; other schemes have them stripped so they don't
+ * spawn a blank tab. (The plaintext path relies on ADD_URI_SAFE_ATTR instead.)
+ */
+export function applyNewTabToAnchor(node: Element): void {
+  if (node.tagName !== 'A') return;
+  if (isHttpLinkHref(node.getAttribute('href'))) {
+    node.setAttribute('target', '_blank');
+    node.setAttribute('rel', 'noopener noreferrer');
+  } else {
+    node.removeAttribute('target');
+    node.removeAttribute('rel');
+  }
+}
 
 /**
  * Decode CSS escape sequences so escaped tracking URLs can be recognised.
@@ -200,6 +296,43 @@ export function stripExternalCssUrls(style: string): string {
   return style.replace(CSS_URL_PATTERN, (full, _q, inner) =>
     isExternalResourceUrl(decodeCssEscapes(inner)) ? 'url()' : full
   );
+}
+
+/**
+ * Neutralise external references in a full stylesheet (a kept `<style>` block).
+ * The iframe sanitiser keeps `<style>`, so its CSS can auto-load remote
+ * resources (background `url()`, `@font-face`, `@import`) that the per-node
+ * attribute walk in `blockExternalResourcesOnNode` never sees. The strict
+ * iframe CSP already blocks those fetches at the network level; this strips the
+ * references from the CSS text itself as defence-in-depth.
+ *
+ * Escapes are decoded on the WHOLE block first because the "css escape" tracker
+ * escapes the `url` keyword itself (`\75\72\6C(` -> `url(`) - a literal `url(`
+ * match would miss it. Returns the original (escapes intact) when nothing
+ * external is present, so callers can detect a change by identity. (#457)
+ */
+export function stripExternalStyleSheetCss(css: string): string {
+  if (!css) return css;
+  const decoded = decodeCssEscapes(css);
+  if (!/url\(|@import/i.test(decoded)) return css;
+  let changed = false;
+  // External url(...) anywhere in the sheet (also covers `@import url(...)`).
+  let result = decoded.replace(CSS_URL_PATTERN, (full, _q, inner: string) => {
+    if (isExternalResourceUrl(inner)) {
+      changed = true;
+      return 'url()';
+    }
+    return full;
+  });
+  // Bare-string remote import: `@import "http://…"` / `@import '//…'`.
+  result = result.replace(
+    /@import\s+(['"])\s*(?:https?:)?\/\/[^'"]*\1[^;]*;?/gi,
+    () => {
+      changed = true;
+      return '';
+    },
+  );
+  return changed ? result : css;
 }
 
 /** True if a srcset attribute lists at least one external candidate URL. */
@@ -290,6 +423,19 @@ export function blockExternalResourcesOnNode(node: Element): boolean {
     node.setAttribute('data-blocked-style', styleAttr);
     node.setAttribute('style', stripExternalCssUrls(styleAttr));
     blocked = true;
+  }
+
+  // <style> block CSS: the iframe sanitiser keeps these, so url()/@font-face/
+  // @import inside them can auto-load remote resources the attribute walk above
+  // never sees. Strip external refs from the stylesheet text (the strict iframe
+  // CSP is the network backstop; this is defence-in-depth). (#457)
+  if (tag === 'STYLE') {
+    const css = node.textContent || '';
+    const cleaned = stripExternalStyleSheetCss(css);
+    if (cleaned !== css) {
+      node.textContent = cleaned;
+      blocked = true;
+    }
   }
 
   return blocked;

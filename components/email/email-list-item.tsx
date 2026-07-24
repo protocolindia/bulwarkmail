@@ -5,8 +5,8 @@ import { useCallback } from "react";
 import { formatDate, stripInvisibleLeading } from "@/lib/utils";
 import { Email } from "@/lib/jmap/types";
 import { cn } from "@/lib/utils";
-import { Avatar } from "@/components/ui/avatar";
-import { Paperclip, Star, Circle, CheckSquare, Square, Reply, Forward } from "lucide-react";
+import { SelectableAvatar } from "@/components/email/selectable-avatar";
+import { Paperclip, Star, Pin, Circle, CheckSquare, Square, Reply, Forward } from "lucide-react";
 import { useEmailStore } from "@/stores/email-store";
 import { useSettingsStore, KEYWORD_PALETTE } from "@/stores/settings-store";
 import { useAuthStore } from "@/stores/auth-store";
@@ -34,16 +34,19 @@ interface EmailListItemProps {
 
 export function EmailListItem({ email, selected, onClick, onDoubleClick, onContextMenu, onToggleStar, onMarkAsRead, onDelete, onArchive, onSetColorTag, onMarkAsSpam, onUndoSpam }: EmailListItemProps) {
   const t = useTranslations('email_viewer');
+  const tBatch = useTranslations('email_list.batch_actions');
   const { selectedEmailIds, toggleEmailSelection, selectRangeEmails, selectedMailbox, mailboxes, clearSelection, isUnifiedView, unifiedRole } = useEmailStore();
   const showPreview = useSettingsStore((state) => state.showPreview);
   const density = useSettingsStore((state) => state.density);
   const mailLayout = useSettingsStore((state) => state.mailLayout);
   const emailKeywords = useSettingsStore((state) => state.emailKeywords);
+  const tintListRowsByTag = useSettingsStore((state) => state.tintListRowsByTag);
   const showAvatarsInJunk = useSettingsStore((state) => state.showAvatarsInJunk);
   const { identities } = useAuthStore();
   const isChecked = selectedEmailIds.has(email.id);
   const isUnread = !email.keywords?.$seen;
   const isStarred = email.keywords?.$flagged;
+  const isPinned = email.keywords?.['$pinned'] === true;
   const isImportant = email.keywords?.["$important"];
   const isAnswered = email.keywords?.$answered;
   const isForwarded = email.keywords?.$forwarded;
@@ -66,7 +69,7 @@ export function EmailListItem({ email, selected, onClick, onDoubleClick, onConte
   const keywordDefs = colorTagIds.map(id => emailKeywords.find(k => k.id === id) ?? { id, label: id, color: 'gray' });
   // Use first tag for background coloring
   const keywordDef = keywordDefs[0] ?? null;
-  const colorTag = keywordDef ? KEYWORD_PALETTE[keywordDef.color]?.bg ?? null : null;
+  const colorTag = (tintListRowsByTag && keywordDef) ? KEYWORD_PALETTE[keywordDef.color]?.bg ?? null : null;
 
   // Drag and drop functionality
   const { dragHandlers, isDragging } = useEmailDrag({
@@ -173,19 +176,22 @@ export function EmailListItem({ email, selected, onClick, onDoubleClick, onConte
 
         {/* Unread indicator */}
         {isUnread && (
-          <div className="absolute left-0.5 top-1/2 -translate-y-1/2">
+          <div className="absolute start-0.5 top-1/2 -translate-y-1/2">
             <Circle className="w-2 h-2 fill-unread text-unread" />
           </div>
         )}
 
         {/* Avatar */}
         {density !== 'extra-compact' && (
-          <Avatar
+          <SelectableAvatar
             name={sender?.name}
             email={sender?.email}
             size={isFocusedMailLayout ? "sm" : "md"}
             className="flex-shrink-0 shadow-sm"
             disableImages={hideJunkAvatarImages}
+            checked={isChecked}
+            onToggle={() => toggleEmailSelection(email.id)}
+            selectLabel={tBatch('select')}
           />
         )}
 
@@ -213,6 +219,7 @@ export function EmailListItem({ email, selected, onClick, onDoubleClick, onConte
                 </div>
               </div>
               <div className="flex items-center gap-2.5 shrink-0">
+                {isPinned && <Pin className="w-3.5 h-3.5 text-primary" />}
                 {isStarred && <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />}
                 {isImportant && <span className="h-2 w-2 rounded-full bg-warning" />}
                 {isAnswered && !isForwarded && <Reply className="w-3.5 h-3.5 text-muted-foreground" />}
@@ -249,6 +256,9 @@ export function EmailListItem({ email, selected, onClick, onDoubleClick, onConte
                     {sender?.name || sender?.email || "Unknown"}
                   </span>
                   <div className="flex items-center gap-1.5">
+                    {isPinned && (
+                      <Pin className="w-3.5 h-3.5 text-primary" />
+                    )}
                     {isStarred && (
                       <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                     )}
@@ -334,6 +344,7 @@ export function EmailListItem({ email, selected, onClick, onDoubleClick, onConte
         onMarkAsSpam={onMarkAsSpam}
         onUndoSpam={onUndoSpam}
         isInJunk={currentMailboxRole === 'junk'}
+        spamApplicable={!['sent', 'drafts', 'scheduled'].includes(currentMailboxRole || '')}
       />
     </div>
   );

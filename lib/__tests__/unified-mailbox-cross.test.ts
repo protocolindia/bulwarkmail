@@ -6,6 +6,7 @@ import {
   buildCrossFilter,
   getCrossUnreadTotal,
   fetchCrossViewEmails,
+  advancedSearchCrossViewEmails,
   resolveSourceFolderName,
   type UnifiedAccountClient,
 } from '@/lib/unified-mailbox';
@@ -41,6 +42,26 @@ describe('getCrossIncludedMailboxes', () => {
     });
     const ids = getCrossIncludedMailboxes(account).map((m) => m.id);
     expect(ids).toEqual(['inbox', 'projects']);
+  });
+
+  it('honors an explicit crossIncludedMailboxIds selection (folder picker)', () => {
+    const account = makeAccount({
+      accountId: 'a',
+      mailboxes: [mb('inbox', 'inbox'), mb('projects', undefined), mb('archive', 'archive')],
+      // user picked inbox + archive, excluded projects - overrides role exclusion
+      crossIncludedMailboxIds: ['inbox', 'archive'],
+    });
+    const ids = getCrossIncludedMailboxes(account).map((m) => m.id);
+    expect(ids).toEqual(['inbox', 'archive']);
+  });
+
+  it('an empty selection yields no folders', () => {
+    const account = makeAccount({
+      accountId: 'a',
+      mailboxes: [mb('inbox', 'inbox'), mb('projects', undefined)],
+      crossIncludedMailboxIds: [],
+    });
+    expect(getCrossIncludedMailboxes(account)).toEqual([]);
   });
 });
 
@@ -85,6 +106,22 @@ describe('getCrossUnreadTotal', () => {
       mailboxes: [mb('inbox', 'inbox', 5), mb('sent', 'sent', 99)],
     });
     expect(getCrossUnreadTotal([a, b])).toBe(10);
+  });
+
+  it('counts only the selected folders when crossIncludedMailboxIds is set; shared accounts stay unrestricted', () => {
+    // personal account narrowed to inbox only (projects excluded by the picker)
+    const personal = makeAccount({
+      accountId: 'a',
+      mailboxes: [mb('inbox', 'inbox', 3), mb('projects', undefined, 4)],
+      crossIncludedMailboxIds: ['inbox'],
+    });
+    // shared account unrestricted -> role-exclusion default (inbox + custom)
+    const shared = makeAccount({
+      accountId: 'owner',
+      isShared: true,
+      mailboxes: [mb('ns:inbox', 'inbox', 5, 'orig-inbox'), mb('ns:team', undefined, 2, 'orig-team'), mb('ns:junk', 'junk', 9, 'orig-junk')],
+    });
+    expect(getCrossUnreadTotal([personal, shared])).toBe(3 + 5 + 2);
   });
 });
 
@@ -165,5 +202,30 @@ describe('fetchCrossViewEmails', () => {
     const result = await fetchCrossViewEmails([ok, bad], 'all', 50, 0);
     expect(result.emails.map((e) => e.id)).toEqual(['x']);
     expect(result.errors.get('bad')).toBe('boom');
+  });
+});
+
+describe('advancedSearchCrossViewEmails', () => {
+  it('ANDs the advanced filter onto the cross-view membership', async () => {
+    const advancedSearchEmails = vi.fn().mockResolvedValue({ emails: [], total: 0, hasMore: false });
+    const a = makeAccount({ accountId: 'a', mailboxes: [mb('inbox', 'inbox')] }, { advancedSearchEmails });
+
+    await advancedSearchCrossViewEmails([a], 'all', { hasKeyword: '$flagged' }, 50, 0);
+
+    const [filter] = advancedSearchEmails.mock.calls[0];
+    expect(filter).toEqual({
+      operator: 'AND',
+      conditions: [{ inMailbox: 'inbox' }, { hasKeyword: '$flagged' }],
+    });
+  });
+
+  it('uses only the membership filter when the extra filter is empty', async () => {
+    const advancedSearchEmails = vi.fn().mockResolvedValue({ emails: [], total: 0, hasMore: false });
+    const a = makeAccount({ accountId: 'a', mailboxes: [mb('inbox', 'inbox')] }, { advancedSearchEmails });
+
+    await advancedSearchCrossViewEmails([a], 'all', {}, 50, 0);
+
+    const [filter] = advancedSearchEmails.mock.calls[0];
+    expect(filter).toEqual({ inMailbox: 'inbox' });
   });
 });

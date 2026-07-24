@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useSyncExternalStore } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { useTranslations, useMessages } from 'next-intl';
 import {
@@ -66,6 +66,8 @@ import { SidebarAppsSettings } from '@/components/settings/sidebar-apps-settings
 import { NotificationSettings } from '@/components/settings/notification-settings';
 import { ThemesSettings } from '@/components/settings/themes-settings';
 import { PluginsSettings } from '@/components/settings/plugins-settings';
+import { PluginIframeSlot } from '@/components/plugins/plugin-iframe-slot';
+import { offersForSlot as pluginOffersForSlot, subscribe as pluginRegistrySubscribe, get as getActivePlugin } from '@/lib/plugin-sandbox/registry';
 import { ProtocolHandlerSettings } from '@/components/settings/protocol-handler-settings';
 import { useAuthStore, redirectToLogin } from '@/stores/auth-store';
 import { useEmailStore } from '@/stores/email-store';
@@ -113,8 +115,14 @@ type Tab =
 
 type TabGroup = 'general' | 'appearance' | 'mail' | 'privacy' | 'apps' | 'advanced';
 
+// A plugin that exposes a `settings-section` slot gets its own first-class
+// Settings entry, keyed `plugin:<id>`, so its UI (e.g. S/MIME key import) is
+// discoverable as a menu point rather than buried inside another panel.
+type PluginTabId = `plugin:${string}`;
+type SettingsTabId = Tab | PluginTabId;
+
 interface TabDef {
-  id: Tab;
+  id: SettingsTabId;
   label: string;
   icon: LucideIcon;
   group: TabGroup;
@@ -330,7 +338,7 @@ const LEGACY_TAB_MAP: Record<string, Tab> = {
   advanced: 'about_data',
 };
 
-function readPersistedTab(): Tab {
+function readPersistedTab(): SettingsTabId {
   try {
     // One-shot deep link from the sidebar section gears (Folders / Tags).
     // Used only as the initial tab and intentionally NOT written to
@@ -338,7 +346,7 @@ function readPersistedTab(): Tab {
     // default that the regular Settings button lands on. Cleared on mount.
     const deepLink = sessionStorage.getItem('settings-deep-link-tab');
     if (deepLink) {
-      return (deepLink in LEGACY_TAB_MAP ? LEGACY_TAB_MAP[deepLink] : deepLink) as Tab;
+      return (deepLink in LEGACY_TAB_MAP ? LEGACY_TAB_MAP[deepLink] : deepLink) as SettingsTabId;
     }
     const saved = localStorage.getItem('settings-active-tab');
     if (!saved) return 'appearance';
@@ -347,7 +355,7 @@ function readPersistedTab(): Tab {
       try { localStorage.setItem('settings-active-tab', migrated); } catch { /* ignore */ }
       return migrated;
     }
-    return saved as Tab;
+    return saved as SettingsTabId;
   } catch {
     return 'appearance';
   }
@@ -364,7 +372,15 @@ export default function SettingsPage() {
   const { quota, isPushConnected } = useEmailStore();
   const { stalwartFeaturesEnabled } = useConfig();
   const { isFeatureEnabled } = usePolicyStore();
-  const [activeTab, setActiveTab] = useState<Tab>(readPersistedTab);
+  const [activeTab, setActiveTab] = useState<SettingsTabId>(readPersistedTab);
+  // Active plugins that expose a `settings-section` slot — each becomes its own
+  // Settings menu entry. Referentially stable per registry mutation, so it is
+  // safe to feed useSyncExternalStore directly.
+  const pluginSettingsOffers = useSyncExternalStore(
+    pluginRegistrySubscribe,
+    () => pluginOffersForSlot('settings-section'),
+    () => pluginOffersForSlot('settings-section'),
+  );
   // Consume the one-shot deep-link key so a section gear only steers this one
   // open, never the persisted default for future Settings-button clicks.
   useEffect(() => {
@@ -372,7 +388,7 @@ export default function SettingsPage() {
   }, []);
   const [mobileShowContent, setMobileShowContent] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [pendingHighlight, setPendingHighlight] = useState<{ tab: Tab; label: string; pluginId?: string } | null>(null);
+  const [pendingHighlight, setPendingHighlight] = useState<{ tab: SettingsTabId; label: string; pluginId?: string } | null>(null);
   const isDesktop = useIsDesktop();
 
   const messages = useMessages() as Record<string, unknown>;
@@ -624,6 +640,14 @@ export default function SettingsPage() {
     ...(isFeatureEnabled('contactsEnabled') ? [{ id: 'contacts' as Tab, label: t('tabs.contacts'), icon: tabIcons.contacts, group: 'apps' as TabGroup }] : []),
     ...(supportsFiles && isFeatureEnabled('filesEnabled') ? [{ id: 'files' as Tab, label: t('tabs.files'), icon: tabIcons.files, group: 'apps' as TabGroup }] : []),
     ...(isFeatureEnabled('sidebarAppsEnabled') ? [{ id: 'sidebar_apps' as Tab, label: t('tabs.sidebar_apps'), icon: tabIcons.sidebar_apps, group: 'apps' as TabGroup }] : []),
+    // Plugin-contributed settings pages: one entry per active plugin that
+    // offers a `settings-section` slot (e.g. S/MIME key & certificate manager).
+    ...pluginSettingsOffers.map((offer): TabDef => ({
+      id: `plugin:${offer.pluginId}` as PluginTabId,
+      label: getActivePlugin(offer.pluginId)?.plugin.name ?? offer.pluginId,
+      icon: Puzzle,
+      group: 'apps',
+    })),
 
     // Advanced
     { id: 'about_data', label: t('tabs.about_data'), icon: tabIcons.about_data, group: 'advanced' },
@@ -644,7 +668,7 @@ export default function SettingsPage() {
       ].filter(Boolean) as Tab[])
     : [];
   const visibleTabs = managedAccountId
-    ? tabs.filter((tab) => scopedTabIds.includes(tab.id))
+    ? tabs.filter((tab) => scopedTabIds.includes(tab.id as Tab))
     : tabs;
 
   // Group tabs by category
@@ -660,12 +684,12 @@ export default function SettingsPage() {
   const matchesQuery = (tab: TabDef) => {
     if (!trimmedQuery) return true;
     if (tab.label.toLowerCase().includes(trimmedQuery)) return true;
-    return tabSearchHaystacks[tab.id]?.includes(trimmedQuery) ?? false;
+    return tabSearchHaystacks[tab.id as Tab]?.includes(trimmedQuery) ?? false;
   };
 
-  const subResultsForTab = (tabId: Tab): SubResult[] => {
+  const subResultsForTab = (tabId: SettingsTabId): SubResult[] => {
     if (!trimmedQuery) return [];
-    const list = tabSubResults[tabId] ?? [];
+    const list = tabSubResults[tabId as Tab] ?? [];
     return list
       .filter((r) =>
         r.label.toLowerCase().includes(trimmedQuery) ||
@@ -684,11 +708,11 @@ export default function SettingsPage() {
   // mode hides it), fall back. In scoped mode fall back to the first scoped tab;
   // otherwise the usual 'appearance' default.
   const isActiveVisible = visibleTabs.some((tab) => tab.id === activeTab);
-  const effectiveActiveTab: Tab = isActiveVisible
+  const effectiveActiveTab: SettingsTabId = isActiveVisible
     ? activeTab
     : (managedAccountId ? (visibleTabs[0]?.id ?? 'appearance') : 'appearance');
 
-  const handleTabSelect = (tabId: Tab) => {
+  const handleTabSelect = (tabId: SettingsTabId) => {
     setActiveTab(tabId);
     try { localStorage.setItem('settings-active-tab', tabId); } catch { /* ignore */ }
     if (!isDesktop) {
@@ -696,7 +720,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSubResultSelect = (tabId: Tab, sub: SubResult) => {
+  const handleSubResultSelect = (tabId: SettingsTabId, sub: SubResult) => {
     handleTabSelect(tabId);
     setPendingHighlight({ tab: tabId, label: sub.label, pluginId: sub.pluginId });
   };
@@ -712,11 +736,11 @@ export default function SettingsPage() {
             clearManagedAccount();
             handleTabSelect('account');
           }}
-          className="flex items-center gap-2 w-full mb-4 px-3 py-2 rounded-md border border-border bg-muted/40 hover:bg-muted text-left transition-colors"
+          className="flex items-center gap-2 w-full mb-4 px-3 py-2 rounded-md border border-border bg-muted/40 hover:bg-muted text-start transition-colors"
         >
           <ArrowLeft className="w-4 h-4 text-muted-foreground flex-shrink-0" />
           <span className="text-sm text-muted-foreground">{t('scoped.back')}</span>
-          <span className="ml-auto text-sm font-medium truncate">
+          <span className="ms-auto text-sm font-medium truncate">
             {t('scoped.managing', { name: managedAccount.name })}
           </span>
         </button>
@@ -754,6 +778,13 @@ export default function SettingsPage() {
       {effectiveActiveTab === 'themes' && <ThemesSettings />}
       {effectiveActiveTab === 'plugins' && <PluginsSettings />}
       {effectiveActiveTab === 'debug' && <DebugSettings />}
+      {effectiveActiveTab.startsWith('plugin:') && (
+        <PluginIframeSlot
+          key={effectiveActiveTab}
+          pluginId={effectiveActiveTab.slice('plugin:'.length)}
+          slot="settings-section"
+        />
+      )}
     </>
   );
 
@@ -820,7 +851,7 @@ export default function SettingsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('search_placeholder')}
-                className="pl-9 pr-9 h-10"
+                className="ps-9 pe-9 h-10"
                 aria-label={t('search_placeholder')}
               />
               {searchQuery && (
@@ -868,7 +899,7 @@ export default function SettingsPage() {
                         <button
                           key={`${tab.id}:${sub.label}`}
                           onClick={() => handleSubResultSelect(tab.id, sub)}
-                          className="w-full flex items-center pl-12 pr-5 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-150 text-left"
+                          className="w-full flex items-center ps-12 pe-5 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-150 text-start"
                         >
                           <span className="truncate">{sub.label}</span>
                         </button>
@@ -932,7 +963,7 @@ export default function SettingsPage() {
       <>
       <div
         className={cn(
-          "border-r border-border bg-secondary flex flex-col",
+          "border-e border-border bg-secondary flex flex-col",
           !isResizing && "transition-[width] duration-300"
         )}
         style={{ width: `${settingsSidebarWidth}px` }}
@@ -945,7 +976,7 @@ export default function SettingsPage() {
               onClick={() => router.push('/')}
               className="w-full justify-start"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4 me-2" />
               {t('back_to_mail')}
             </Button>
           </div>
@@ -960,7 +991,7 @@ export default function SettingsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('search_placeholder')}
-                className="pl-8 pr-8 h-9 text-sm"
+                className="ps-8 pe-8 h-9 text-sm"
                 aria-label={t('search_placeholder')}
               />
               {searchQuery && (
@@ -997,7 +1028,7 @@ export default function SettingsPage() {
                       <button
                         onClick={() => handleTabSelect(tab.id)}
                         className={cn(
-                          'w-full text-left px-3 py-2 rounded-md text-sm transition-colors duration-150 flex items-center gap-2.5',
+                          'w-full text-start px-3 py-2 rounded-md text-sm transition-colors duration-150 flex items-center gap-2.5',
                           effectiveActiveTab === tab.id
                             ? 'bg-accent text-accent-foreground font-medium'
                             : 'hover:bg-muted text-foreground'
@@ -1013,7 +1044,7 @@ export default function SettingsPage() {
                         <button
                           key={`${tab.id}:${sub.label}`}
                           onClick={() => handleSubResultSelect(tab.id, sub)}
-                          className="w-full text-left pl-9 pr-3 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-150"
+                          className="w-full text-start ps-9 pe-3 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-150"
                         >
                           <span className="truncate block">{sub.label}</span>
                         </button>

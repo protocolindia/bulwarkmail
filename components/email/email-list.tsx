@@ -4,7 +4,7 @@ import { Email, ThreadGroup } from "@/lib/jmap/types";
 import { ThreadListItem } from "./thread-list-item";
 import { EmailContextMenu } from "./email-context-menu";
 import { cn } from "@/lib/utils";
-import { Trash2, Mail, MailX, MailOpen, Loader2, SearchX, AlertTriangle, CalendarClock } from "lucide-react";
+import { Trash2, Mail, MailX, MailOpen, Loader2, SearchX, AlertTriangle, CalendarClock, ShieldCheck } from "lucide-react";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -35,6 +35,7 @@ interface EmailListProps {
   onForward?: (email: Email) => void;
   onMarkAsRead?: (email: Email, read: boolean) => void;
   onToggleStar?: (email: Email) => void;
+  onTogglePinned?: (email: Email) => void;
   onDelete?: (email: Email) => void;
   onArchive?: (email: Email) => void;
   onSetColorTag?: (emailId: string, color: string | null) => void;
@@ -64,6 +65,7 @@ export function EmailList({
   onForward,
   onMarkAsRead,
   onToggleStar,
+  onTogglePinned,
   onDelete,
   onArchive,
   onSetColorTag,
@@ -184,6 +186,22 @@ export function EmailList({
     setIsProcessing(true);
     try {
       await batchMarkAsRead(client, read);
+    } finally {
+      setTimeout(() => setIsProcessing(false), 500);
+    }
+  };
+
+  const handleBatchUndoSpam = async () => {
+    if (!client || isProcessing) return;
+    setIsProcessing(true);
+    try {
+      const emailIds = Array.from(selectedEmailIds);
+      await batchUndoSpam(client, emailIds);
+      const { toast } = await import('sonner');
+      toast.success(t('../email_viewer.spam.toast_not_spam_batch', { count: emailIds.length }));
+    } catch {
+      const { toast } = await import('sonner');
+      toast.error(t('../email_viewer.spam.error_not_spam'));
     } finally {
       setTimeout(() => setIsProcessing(false), 500);
     }
@@ -355,6 +373,22 @@ export function EmailList({
                 <Mail className="w-4 h-4" />
               )}
             </Button>
+            {effectiveMailboxRole === 'junk' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBatchUndoSpam}
+                title={t('../context_menu.not_spam')}
+                disabled={isProcessing}
+                className="text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100/50 dark:hover:bg-emerald-950/30 transition-colors disabled:opacity-50"
+              >
+                {isProcessing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ShieldCheck className="w-4 h-4" />
+                )}
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -415,9 +449,9 @@ export function EmailList({
             className="text-destructive border-destructive/30 hover:bg-destructive/10 text-xs"
           >
             {isProcessing ? (
-              <Loader2 className="w-3 h-3 animate-spin mr-1" />
+              <Loader2 className="w-3 h-3 animate-spin me-1" />
             ) : (
-              <Trash2 className="w-3 h-3 mr-1" />
+              <Trash2 className="w-3 h-3 me-1" />
             )}
             {t('empty_folder.button')}
           </Button>
@@ -551,6 +585,7 @@ export function EmailList({
           onForward={() => onForward?.(contextMenu.data!)}
           onMarkAsRead={(read) => onMarkAsRead?.(contextMenu.data!, read)}
           onToggleStar={() => onToggleStar?.(contextMenu.data!)}
+          onTogglePinned={onTogglePinned ? () => onTogglePinned(contextMenu.data!) : undefined}
           onDelete={() => onDelete?.(contextMenu.data!)}
           onArchive={() => onArchive?.(contextMenu.data!)}
           onSetColorTag={(color) => onSetColorTag?.(contextMenu.data!.id, color)}

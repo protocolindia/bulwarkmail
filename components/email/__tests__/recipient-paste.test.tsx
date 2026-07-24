@@ -135,6 +135,7 @@ vi.mock('@/lib/plugin-hooks', () => ({
     getRecipientSuggestions: { call: async () => [] },
     onSend: { call: async () => [] },
     beforeSend: { call: async () => [] },
+    onRecipientChipsChange: { transform: async (chips: unknown) => chips },
   },
   contactHooks: {
     search: { call: async () => [] },
@@ -147,7 +148,10 @@ vi.mock('@/lib/email-sanitization', () => ({
   parseHtmlSafely: (html: string) => new DOMParser().parseFromString(html, 'text/html'),
 }));
 
-vi.mock('@/lib/reply-identity', () => ({ resolveReplyFrom: () => null }));
+vi.mock('@/lib/reply-identity', () => ({
+  resolveReplyFrom: () => null,
+  findComposeIdentityId: () => null,
+}));
 vi.mock('@/lib/email-threading', () => ({
   computeReplyThreadingHeaders: () => ({ inReplyTo: [], references: [] }),
 }));

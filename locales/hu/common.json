@@ -114,6 +114,7 @@
     "unified_archive": "Összes archívum",
     "unified_junk": "Összes spam",
     "all_accounts": "Minden fiók",
+    "unified_mailbox": "Egységes postafiók",
     "expand": "Kibontás",
     "collapse": "Összecsukás",
     "expand_tooltip": "Kibontás",
@@ -137,7 +138,9 @@
     "scheduled": "Ütemezett",
     "unified_all_unread": "Összes olvasatlan",
     "unified_all_starred": "Összes csillagozott",
-    "unified_all_mail": "Összes levél"
+    "unified_all_mail": "Összes levél",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "Alapértelmezett alkalmazások",
@@ -274,6 +277,8 @@
     "no_subject": "(Nincs tárgy)",
     "no_body_content": "(Nincs elérhető tartalom)",
     "no_preview_available": "Nincs előnézet",
+    "show_quoted_text": "Idézett szöveg megjelenítése",
+    "hide_quoted_text": "Idézett szöveg elrejtése",
     "loading_email": "E-mail betöltése...",
     "loading": "Betöltés...",
     "reply": "Válasz",
@@ -461,7 +466,9 @@
       "confirm_button": "Megerősítés",
       "cancel": "Mégse",
       "success_http": "Leiratkozási oldal megnyílt egy új lapon",
-      "success_mailto": "Leiratkozási kérelem elküldve az e-mail kliensnek",
+      "success_mailto": "Leiratkozó e-mail elküldve",
+      "confirm_message_http": "A leiratkozási oldal új lapon nyílik meg.",
+      "confirm_message_mailto": "Leiratkozó e-mailt küldünk a feladónak.",
       "error": "Nem sikerült leiratkozni",
       "dismiss": "Elutasítás"
     },
@@ -635,7 +642,9 @@
     "validation": {
       "recipient_required": "Adj meg egy címzettet a küldéshez",
       "subject_required": "Adj meg egy tárgyat",
-      "body_required": "Írj üzenetet vagy csatolj fájlt"
+      "body_required": "Írj üzenetet vagy csatolj fájlt",
+      "attachments_uploading": "A mellékletek még feltöltés alatt vannak – küldés a feltöltés befejezése után",
+      "attachment_upload_failed": "Nincs elküldve - egy melléklet feltöltése nem sikerült. Távolítsa el, és próbálja újra."
     },
     "upload_progress": "Feltöltés {uploaded} / {total}",
     "upload_cancel": "Feltöltés megszakítása",
@@ -646,7 +655,6 @@
     "continue_draft": "Piszkozat folytatása",
     "close_draft_title": "Piszkozat mentése vagy elvetése?",
     "close_draft_message": "Nem mentett változtatások vannak. Szeretnéd piszkozatként menteni vagy elvetni?",
-    "save_draft": "Piszkozat mentése",
     "smime_sign_on": "S/MIME aláírás engedélyezve",
     "smime_sign_off": "S/MIME aláírás engedélyezése",
     "smime_encrypt_on": "S/MIME titkosítás engedélyezve",
@@ -675,7 +683,10 @@
     "recipient_edit_email": "E-mail-cím szerkesztése",
     "recipient_edit_name": "Megjelenített név szerkesztése",
     "recipient_email_placeholder": "E-mail-cím",
-    "recipient_name_placeholder": "Megjelenített név"
+    "recipient_name_placeholder": "Megjelenített név",
+    "autocomplete_search_server": "Keresés a kiszolgálón",
+    "autocomplete_searching": "Keresés...",
+    "send_filing_warning": "Elküldve - de az utólagos rendrakás nem sikerült, egy elavult piszkozat megmaradhat."
   },
   "confirm_dialog": {
     "confirm": "Megerősítés",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -919,14 +932,16 @@
       "unified_mailbox": {
         "label": "Egységes postafiók",
         "description": "Összevont mappák (Beérkező, Elküldött, stb.) megjelenítése az összes csatlakoztatott fiók között",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "Csoportos postafiókok belefoglalása",
           "description": "Megosztott/csoportos postafiókok egyesítése az egységes nézetbe."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Applies to {account}.",
@@ -936,9 +951,17 @@
         "label": "Színes oldalsáv ikonok",
         "description": "Mappa és címke ikonok színezése típus szerint (kék Beérkező, piros Spam, zöld Elküldött, stb.). Kapcsold ki az egyszínű oldalsávhoz."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "Összes üzenet számának megjelenítése",
         "description": "Megjeleníti az üzenetek teljes számát a mappák és címkék mellett, az olvasatlanok számán túl. Kapcsolja ki, ha csak az olvasatlanok számát szeretné látni."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro felület (Kísérleti)",
@@ -1050,6 +1073,14 @@
         "preview_this_week": "Ezen a héten:",
         "preview_older": "Régebbi:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "Idő formátum",
         "description": "Válassz a 12 vagy 24 órás időformátum között",
@@ -1092,6 +1123,13 @@
         "trash_and_read": "Áthelyezés a Kukába és olvasottnak jelölés",
         "permanent": "Végleges törlés",
         "warning": "Az e-mailek véglegesen törlődnek és nem állíthatók vissza. Ez a művelet visszafordíthatatlan."
+      },
+      "message_spacing": {
+        "label": "Üzenet térköze",
+        "description": "Térköz az üzenet törzse körül olvasáskor",
+        "auto": "Automatikus (ajánlott)",
+        "always": "Mindig legyen térköz",
+        "edge": "Széltől szélig"
       },
       "archive_mode": {
         "label": "Archiválás helye",
@@ -1256,8 +1294,12 @@
         "unsupported": "A jelenlegi fiók nem támogatja a késleltetett küldést. A beállítás más fiókokhoz elmentésre kerül."
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "Visszatérés a listához törlés vagy olvasatlanként jelölés után",
+        "description": "A megnyitott üzenet törlése vagy olvasatlanként való megjelölése után visszatérés az üzenetlistához a következő üzenet megnyitása helyett."
+      },
+      "rtl_editing": {
+        "label": "Jobbról balra írás támogatása",
+        "description": "Iránygombot ad a szerkesztő eszköztárához, amellyel a bekezdések balról jobbra vagy jobbról balra állíthatók"
       }
     },
     "composer": {
@@ -1504,7 +1546,10 @@
         "subject_placeholder": "Távol vagyok",
         "body_label": "Üzenet szövege",
         "body_description": "Egyszerű szöveges üzenet tartalma",
-        "body_placeholder": "Köszönöm az e-mailed. Jelenleg távol vagyok az irodától, és visszatérésemkor válaszolok."
+        "body_placeholder": "Köszönöm az e-mailed. Jelenleg távol vagyok az irodától, és visszatérésemkor válaszolok.",
+        "html_label": "Formázott üzenet (HTML)",
+        "html_description": "Adjon hozzá egy formázott változatot hivatkozásokkal és stílussal. Azok a címzettek, akiknek a levelezőprogramja nem tudja megjeleníteni, a fenti egyszerű szöveget látják.",
+        "html_placeholder": "Írjon formázott távolléti választ…"
       },
       "preview": {
         "title": "Előnézet",
@@ -1536,6 +1581,8 @@
       "role_none": "Nincs",
       "create_folder": "Mappa létrehozása",
       "create_subfolder": "Almappa létrehozása",
+      "reorder": "Húzza az átrendezéshez",
+      "reorder_error": "Nem sikerült átrendezni a mappákat",
       "subfolder_of": "Itt: {name}",
       "subfolder_name": "Almappa neve",
       "new_folder_name": "Mappa neve",
@@ -1600,6 +1647,11 @@
         "label": "Billentyűparancsok",
         "description": "Elérhető billentyűparancsok megtekintése",
         "button": "Parancsok megtekintése"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "Beállítások visszaállítása",
@@ -1942,6 +1994,8 @@
     "mark_unread": "Olvasatlannak jelölés",
     "star": "Csillagozás",
     "unstar": "Csillagozás megszüntetése",
+    "pin": "Rögzítés",
+    "unpin": "Rögzítés feloldása",
     "move_to": "Áthelyezés ide...",
     "archive": "Archiválás",
     "delete": "Törlés",
@@ -2081,9 +2135,9 @@
       "email_invalid": "Kérjük, adj meg egy érvényes e-mail címet",
       "email_immutable": "Az e-mail cím létrehozás után nem módosítható",
       "reply_to_label": "Válaszcím (opcionális)",
-      "reply_to_placeholder": "different@email.com",
+      "reply_to_placeholder": "different@example.com",
       "bcc_label": "Automatikus titkos másolat (opcionális)",
-      "bcc_placeholder": "archive@email.com",
+      "bcc_placeholder": "archive@example.com",
       "text_signature_label": "Szöveges aláírás",
       "html_signature_label": "HTML aláírás",
       "signature_byte_counter": "{bytes} / {max} bájt",
@@ -2697,7 +2751,19 @@
       "sep": "Szep",
       "oct": "Okt",
       "nov": "Nov",
-      "dec": "Dec"
+      "dec": "Dec",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "notifications": {
       "event_created": "Esemény létrehozva",

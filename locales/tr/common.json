@@ -114,6 +114,7 @@
     "unified_archive": "Tüm Arşiv",
     "unified_junk": "Tüm Önemsiz",
     "all_accounts": "Tüm Hesaplar",
+    "unified_mailbox": "Birleşik Posta Kutusu",
     "expand": "Genişlet",
     "collapse": "Daralt",
     "expand_tooltip": "Genişlet",
@@ -137,7 +138,9 @@
     "scheduled": "Zamanlandı",
     "unified_all_unread": "Tüm okunmamışlar",
     "unified_all_starred": "Tüm yıldızlılar",
-    "unified_all_mail": "Tüm postalar"
+    "unified_all_mail": "Tüm postalar",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "Varsayılan uygulamalar",
@@ -274,6 +277,8 @@
     "no_subject": "(Konu Yok)",
     "no_body_content": "(İçerik yok)",
     "no_preview_available": "Önizleme kullanılamıyor",
+    "show_quoted_text": "Alıntılanan metni göster",
+    "hide_quoted_text": "Alıntılanan metni gizle",
     "loading_email": "E-posta yükleniyor...",
     "loading": "Yükleniyor...",
     "reply": "Yanıtla",
@@ -436,7 +441,9 @@
       "confirm_button": "Onayla",
       "cancel": "İptal",
       "success_http": "Abonelik iptali sayfası yeni sekmede açıldı",
-      "success_mailto": "Abonelik iptali isteği e-posta istemcinize gönderildi",
+      "success_mailto": "Abonelikten çıkma e-postası gönderildi",
+      "confirm_message_http": "Abonelikten çıkma sayfası yeni sekmede açılacak.",
+      "confirm_message_mailto": "Gönderene abonelikten çıkma e-postası gönderilecek.",
       "error": "Abonelik iptal edilemedi",
       "dismiss": "Kapat"
     },
@@ -635,7 +642,9 @@
     "validation": {
       "recipient_required": "Göndermek için bir alıcı ekleyin",
       "subject_required": "Bir konu ekleyin",
-      "body_required": "Bir ileti yazın veya dosya ekleyin"
+      "body_required": "Bir ileti yazın veya dosya ekleyin",
+      "attachments_uploading": "Ekler hâlâ yükleniyor — yükleme bitince gönderilecek",
+      "attachment_upload_failed": "Gönderilmedi - bir ek yüklenemedi. Eki kaldırıp tekrar deneyin."
     },
     "upload_progress": "{uploaded} / {total} yükleniyor",
     "upload_cancel": "Yüklemeyi iptal et",
@@ -646,7 +655,6 @@
     "continue_draft": "Taslağa devam et",
     "close_draft_title": "Taslak kaydedilsin mi yoksa silinsin mi?",
     "close_draft_message": "Kaydedilmemiş değişiklikleriniz var. Bunu taslak olarak kaydetmek ister misiniz yoksa vazgeçmek mi?",
-    "save_draft": "Taslağı Kaydet",
     "smime_sign_on": "S/MIME imzalama etkin",
     "smime_sign_off": "S/MIME imzalamayı etkinleştir",
     "smime_encrypt_on": "S/MIME şifreleme etkin",
@@ -675,7 +683,10 @@
     "recipient_edit_email": "E-posta adresini düzenle",
     "recipient_edit_name": "Görünen adı düzenle",
     "recipient_email_placeholder": "E-posta adresi",
-    "recipient_name_placeholder": "Görünen ad"
+    "recipient_name_placeholder": "Görünen ad",
+    "autocomplete_search_server": "Sunucuda ara",
+    "autocomplete_searching": "Aranıyor...",
+    "send_filing_warning": "Gönderildi - ancak sonrasındaki temizleme başarısız oldu, eski bir taslak kalabilir."
   },
   "confirm_dialog": {
     "confirm": "Onayla",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -916,14 +929,16 @@
       "unified_mailbox": {
         "label": "Birleşik Posta Kutusu",
         "description": "Bağlı tüm hesaplardaki birleşik klasörleri (Gelen Kutusu, Gönderilenler vb.) göster",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "Grup gelen kutularını dahil et",
           "description": "Paylaşılan/grup gelen kutularını da birleşik görünüme dahil et."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Applies to {account}.",
@@ -933,9 +948,17 @@
         "label": "Renkli Kenar Çubuğu Simgeleri",
         "description": "Klasör ve etiket simgelerini türe göre renklendir (mavi Gelen Kutusu, kırmızı İstem Dışı vb.). Tek renkli kenar çubuğu için kapatın."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "Toplam mesaj sayısını göster",
         "description": "Klasörlerin ve etiketlerin yanında, okunmamış sayısının yanı sıra toplam mesaj sayısını gösterir. Yalnızca okunmamışları göstermek için devre dışı bırakın."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro Arayüz (Deneysel)",
@@ -1047,6 +1070,14 @@
         "preview_this_week": "Bu hafta:",
         "preview_older": "Daha eski:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "Saat Biçimi",
         "description": "12 saatlik veya 24 saatlik saat arasında seçin",
@@ -1089,6 +1120,13 @@
         "trash_and_read": "Çöp Kutusuna Taşı ve okundu olarak işaretle",
         "permanent": "Kalıcı Olarak Sil",
         "warning": "E-postalar kalıcı olarak silinecek ve kurtarılamayacak. Bu işlem geri alınamaz."
+      },
+      "message_spacing": {
+        "label": "İleti boşluğu",
+        "description": "Okuyucuda ileti gövdesinin çevresindeki boşluk",
+        "auto": "Otomatik (önerilen)",
+        "always": "Her zaman boşluk ekle",
+        "edge": "Kenardan kenara"
       },
       "archive_mode": {
         "label": "Arşivle",
@@ -1253,8 +1291,12 @@
         "unsupported": "Geçerli hesap gecikmeli gönderim desteği bildirmiyor. Ayar diğer hesaplar için kaydedilmeye devam eder."
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "Silme veya okunmadı olarak işaretlemeden sonra listeye dön",
+        "description": "Açık iletiyi sildikten veya okunmadı olarak işaretledikten sonra, sonraki iletiyi açmak yerine ileti listesine dön."
+      },
+      "rtl_editing": {
+        "label": "Sağdan sola düzenleme desteği",
+        "description": "Düzenleyici araç çubuğuna paragrafları soldan sağa veya sağdan sola ayarlayabileceğiniz bir yön düğmesi ekler"
       }
     },
     "composer": {
@@ -1501,7 +1543,10 @@
         "subject_placeholder": "Ofis Dışındayım",
         "body_label": "İleti Gövdesi",
         "body_description": "Düz metin ileti içeriği",
-        "body_placeholder": "E-postanız için teşekkür ederim. Şu anda ofis dışındayım ve döndüğümde yanıt vereceğim."
+        "body_placeholder": "E-postanız için teşekkür ederim. Şu anda ofis dışındayım ve döndüğümde yanıt vereceğim.",
+        "html_label": "Biçimlendirilmiş mesaj (HTML)",
+        "html_description": "Bağlantılar ve stil içeren biçimlendirilmiş bir sürüm ekleyin. E-posta istemcisi bunu görüntüleyemeyen alıcılar yukarıdaki düz metni görür.",
+        "html_placeholder": "Biçimlendirilmiş bir ofis dışı yanıtı yazın…"
       },
       "preview": {
         "title": "Önizleme",
@@ -1533,6 +1578,8 @@
       "role_none": "Yok",
       "create_folder": "Klasör Oluştur",
       "create_subfolder": "Alt Klasör Oluştur",
+      "reorder": "Yeniden sıralamak için sürükleyin",
+      "reorder_error": "Klasörler yeniden sıralanamadı",
       "subfolder_of": "{name} içinde",
       "subfolder_name": "Alt klasör adı",
       "new_folder_name": "Klasör adı",
@@ -1597,6 +1644,11 @@
         "label": "Klavye Kısayolları",
         "description": "Mevcut klavye kısayollarını görüntüleyin",
         "button": "Kısayolları Görüntüle"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "Ayarları Sıfırla",
@@ -1942,6 +1994,8 @@
     "mark_unread": "Okunmadı Olarak İşaretle",
     "star": "Yıldız Ekle",
     "unstar": "Yıldızı Kaldır",
+    "pin": "Sabitle",
+    "unpin": "Sabitlemeyi kaldır",
     "move_to": "Şuraya taşı...",
     "archive": "Arşivle",
     "delete": "Sil",
@@ -2081,9 +2135,9 @@
       "email_invalid": "Lütfen geçerli bir e-posta adresi girin",
       "email_immutable": "E-posta adresi oluşturulduktan sonra değiştirilemez",
       "reply_to_label": "Yanıt Adresi (isteğe bağlı)",
-      "reply_to_placeholder": "baska@email.com",
+      "reply_to_placeholder": "baska@example.com",
       "bcc_label": "Otomatik GGK (isteğe bağlı)",
-      "bcc_placeholder": "arsiv@email.com",
+      "bcc_placeholder": "arsiv@example.com",
       "text_signature_label": "Metin İmzası",
       "html_signature_label": "HTML İmzası",
       "signature_byte_counter": "{bytes} / {max} bayt",
@@ -2697,7 +2751,19 @@
       "sep": "Eyl",
       "oct": "Eki",
       "nov": "Kas",
-      "dec": "Ara"
+      "dec": "Ara",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "notifications": {
       "event_created": "Etkinlik oluşturuldu",

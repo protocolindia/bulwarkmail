@@ -114,6 +114,7 @@
     "unified_archive": "Alle arkiver",
     "unified_junk": "Alt spam",
     "all_accounts": "Alle konti",
+    "unified_mailbox": "Samlet postkasse",
     "expand": "Udvid",
     "collapse": "Skjul",
     "expand_tooltip": "Udvid",
@@ -137,7 +138,9 @@
     "scheduled": "Planlagt",
     "unified_all_unread": "Alle ulæste",
     "unified_all_starred": "Alle med stjerne",
-    "unified_all_mail": "Al post"
+    "unified_all_mail": "Al post",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "Standardapps",
@@ -274,6 +277,8 @@
     "no_subject": "(Intet emne)",
     "no_body_content": "(Intet indhold tilgængeligt)",
     "no_preview_available": "Forhåndsvisning ikke tilgængelig",
+    "show_quoted_text": "Vis citeret tekst",
+    "hide_quoted_text": "Skjul citeret tekst",
     "loading_email": "Indlæser e-mail...",
     "loading": "Indlæser...",
     "reply": "Svar",
@@ -461,7 +466,9 @@
       "confirm_button": "Bekræft",
       "cancel": "Annuller",
       "success_http": "Afmeldingsside åbnet i ny fane",
-      "success_mailto": "Afmeldingsanmodning sendt til din e-mailklient",
+      "success_mailto": "Afmeldings-e-mail sendt",
+      "confirm_message_http": "Afmeldingssiden åbnes i en ny fane.",
+      "confirm_message_mailto": "Der sendes en afmeldings-e-mail til afsenderen.",
       "error": "Kan ikke afmelde",
       "dismiss": "Afvis"
     },
@@ -634,7 +641,9 @@
     "validation": {
       "recipient_required": "Tilføj en modtager for at sende",
       "subject_required": "Tilføj et emne",
-      "body_required": "Skriv en besked eller vedhæft en fil"
+      "body_required": "Skriv en besked eller vedhæft en fil",
+      "attachments_uploading": "Vedhæftninger uploades stadig — sendes, når de er færdige",
+      "attachment_upload_failed": "Ikke sendt - en vedhæftet fil kunne ikke uploades. Fjern den, og prøv igen."
     },
     "upload_progress": "Uploader {uploaded} / {total}",
     "upload_cancel": "Annuller upload",
@@ -645,7 +654,6 @@
     "continue_draft": "Fortsæt kladde",
     "close_draft_title": "Gem eller kassér kladde?",
     "close_draft_message": "Du har ugemte ændringer. Vil du gemme dette som en kladde eller kassere det?",
-    "save_draft": "Gem kladde",
     "smime_sign_on": "S/MIME-signering aktiveret",
     "smime_sign_off": "Aktivér S/MIME-signering",
     "smime_encrypt_on": "S/MIME-kryptering aktiveret",
@@ -675,7 +683,10 @@
     "recipient_edit_email": "Rediger e-mailadresse",
     "recipient_edit_name": "Rediger visningsnavn",
     "recipient_email_placeholder": "E-mailadresse",
-    "recipient_name_placeholder": "Visningsnavn"
+    "recipient_name_placeholder": "Visningsnavn",
+    "autocomplete_search_server": "Søg på serveren",
+    "autocomplete_searching": "Søger...",
+    "send_filing_warning": "Sendt - men oprydningen bagefter mislykkedes, en forældet kladde kan blive stående."
   },
   "confirm_dialog": {
     "confirm": "Bekræft",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -919,14 +932,16 @@
       "unified_mailbox": {
         "label": "Samlet postkasse",
         "description": "Vis samlede mapper (Indbakke, Sendt osv.) på tværs af alle tilknyttede konti",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "Inkluder gruppepostkasser",
           "description": "Inkluder også delte/gruppepostkasser i den samlede visning."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Applies to {account}.",
@@ -936,9 +951,17 @@
         "label": "Farverige sidepane-ikoner",
         "description": "Farvelæg mappe- og tag-ikoner efter type (blå indbakke, rød spam, grøn sendt osv.). Deaktivér for et monokromt sidepanel."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "Vis samlet antal beskeder",
         "description": "Viser det samlede antal beskeder ud for mapper og tags sammen med antallet af ulæste. Slå fra for kun at vise ulæste."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro-grænseflade (eksperimentel)",
@@ -1050,6 +1073,14 @@
         "preview_this_week": "Denne uge:",
         "preview_older": "Ældre:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "Tidsformat",
         "description": "Vælg mellem 12-timers eller 24-timers ur",
@@ -1092,6 +1123,13 @@
         "trash_and_read": "Flyt til papirkurv og marker som læst",
         "permanent": "Slet permanent",
         "warning": "E-mails vil blive slettet permanent og kan ikke gendannes. Denne handling er irreversibel."
+      },
+      "message_spacing": {
+        "label": "Beskedafstand",
+        "description": "Luft omkring beskedens indhold i læseren",
+        "auto": "Automatisk (anbefalet)",
+        "always": "Tilføj altid afstand",
+        "edge": "Kant til kant"
       },
       "archive_mode": {
         "label": "Arkivér i",
@@ -1256,8 +1294,12 @@
         "unsupported": "Den aktuelle konto annoncerer ikke understøttelse af forsinket afsendelse. Indstillingen gemmes stadig for andre konti."
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "Vend tilbage til listen efter sletning eller markering som ulæst",
+        "description": "Efter sletning eller markering af den åbne besked som ulæst vendes der tilbage til beskedlisten i stedet for at åbne den næste besked."
+      },
+      "rtl_editing": {
+        "label": "Understøttelse af højre-mod-venstre-redigering",
+        "description": "Tilføjer en retningsknap til værktøjslinjen i editoren, så afsnit kan sættes venstre-mod-højre eller højre-mod-venstre"
       }
     },
     "composer": {
@@ -1504,7 +1546,10 @@
         "subject_placeholder": "Fraværende",
         "body_label": "Beskedtekst",
         "body_description": "Ren tekst-beskedindhold",
-        "body_placeholder": "Tak for din e-mail. Jeg er i øjeblikket fraværende og vil svare, når jeg vender tilbage."
+        "body_placeholder": "Tak for din e-mail. Jeg er i øjeblikket fraværende og vil svare, når jeg vender tilbage.",
+        "html_label": "Formateret besked (HTML)",
+        "html_description": "Tilføj en formateret version med links og styling. Modtagere, hvis mailprogram ikke kan vise den, får den almindelige tekst ovenfor.",
+        "html_placeholder": "Skriv et formateret fraværssvar…"
       },
       "preview": {
         "title": "Forhåndsvisning",
@@ -1536,6 +1581,8 @@
       "role_none": "Ingen",
       "create_folder": "Opret mappe",
       "create_subfolder": "Opret undermappe",
+      "reorder": "Træk for at ændre rækkefølgen",
+      "reorder_error": "Kunne ikke ændre rækkefølgen af mapper",
       "subfolder_of": "Inde i {name}",
       "subfolder_name": "Undermappenavn",
       "new_folder_name": "Mappenavn",
@@ -1600,6 +1647,11 @@
         "label": "Tastaturgenveje",
         "description": "Se tilgængelige tastaturgenveje",
         "button": "Vis genveje"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "Nulstil indstillinger",
@@ -1942,6 +1994,8 @@
     "mark_unread": "Markér som ulæst",
     "star": "Stjernemarkér",
     "unstar": "Fjern stjerne",
+    "pin": "Fastgør",
+    "unpin": "Frigør",
     "move_to": "Flyt til...",
     "archive": "Arkivér",
     "delete": "Slet",
@@ -2697,7 +2751,19 @@
       "sep": "Sep",
       "oct": "Okt",
       "nov": "Nov",
-      "dec": "Dec"
+      "dec": "Dec",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "notifications": {
       "event_created": "Begivenhed oprettet",

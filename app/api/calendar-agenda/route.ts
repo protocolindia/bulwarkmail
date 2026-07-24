@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { getStalwartCredentials } from '@/lib/stalwart/credentials';
+import { fetchJmapSession, postJmap, rebaseApiUrl } from '@/lib/stalwart/jmap-api';
 import { normalizeCalendarEventLike } from '@/lib/calendar-event-normalization';
 import { expandRecurringEvents } from '@/lib/recurrence-expansion';
 import { parseISO } from 'date-fns';
@@ -31,12 +32,6 @@ const EVENT_PROPERTIES = [
   'locations', 'recurrenceId', 'recurrenceIdTimeZone', 'recurrenceRule',
   'recurrenceOverrides', 'excludedRecurrenceRule',
 ] as const;
-
-interface JmapSession {
-  apiUrl?: string;
-  primaryAccounts?: Record<string, string>;
-  capabilities?: Record<string, unknown>;
-}
 
 interface AgendaEvent {
   id: string;
@@ -141,9 +136,9 @@ export async function POST(request: NextRequest) {
       using.push('urn:ietf:params:jmap:principals:owner');
     }
 
-    // Send method calls to the same-origin JMAP endpoint the app's passthrough
-    // uses — never to session.apiUrl's (possibly unreachable) public host.
-    const apiUrl = `${creds.serverUrl}/jmap/`;
+    // Send method calls to the session's apiUrl rebased onto serverUrl's host
+    // — never to session.apiUrl's (possibly unreachable) public host.
+    const apiUrl = rebaseApiUrl(session, creds.serverUrl) ?? `${creds.serverUrl}/jmap/`;
 
     const now = new Date();
     const horizon = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
@@ -273,45 +268,12 @@ function clampInt(value: unknown, min: number, max: number, fallback: number): n
   return Math.min(max, Math.max(min, Math.round(n)));
 }
 
-/**
- * Fetch the JMAP session from the same host as `serverUrl`. Tries Stalwart's
- * canonical /jmap/session first (no redirect), then /.well-known/jmap as a
- * fallback for other servers. Returns null if neither yields a usable session.
- */
-async function fetchJmapSession(
-  serverUrl: string,
-  authHeader: string,
-): Promise<JmapSession | null> {
-  const candidates = [`${serverUrl}/jmap/session`, `${serverUrl}/.well-known/jmap`];
-  for (const url of candidates) {
-    try {
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: { Authorization: authHeader },
-        redirect: 'follow',
-      });
-      if (!res.ok) continue;
-      const session = (await res.json()) as JmapSession;
-      if (session && typeof session === 'object' && session.primaryAccounts) {
-        return session;
-      }
-    } catch {
-      // Try the next candidate (e.g. canonical path 404s on a non-Stalwart server).
-    }
-  }
-  return null;
-}
-
 async function jmapPost(
   apiUrl: string,
   authHeader: string,
   payload: unknown,
 ): Promise<unknown> {
-  const res = await fetch(apiUrl, {
-    method: 'POST',
-    headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
+  const res = await postJmap(apiUrl, authHeader, JSON.stringify(payload));
   if (!res.ok) {
     throw new Error(`JMAP request failed (${res.status})`);
   }

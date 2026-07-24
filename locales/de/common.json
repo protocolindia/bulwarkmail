@@ -114,6 +114,7 @@
     "unified_archive": "Alle Archive",
     "unified_junk": "Alle Spam",
     "all_accounts": "Alle Konten",
+    "unified_mailbox": "Gemeinsames Postfach",
     "expand": "Erweitern",
     "collapse": "Einklappen",
     "expand_tooltip": "Erweitern",
@@ -137,7 +138,9 @@
     "scheduled": "Geplant",
     "unified_all_unread": "Alle ungelesenen",
     "unified_all_starred": "Alle markierten",
-    "unified_all_mail": "Alle Mails"
+    "unified_all_mail": "Alle Mails",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "Standard-Apps",
@@ -274,6 +277,8 @@
     "no_subject": "(Kein Betreff)",
     "no_body_content": "(Kein Inhalt verfügbar)",
     "no_preview_available": "Keine Vorschau verfügbar",
+    "show_quoted_text": "Zitierten Text anzeigen",
+    "hide_quoted_text": "Zitierten Text ausblenden",
     "loading_email": "E-Mail wird geladen...",
     "loading": "Lädt...",
     "reply": "Antworten",
@@ -434,7 +439,9 @@
       "confirm_button": "Bestätigen",
       "cancel": "Abbrechen",
       "success_http": "Abmeldeseite in neuem Tab geöffnet",
-      "success_mailto": "Abmeldeanfrage an Ihr E-Mail-Programm gesendet",
+      "success_mailto": "Abmelde-E-Mail gesendet",
+      "confirm_message_http": "Die Abmeldeseite wird in einem neuen Tab geöffnet.",
+      "confirm_message_mailto": "Es wird eine Abmelde-E-Mail an den Absender gesendet.",
       "error": "Abmeldung nicht möglich",
       "dismiss": "Schließen"
     },
@@ -632,7 +639,9 @@
     "validation": {
       "recipient_required": "Empfänger hinzufügen zum Senden",
       "subject_required": "Betreff hinzufügen",
-      "body_required": "Nachricht schreiben oder Datei anhängen"
+      "body_required": "Nachricht schreiben oder Datei anhängen",
+      "attachments_uploading": "Anhänge werden noch hochgeladen – wird gesendet, sobald sie fertig sind",
+      "attachment_upload_failed": "Nicht gesendet - ein Anhang konnte nicht hochgeladen werden. Entfernen Sie ihn und versuchen Sie es erneut."
     },
     "upload_progress": "Hochladen {uploaded} / {total}",
     "upload_cancel": "Hochladen abbrechen",
@@ -650,7 +659,6 @@
     "continue_draft": "Entwurf fortsetzen",
     "close_draft_title": "Entwurf speichern oder verwerfen?",
     "close_draft_message": "Sie haben ungespeicherte Änderungen. Möchten Sie diese als Entwurf speichern oder verwerfen?",
-    "save_draft": "Entwurf speichern",
     "drop_files": "Dateien zum Anhängen ablegen",
     "show_less": "Weniger anzeigen",
     "forgot_attachment": {
@@ -675,7 +683,10 @@
     "recipient_edit_email": "E-Mail-Adresse bearbeiten",
     "recipient_edit_name": "Anzeigenamen bearbeiten",
     "recipient_email_placeholder": "E-Mail-Adresse",
-    "recipient_name_placeholder": "Anzeigename"
+    "recipient_name_placeholder": "Anzeigename",
+    "autocomplete_search_server": "Auf dem Server suchen",
+    "autocomplete_searching": "Suche läuft...",
+    "send_filing_warning": "Gesendet - aber das Aufräumen danach schlug fehl, evtl. bleibt ein alter Entwurf sichtbar."
   },
   "confirm_dialog": {
     "confirm": "Bestätigen",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -916,14 +929,16 @@
       "unified_mailbox": {
         "label": "Gemeinsames Postfach",
         "description": "Kombinierte Ordner (Posteingang, Gesendet usw.) für alle verbundenen Konten anzeigen",
+        "cross_account": {
+          "label": "Über alle Konten",
+          "description": "Den vereinheitlichten Posteingang über alle verbundenen Konten zusammenführen, statt beim aktiven Konto zu bleiben."
+        },
         "include_group": {
           "label": "Gruppenpostfächer einbeziehen",
           "description": "Gemeinsam genutzte/Gruppenpostfächer ebenfalls in die vereinheitlichte Ansicht aufnehmen."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Gilt für {account}.",
@@ -933,9 +948,17 @@
         "label": "Farbige Seitenleistensymbole",
         "description": "Ordner- und Tag-Symbole nach Typ einfärben (blauer Posteingang, roter Spam, grüner Gesendet usw.). Für eine monochrome Seitenleiste deaktivieren."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "Gesamtzahl der Nachrichten anzeigen",
         "description": "Zeigt neben Ordnern und Tags die Gesamtzahl der Nachrichten zusätzlich zur Anzahl ungelesener Nachrichten an. Deaktivieren, um nur ungelesene Nachrichten anzuzeigen."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro-Oberfläche (experimentell)",
@@ -1047,6 +1070,14 @@
         "preview_this_week": "Diese Woche:",
         "preview_older": "Älter:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "Zeitformat",
         "description": "Wählen Sie zwischen 12-Stunden- oder 24-Stunden-Anzeige",
@@ -1089,6 +1120,13 @@
         "trash_and_read": "In Papierkorb verschieben und als gelesen markieren",
         "permanent": "Dauerhaft löschen",
         "warning": "E-Mails werden dauerhaft gelöscht und können nicht wiederhergestellt werden. Diese Aktion ist unwiderruflich."
+      },
+      "message_spacing": {
+        "label": "Nachrichtenabstand",
+        "description": "Abstand um den Nachrichtentext in der Leseansicht",
+        "auto": "Automatisch (empfohlen)",
+        "always": "Immer Abstand hinzufügen",
+        "edge": "Randlos"
       },
       "archive_mode": {
         "label": "Nachrichten archivieren in",
@@ -1253,8 +1291,12 @@
         "unsupported": "Das aktuelle Konto meldet keine Unterstützung für verzögertes Senden. Die Einstellung bleibt für andere Konten gespeichert."
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "Nach Löschen oder Ungelesen-Markieren zur Liste zurückkehren",
+        "description": "Nach dem Löschen oder Als-ungelesen-Markieren der geöffneten E-Mail zurück zur Liste, statt die nächste E-Mail zu öffnen."
+      },
+      "rtl_editing": {
+        "label": "Unterstützung für Rechts-nach-links-Bearbeitung",
+        "description": "Fügt der Editor-Symbolleiste eine Schreibrichtungs-Schaltfläche hinzu, mit der Absätze auf links-nach-rechts oder rechts-nach-links gestellt werden können"
       }
     },
     "composer": {
@@ -1501,7 +1543,10 @@
         "subject_placeholder": "Abwesenheitsnotiz",
         "body_label": "Nachrichtentext",
         "body_description": "Nur-Text-Nachrichteninhalt",
-        "body_placeholder": "Vielen Dank für Ihre E-Mail. Ich bin derzeit nicht im Büro und werde nach meiner Rückkehr antworten."
+        "body_placeholder": "Vielen Dank für Ihre E-Mail. Ich bin derzeit nicht im Büro und werde nach meiner Rückkehr antworten.",
+        "html_label": "Formatierte Nachricht (HTML)",
+        "html_description": "Fügen Sie eine formatierte Version mit Links und Gestaltung hinzu. Empfänger, deren E-Mail-Programm sie nicht anzeigen kann, sehen den obigen Klartext.",
+        "html_placeholder": "Formatierte Abwesenheitsantwort schreiben…"
       },
       "preview": {
         "title": "Vorschau",
@@ -1533,6 +1578,8 @@
       "role_none": "Keine",
       "create_folder": "Ordner erstellen",
       "create_subfolder": "Unterordner erstellen",
+      "reorder": "Zum Neuanordnen ziehen",
+      "reorder_error": "Ordner konnten nicht neu angeordnet werden",
       "subfolder_of": "In {name}",
       "subfolder_name": "Name des Unterordners",
       "new_folder_name": "Ordnername",
@@ -1597,6 +1644,11 @@
         "label": "Tastaturkürzel",
         "description": "Verfügbare Tastaturkürzel anzeigen",
         "button": "Tastaturkürzel anzeigen"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "Einstellungen zurücksetzen",
@@ -1942,6 +1994,8 @@
     "mark_unread": "Als ungelesen markieren",
     "star": "Stern hinzufügen",
     "unstar": "Stern entfernen",
+    "pin": "Anheften",
+    "unpin": "Lösen",
     "move_to": "Verschieben nach...",
     "archive": "Archivieren",
     "delete": "Löschen",
@@ -2878,7 +2932,19 @@
       "sep": "Sep",
       "oct": "Okt",
       "nov": "Nov",
-      "dec": "Dez"
+      "dec": "Dez",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "nav_open_menu": "Menü öffnen"
   },

@@ -114,6 +114,7 @@
     "unified_archive": "모든 보관함",
     "unified_junk": "모든 스팸함",
     "all_accounts": "모든 계정",
+    "unified_mailbox": "통합 메일함",
     "expand": "펼치기",
     "collapse": "접기",
     "expand_tooltip": "펼치기",
@@ -137,7 +138,9 @@
     "scheduled": "예약됨",
     "unified_all_unread": "모든 읽지 않음",
     "unified_all_starred": "모든 별표",
-    "unified_all_mail": "모든 메일"
+    "unified_all_mail": "모든 메일",
+    "remove_account": "Remove account",
+    "remove_account_confirm": "Remove {account} from this device? You can add it back later."
   },
   "protocol_handlers": {
     "title": "기본 앱",
@@ -274,6 +277,8 @@
     "no_subject": "(제목 없음)",
     "no_body_content": "(본문 내용 없음)",
     "no_preview_available": "미리 보기를 사용할 수 없습니다",
+    "show_quoted_text": "인용된 텍스트 표시",
+    "hide_quoted_text": "인용된 텍스트 숨기기",
     "loading_email": "메일을 불러오는 중...",
     "loading": "불러오는 중...",
     "reply": "답장",
@@ -436,7 +441,9 @@
       "confirm_button": "확인",
       "cancel": "취소",
       "success_http": "새 탭에서 구독 취소 페이지가 열렸어요",
-      "success_mailto": "이메일 클라이언트를 통해 구독 취소 요청이 전송되었어요",
+      "success_mailto": "수신 거부 이메일을 보냈습니다",
+      "confirm_message_http": "수신 거부 페이지가 새 탭에서 열립니다.",
+      "confirm_message_mailto": "발신자에게 수신 거부 이메일을 보냅니다.",
       "error": "구독을 취소할 수 없어요",
       "dismiss": "닫기"
     },
@@ -632,7 +639,9 @@
     "validation": {
       "recipient_required": "보내려면 받는 사람을 추가해 주세요",
       "subject_required": "제목을 입력해 주세요",
-      "body_required": "메시지를 작성하거나 파일을 첨부해 주세요"
+      "body_required": "메시지를 작성하거나 파일을 첨부해 주세요",
+      "attachments_uploading": "첨부 파일을 업로드하는 중입니다. 완료되면 자동으로 전송됩니다",
+      "attachment_upload_failed": "전송되지 않았습니다. 첨부 파일 업로드에 실패했습니다. 해당 파일을 제거하고 다시 시도하세요."
     },
     "upload_progress": "{uploaded} / {total} 업로드 중",
     "upload_cancel": "업로드 취소",
@@ -643,7 +652,6 @@
     "continue_draft": "이어서 작성하기",
     "close_draft_title": "임시보관함에 저장할까요?",
     "close_draft_message": "저장되지 않은 내용이 있어요. 임시보관함에 저장할까요, 아니면 삭제할까요?",
-    "save_draft": "임시보관",
     "smime_sign_on": "S/MIME 서명 켜짐",
     "smime_sign_off": "S/MIME 서명 켜기",
     "smime_encrypt_on": "S/MIME 암호화 켜짐",
@@ -675,7 +683,10 @@
     "recipient_edit_email": "이메일 주소 편집",
     "recipient_edit_name": "표시 이름 편집",
     "recipient_email_placeholder": "이메일 주소",
-    "recipient_name_placeholder": "표시 이름"
+    "recipient_name_placeholder": "표시 이름",
+    "autocomplete_search_server": "서버에서 검색",
+    "autocomplete_searching": "검색 중...",
+    "send_filing_warning": "보냈지만 전송 후 정리에 실패했습니다. 오래된 임시 보관 메일이 남아 있을 수 있습니다."
   },
   "confirm_dialog": {
     "confirm": "확인",
@@ -803,7 +814,9 @@
     "nl": "Nederlands",
     "pl": "Polski",
     "pt": "Português",
+    "he": "עברית",
     "ru": "Русский",
+    "sk": "Slovenčina",
     "uk": "Українська",
     "zh": "简体中文",
     "fa": "فارسی",
@@ -916,14 +929,16 @@
       "unified_mailbox": {
         "label": "통합 메일함",
         "description": "연결된 모든 계정의 통합 폴더(받은편지함, 보낸편지함 등)를 표시합니다",
+        "cross_account": {
+          "label": "Across all accounts",
+          "description": "Merge the unified mailbox across every connected account instead of staying within the active account."
+        },
         "include_group": {
           "label": "그룹 받은편지함 포함",
           "description": "공유/그룹 받은편지함도 통합 보기에 포함합니다."
         }
       },
       "all_mail": {
-        "label": "All Mail",
-        "description": "Show an \"All Mail\" entry above your folders that merges messages from across this account's folders into one list.",
         "folders_label": "Folders in All Mail",
         "folders_description": "Choose which folders are merged into the All Mail view.",
         "account_hint": "Applies to {account}.",
@@ -933,9 +948,17 @@
         "label": "컬러풀한 사이드바 아이콘",
         "description": "폴더와 태그 아이콘을 유형별로 색상 표시합니다(받은편지함 파란색, 스팸 빨간색, 보낸편지함 녹색 등). 모노크롬 사이드바를 원하면 비활성화하세요."
       },
+      "tint_list_rows": {
+        "label": "Tint List Rows by Tag Color",
+        "description": "Shade each message row with its first tag color. Disable to keep rows plain; tag dots and chips still show the color."
+      },
       "show_folder_total_count": {
         "label": "전체 메시지 수 표시",
         "description": "읽지 않은 수와 함께 폴더 및 태그 옆에 전체 메시지 수를 표시합니다. 읽지 않은 수만 표시하려면 비활성화하세요."
+      },
+      "favicon_unread_badge": {
+        "label": "Unread Count on Tab Icon",
+        "description": "Show the inbox unread count as a badge on the browser tab icon, so new mail is visible when the tab is not focused. Disable to keep the icon unbadged."
       },
       "pro_interface": {
         "label": "Pro 인터페이스 (실험적)",
@@ -1047,6 +1070,14 @@
         "preview_this_week": "이번 주:",
         "preview_older": "이전:"
       },
+      "date_locale": {
+        "label": "Date format region",
+        "description": "How numeric dates are ordered (day, month, year)",
+        "auto": "Automatic (match language)",
+        "iso": "ISO 8601 (YYYY-MM-DD)",
+        "dmy": "Day/Month/Year",
+        "mdy": "Month/Day/Year"
+      },
       "time_format": {
         "label": "시간 형식",
         "description": "12시간제 또는 24시간제를 선택해 주세요",
@@ -1089,6 +1120,13 @@
         "trash_and_read": "휴지통으로 이동하고 읽음으로 표시",
         "permanent": "영구 삭제",
         "warning": "메일이 영구적으로 삭제되며 복구할 수 없어요. 주의해서 사용해 주세요."
+      },
+      "message_spacing": {
+        "label": "메시지 여백",
+        "description": "읽기 화면에서 메시지 본문 주위의 여백",
+        "auto": "자동 (권장)",
+        "always": "항상 여백 추가",
+        "edge": "가장자리까지 채우기"
       },
       "archive_mode": {
         "label": "보관 방식",
@@ -1253,8 +1291,12 @@
         "unsupported": "현재 계정은 지연 보내기 지원을 알리지 않습니다. 설정은 다른 계정을 위해 계속 저장됩니다."
       },
       "return_to_list_after_action": {
-        "label": "Return to list after delete or mark unread",
-        "description": "After deleting or marking the open message unread, go back to the message list instead of opening the next message."
+        "label": "삭제 또는 읽지 않음으로 표시 후 목록으로 돌아가기",
+        "description": "열려 있는 메시지를 삭제하거나 읽지 않음으로 표시한 후 다음 메시지를 열지 않고 메시지 목록으로 돌아갑니다."
+      },
+      "rtl_editing": {
+        "label": "오른쪽에서 왼쪽 편집 지원",
+        "description": "편집기 도구 모음에 방향 버튼을 추가하여 단락을 왼쪽에서 오른쪽 또는 오른쪽에서 왼쪽으로 설정할 수 있습니다"
       }
     },
     "composer": {
@@ -1501,7 +1543,10 @@
         "subject_placeholder": "부재중 알림",
         "body_label": "메시지 본문",
         "body_description": "일반 텍스트로 보낼 메시지 내용이에요",
-        "body_placeholder": "메일을 보내주셔서 감사합니다. 현재 자리를 비우고 있어 돌아오는 대로 답변드리겠습니다."
+        "body_placeholder": "메일을 보내주셔서 감사합니다. 현재 자리를 비우고 있어 돌아오는 대로 답변드리겠습니다.",
+        "html_label": "서식 있는 메시지 (HTML)",
+        "html_description": "링크와 스타일이 포함된 서식 있는 버전을 추가합니다. 메일 클라이언트가 이를 표시할 수 없는 수신자에게는 위의 일반 텍스트가 표시됩니다.",
+        "html_placeholder": "서식 있는 부재중 자동 회신 작성…"
       },
       "preview": {
         "title": "미리보기",
@@ -1533,6 +1578,8 @@
       "role_none": "없음",
       "create_folder": "폴더 만들기",
       "create_subfolder": "하위 폴더 만들기",
+      "reorder": "드래그하여 순서 변경",
+      "reorder_error": "폴더 순서 변경에 실패했습니다",
       "subfolder_of": "{name} 내부에 생성",
       "subfolder_name": "하위 폴더 이름",
       "new_folder_name": "폴더 이름",
@@ -1597,6 +1644,11 @@
         "label": "단축키",
         "description": "사용 가능한 키보드 단축키를 확인해 보세요",
         "button": "단축키 보기"
+      },
+      "refresh_cache": {
+        "label": "Refresh cached data",
+        "description": "Reload contacts, calendars, and folders from the server. Keeps your accounts and sessions — fixes a stale or wrong view without signing out.",
+        "button": "Refresh"
       },
       "reset_settings": {
         "label": "설정 초기화",
@@ -1942,6 +1994,8 @@
     "mark_unread": "읽지 않은 상태로 표시",
     "star": "별표 달기",
     "unstar": "별표 해제",
+    "pin": "고정",
+    "unpin": "고정 해제",
     "move_to": "이동...",
     "archive": "보관",
     "delete": "삭제",
@@ -2081,9 +2135,9 @@
       "email_invalid": "올바른 이메일 주소를 입력해 주세요",
       "email_immutable": "한 번 만든 이메일 주소는 바꿀 수 없어요",
       "reply_to_label": "회신 주소 (선택 사항)",
-      "reply_to_placeholder": "different@email.com",
+      "reply_to_placeholder": "different@example.com",
       "bcc_label": "자동 숨은 참조 (선택 사항)",
-      "bcc_placeholder": "archive@email.com",
+      "bcc_placeholder": "archive@example.com",
       "text_signature_label": "텍스트 서명",
       "html_signature_label": "HTML 서명",
       "signature_byte_counter": "{bytes} / {max} 바이트",
@@ -2878,7 +2932,19 @@
       "sep": "9월",
       "oct": "10월",
       "nov": "11월",
-      "dec": "12월"
+      "dec": "12월",
+      "far": "Farvardin",
+      "ord": "Ordibehesht",
+      "kho": "Khordad",
+      "tir": "Tir",
+      "mor": "Mordad",
+      "sha": "Shahrivar",
+      "meh": "Mehr",
+      "aba": "Aban",
+      "aza": "Azar",
+      "dey": "Dey",
+      "bah": "Bahman",
+      "esf": "Esfand"
     },
     "nav_open_menu": "메뉴 열기"
   },

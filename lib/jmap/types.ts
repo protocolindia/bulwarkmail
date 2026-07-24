@@ -95,6 +95,12 @@ export interface SendEmailResult {
   emailSubmissionId?: string;
   sendAt?: string;
   isSmime?: boolean;
+  /**
+   * Set when the submission succeeded but a post-send step was rejected
+   * (the implicit onSuccessUpdateEmail filing patch, or destroying the
+   * old draft). The mail left the server - callers should warn, not fail.
+   */
+  filingError?: string;
 }
 
 export interface ScheduledEmail extends Email {
@@ -217,6 +223,7 @@ export interface ThreadGroup {
   participantNames: string[];// Unique participant names
   hasUnread: boolean;        // Any unread emails in thread
   hasStarred: boolean;       // Any starred emails in thread
+  hasPinned: boolean;        // Any pinned emails in thread ($pinned keyword)
   hasAttachment: boolean;    // Any email has attachment
   hasAnswered: boolean;      // Any email has been replied to
   hasForwarded: boolean;     // Any email has been forwarded
@@ -891,19 +898,12 @@ export function isUnifiedMailboxId(id: string): boolean {
 }
 
 /**
- * Virtual mailbox id for the gated "All Mail" view: every folder of a single
- * account merged into one date-sorted list. Distinct from the unified mailbox
- * ids above, which merge one role across multiple accounts. Which folders are
- * included is a per-user setting (see `allMailFolderIds`).
- */
-export const ALL_MAIL_MAILBOX_ID = '__all_mail__';
-
-/**
- * Cross-account "All …" views shown in the unified ("All accounts") section.
- * Each merges messages across EVERY account (including shared/group folders),
- * spanning all folders except junk/spam, sent, archive, trash and drafts, in
- * one date-sorted list. Distinct from the per-role unified ids (one role across
- * accounts) and from ALL_MAIL_MAILBOX_ID (all folders of a single account).
+ * Cross views shown in the unified ("Unified Mailbox") section: All mail /
+ * Unread / Starred. Each merges messages across the account boundary (the active
+ * account + its shared folders by default, or every logged-in account when the
+ * cross-account sub-option is on), narrowed by the user's folder selection (see
+ * `allMailFolderIds`). Distinct from the per-role unified ids (one role across
+ * accounts).
  */
 export const CROSS_UNREAD = '__cross_unread__';
 export const CROSS_STARRED = '__cross_starred__';
